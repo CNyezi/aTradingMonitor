@@ -1,0 +1,735 @@
+{
+  "LanguageDetection": {
+    "title": "言語の提案",
+    "description": "ブラウザの言語設定が現在のサイト言語と異なっています。いつでも言語を切り替えることができます 👉",
+    "countdown": "閉じるまで {countdown} 秒"
+  },
+  "Header": {
+    "links": [
+      {
+        "name": "機能特性",
+        "href": "/#features"
+      },
+      {
+        "name": "技術スタック",
+        "href": "/#tech-stack"
+      },
+      {
+        "name": "料金プラン",
+        "href": "/#pricing"
+      },
+      {
+        "name": "AI Demo",
+        "href": "/ai-demo"
+      }
+    ]
+  },
+  "Footer": {
+    "Copyright": "著作権所有 © {year} Nexty.dev 全著作権保有。",
+    "PrivacyPolicy": "プライバシーポリシー",
+    "TermsOfService": "利用規約",
+    "Newsletter": {
+      "title": "ニュースレターのご案内",
+      "description": "最新情報を定期的にお届けいたします",
+      "subscribe": {
+        "invalidEmail": "メールアドレスの形式が正しくありません",
+        "defaultErrorMessage": "登録処理に失敗しました。恐れ入りますが、時間をおいて再度お試しください",
+        "successMessage": "ニュースレターの登録が完了いたしました",
+        "emailSubject": "【Nexty】ニュースレターのご登録ありがとうございます",
+        "multipleSubmissions": "アクセスが集中しております。24時間後に再度お試しください"
+      },
+      "unsubscribe": {
+        "title": "ニュースレター配信設定の変更",
+        "success": "ニュースレターの配信を停止いたしました",
+        "emailPrefix": "登録メールアドレス：",
+        "regretMessage": "最新情報の配信は、いつでも再開していただけます",
+        "errorGeneric": "配信停止処理中にエラーが発生いたしました",
+        "errorNoToken": "配信停止用トークンが確認できません",
+        "errorMessage": "正しい配信停止リンクをご利用ください。問題が解決しない場合は、下記サポートまでお問い合わせください",
+        "contactPrefix": "お問い合わせ先：",
+        "contactPrefixSuccess": "ご不明な点がございましたら、下記までご連絡ください：",
+        "backToHome": "トップページへ戻る",
+        "invalidEmail": "無効なメールアドレスです",
+        "notInNewsletter": "このメールアドレスは配信リストに登録されておりません"
+      }
+    },
+    "Links": {
+      "groups": [
+        {
+          "title": "製品",
+          "links": [
+            {
+              "href": "/#features",
+              "label": "機能特性"
+            },
+            {
+              "href": "/#tech-stack",
+              "label": "技術スタック"
+            },
+            {
+              "href": "/#pricing",
+              "label": "料金プラン"
+            },
+            {
+              "href": "/blogs",
+              "label": "ブログ"
+            }
+          ]
+        },
+        {
+          "title": "サポート",
+          "links": [
+            {
+              "href": "mailto:hi@nexty.dev",
+              "label": "お問い合わせ"
+            }
+          ]
+        },
+        {
+          "title": "言語",
+          "links": [
+            {
+              "href": "/en",
+              "label": "English",
+              "useA": true
+            },
+            {
+              "href": "/zh",
+              "label": "中文",
+              "useA": true
+            },
+            {
+              "href": "/ja",
+              "label": "日本語",
+              "useA": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Home": {
+    "title": "Nexty.dev",
+    "tagLine": "最新の Next.js フルスタック SaaS テンプレート",
+    "description": "Next.js と Supabase を活用した本格的な SaaS 開発キット。コンテンツ配信、AI ツール、サブスクリプションサービスを迅速に構築できます。"
+  },
+  "Landing": {
+    "Hero": {
+      "title": "最新の フルスタック SaaS テンプレート",
+      "titleHighlight": "フルスタック SaaS",
+      "description": "Next.js と Supabase を活用した本格的な SaaS 開発キット。コンテンツ配信、AI ツール、サブスクリプションサービスを迅速に構築できます。",
+      "getStarted": "今すぐ始める",
+      "viewShowcase": "事例を見る"
+    },
+    "Features": {
+      "title": "高速開発のための完全機能スイート",
+      "titleHighlight": "高速開発",
+      "description": "最新のSaaSアプリケーションに必要な全ての機能を搭載し、ビジネスロジックの開発に専念できます。",
+      "items": [
+        {
+          "icon": "KeyRound",
+          "title": "認証システム",
+          "description": "Supabaseの認証機能を統合し、Google、GitHub、メール認証など、複数のログイン方式に対応します。"
+        },
+        {
+          "icon": "CreditCard",
+          "title": "決済システム",
+          "description": "Stripe決済を統合し、都度課金とサブスクリプションの両方に対応。SaaSの様々な料金プランに柔軟に対応できます。"
+        },
+        {
+          "icon": "Bot",
+          "title": "AI機能",
+          "description": "AI SDKを活用し、AIチャットや画像生成機能を簡単に実装。AI開発の経験がなくても構築できます。"
+        },
+        {
+          "icon": "FileText",
+          "title": "コンテンツ管理",
+          "description": "MarkdownベースのCMSを搭載し、ブログやドキュメントを効率的に管理。美しいテーマで魅力的なサイトを構築できます。"
+        },
+        {
+          "icon": "Save",
+          "title": "ファイルストレージ",
+          "description": "画像、動画、音声ファイルのアップロードと管理を効率的に行えるストレージシステムを実装しています。"
+        },
+        {
+          "icon": "Globe",
+          "title": "多言語対応",
+          "description": "i18nによる多言語化対応で、グローバル展開を容易に実現。世界中のユーザーにリーチできます。"
+        },
+        {
+          "icon": "Mail",
+          "title": "メール配信",
+          "description": "Resendを活用したメールシステムで、ニュースレターの配信や購読管理を簡単に実現できます。"
+        },
+        {
+          "icon": "ChartNoAxesCombined",
+          "title": "アナリティクス＆広告",
+          "description": "Google AnalyticsやPlausibleなどの分析ツール、AdSense広告システムを統合し、効果的な収益化を実現します。"
+        },
+        {
+          "icon": "Search",
+          "title": "SEO最適化",
+          "description": "メタタグ、構造化データ、サイトマップ、OGPタグなど、SEOのベストプラクティスを実装し、検索エンジンでの表示順位を向上させます。"
+        }
+      ]
+    },
+    "TechStack": {
+      "badge": "テックスタック",
+      "title": "最先端の技術スタックを活用",
+      "titleHighlight": "最先端",
+      "description": "厳選された最新技術で、安定性、拡張性、保守性の高いプロダクトを実現",
+      "groups": [
+        {
+          "title": "フロントエンド",
+          "icon": "Code",
+          "description": "Next.jsとReactによる最新のレスポンシブUIを実現",
+          "colorClass": "bg-blue-50 dark:bg-blue-950/20",
+          "borderClass": "border-blue-200 dark:border-blue-800",
+          "iconClass": "text-blue-600 dark:text-blue-400",
+          "items": [
+            {
+              "name": "Next.js",
+              "description": "Reactフレームワーク",
+              "logo": "/images/nextjs.svg"
+            },
+            {
+              "name": "TypeScript",
+              "description": "型安全性の確保",
+              "logo": "/images/typescript.svg"
+            },
+            {
+              "name": "Tailwind CSS",
+              "description": "効率的なスタイリング",
+              "logo": "/images/tailwindcss.svg"
+            },
+            {
+              "name": "Shadcn/ui",
+              "description": "カスタマイズ可能なUI",
+              "logo": "/images/shadcn.svg"
+            }
+          ]
+        },
+        {
+          "title": "バックエンド＆DB",
+          "icon": "Server",
+          "description": "安全で信頼性の高いデータストレージと認証システム",
+          "colorClass": "bg-emerald-50 dark:bg-emerald-950/20",
+          "borderClass": "border-emerald-200 dark:border-emerald-800",
+          "iconClass": "text-emerald-600 dark:text-emerald-400",
+          "items": [
+            {
+              "name": "Supabase",
+              "description": "PostgreSQL＋認証",
+              "logo": "/images/supabase.svg"
+            },
+            {
+              "name": "Upstash Redis",
+              "description": "エッジキャッシュ",
+              "logo": "/images/upstash.png"
+            },
+            {
+              "name": "Cloudflare",
+              "description": "CDN＆ネットワーク",
+              "logo": "/images/cloudflare.svg"
+            },
+            {
+              "name": "Vercel",
+              "description": "即時デプロイ",
+              "logo": "/images/vercel.svg"
+            }
+          ]
+        },
+        {
+          "title": "AI＆サービス連携",
+          "icon": "Sparkles",
+          "description": "AI機能とサードパーティーサービスの統合",
+          "colorClass": "bg-violet-50 dark:bg-violet-950/20",
+          "borderClass": "border-violet-200 dark:border-violet-800",
+          "iconClass": "text-violet-600 dark:text-violet-400",
+          "items": [
+            {
+              "name": "AI SDK",
+              "description": "AI開発基盤",
+              "logo": "/images/vercel.svg"
+            },
+            {
+              "name": "Replicate",
+              "description": "マルチAIモデル",
+              "logo": "/images/replicate.svg"
+            },
+            {
+              "name": "Resend",
+              "description": "メールAPI",
+              "logo": "/images/resend.svg"
+            },
+            {
+              "name": "Stripe",
+              "description": "安全な決済処理",
+              "logo": "/images/stripe.svg"
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "title": "オールインワンのフルスタックソリューション",
+        "description": "フロントエンドからバックエンド、データベースからデプロイメントまで、プロジェクトに必要な全ての機能を網羅。厳選された技術スタックで、確実な開発基盤を提供します。"
+      }
+    },
+    "UseCases": {
+      "title": "1つのテンプレートで多彩なサイト構築",
+      "titleHighlight": "多彩なサイト",
+      "description": "NextyはコンテンツサイトからAIツール、無料サービスから有料サブスクリプションまで、さまざまなWebプロジェクトを迅速に開発・デプロイできる汎用性を備えています。",
+      "cases": [
+        {
+          "title": "ブランドランディングページ",
+          "description": "製品やサービスを効果的にアピールする魅力的なブランドページを簡単に作成できます。レスポンシブで最適化されたランディングページを構築し、訪問者の注目を集め、潜在顧客への転換率を高め、ブランドの成功を促進します。",
+          "tags": [
+            "レスポンシブデザイン",
+            "高コンバージョン",
+            "アニメーション効果"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "GalleryVertical",
+          "color": "green"
+        },
+        {
+          "title": "AdSenseコンテンツプラットフォーム",
+          "description": "SEO対策されたコンテンツサイトをAdSense連携で素早く構築し、副収入を生み出せます。内蔵のCMSと多言語対応により、大量のコンテンツも効率的に管理できます。",
+          "tags": [
+            "CMS",
+            "SEO",
+            "多言語対応",
+            "AdSense"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "FileText",
+          "color": "indigo"
+        },
+        {
+          "title": "無料ツールサイト",
+          "description": "ユーザーフレンドリーで効率的な体験を提供するツールプラットフォームを構築できます。優れたUXとSEO対策を両立したツールを迅速にローンチし、ユーザー獲得とトラフィック向上を実現します。",
+          "tags": [
+            "高パフォーマンス",
+            "アクセス解析",
+            "広告収益化"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "Wrench",
+          "color": "cyan"
+        },
+        {
+          "title": "プレミアムAIツール",
+          "description": "高品質なユーザー体験とスムーズな決済フローを備えた効率的で強力なAIアプリケーションを構築できます。サブスクリプションモデルの実装も容易で、ユーザー獲得と収益向上を実現し、AIプロジェクトの成功をサポートします。",
+          "tags": [
+            "AI SDK",
+            "サブスクリプション",
+            "使用量制限",
+            "ペイウォール"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "Bot",
+          "color": "purple"
+        }
+      ]
+    },
+    "WhyChoose": {
+      "title": "なぜ Nexty を選ぶべきか？",
+      "description": "開発者でもプロダクトマネージャーでも、Nexty は貴重な時間とリソースを大幅に節約します。",
+      "groups": [
+        {
+          "title": "開発者に最適な選択",
+          "icon": "Code",
+          "items": [
+            {
+              "text": "インフラ構築の時間を大幅に削減し、コア機能の開発に集中できます"
+            },
+            {
+              "text": "業界のベストプラクティスに準拠した整理された構造で、将来の拡張性も確保"
+            },
+            {
+              "text": "完全な TypeScript 型定義により、エラーを減少させ開発効率を向上"
+            },
+            {
+              "text": "詳細なドキュメントと実例で、素早く習得でき一般的な問題を回避できます"
+            }
+          ]
+        },
+        {
+          "title": "プロダクトマネージャーの強力なパートナー",
+          "icon": "ChartPie",
+          "items": [
+            {
+              "text": "製品の市場投入までの時間を短縮し、アイデアを迅速に検証"
+            },
+            {
+              "text": "統合された分析ツールでユーザー行動を深く理解し、製品戦略を最適化"
+            },
+            {
+              "text": "優れたコード構造により、プログラミング経験がなくても AI の支援で新機能を簡単に追加可能"
+            },
+            {
+              "text": "SEO とパフォーマンス最適化が組み込まれ、ユーザー獲得効率を向上"
+            }
+          ]
+        }
+      ]
+    },
+    "Testimonials": {
+      "title": "お客様が短期間でAIツールやSaaSプロダクトを立ち上げた事例",
+      "titleHighlight": "AIツールやSaaSプロダクト",
+      "description": "開発者やプロダクトマネージャーの実際の声をご紹介。Nextyを活用してプロジェクト開発をどのようにスピードアップしたかをご覧ください。"
+    },
+    "FAQ": {
+      "title": "よくあるご質問",
+      "description": "開発者様・プロダクトマネージャー様からよくいただくご質問です",
+      "items": [
+        {
+          "question": "このテンプレートを使用するにあたって、必要な技術知識はありますか？",
+          "answer": "Nextyは AI フレンドリーなテンプレートとなっております。プログラミング未経験の方でも、AI アシスト機能を活用することで、ご要望の実装が可能です。React や Next.js の基礎知識をお持ちの方であれば、より効率的にご活用いただけます。また、詳細なドキュメントとサンプルをご用意しておりますので、まずはそちらをご確認いただくことをお勧めいたします。"
+        },
+        {
+          "question": "購入後のテクニカルサポートはございますか？",
+          "answer": "はい、全てのプランにテクニカルサポートが含まれております。Proプランでは24時間体制のメールサポート、エンタープライズプランでは専任スタッフによる1対1のサポートをご提供させていただいております。"
+        },
+        {
+          "question": "デモで紹介されている機能は全て含まれていますか？",
+          "answer": "はい、デモでご紹介している全ての機能が実装済みで、すぐにご利用いただけます。新機能のご要望がございましたら、検討させていただきますので、お気軽にご相談ください。"
+        },
+        {
+          "question": "定期課金機能は実装されていますか？",
+          "answer": "はい、Nextyには定期課金機能が標準搭載されております。コンポーネントのカスタマイズや料金プランの設定など、柔軟な対応が可能です。"
+        },
+        {
+          "question": "多言語対応は可能でしょうか？",
+          "answer": "はい、Nextyは多言語対応を標準搭載しております。デフォルトで英語・中国語・日本語の3言語に対応しており、必要に応じて他の言語も追加することが可能です。"
+        },
+        {
+          "question": "料金プランの管理方法を教えてください。",
+          "answer": "これはNextyの特徴的な機能の一つです。ダッシュボードから料金プランの追加・編集・削除が簡単に行えます。さらに、AI翻訳機能を活用することで、言語ファイルの手動設定を行うことなく、多言語対応が可能となっております。"
+        },
+        {
+          "question": "テンプレートに組み込まれているAI機能について教えてください。",
+          "answer": "AI画像生成機能やAIチャット機能が標準搭載されております。OpenAI、Claude、Gemini、Grok、DeepSeekなどの主要なAIプロバイダーとシームレスに連携でき、AIを活用したアプリケーションを容易に構築することが可能です。"
+        }
+      ]
+    },
+    "CTA": {
+      "title": "迅速な立ち上げで、一歩先へ",
+      "description": "ゼロからのスタートは不要！Nexty テンプレートで、あなたはコアアイデアに集中。迅速に構築・検証し、収益化を加速させましょう。",
+      "button": "テンプレートを入手"
+    },
+    "Pricing": {
+      "title": "一度のお支払いで、永久ライセンス",
+      "titleHighlight": "永久ライセンス",
+      "description": "私たちが数ヶ月かけて開発したテンプレートで、あなたは数日でサービスをローンチできます"
+    }
+  },
+  "Login": {
+    "title": "おかえりなさい",
+    "description": "以下の方法でログインしていただけます",
+    "Toast": {
+      "Email": {
+        "successTitle": "メールを送信しました",
+        "successDescription": "ログインリンクをメールでお送りしましたので、ご確認ください。",
+        "errorTitle": "エラーが発生しました",
+        "errorDescription": "メールの送信に失敗しました。お手数ですが、再度お試しください。"
+      },
+      "Google": {
+        "errorTitle": "エラーが発生しました",
+        "errorDescription": "Googleアカウントでのログインに失敗しました。お手数ですが、再度お試しください。"
+      },
+      "Github": {
+        "errorTitle": "エラーが発生しました",
+        "errorDescription": "GitHubアカウントでのログインに失敗しました。お手数ですが、再度お試しください。"
+      }
+    },
+    "signInMethods": {
+      "or": "または",
+      "signInWithGoogle": "Googleアカウントでログイン",
+      "signInWithGithub": "GitHubアカウントでログイン",
+      "signInWithEmail": "メールアドレスでログイン"
+    },
+    "Button": {
+      "signIn": "ログイン",
+      "signOut": "ログアウト"
+    },
+    "UserMenus": [
+      {
+        "name": "設定",
+        "href": "/dashboard/settings"
+      },
+      {
+        "name": "サブスクリプション",
+        "href": "/dashboard/subscription"
+      },
+      {
+        "name": "アフィリエイト",
+        "href": "/dashboard/affiliate"
+      },
+      {
+        "name": "サイト掲載申請",
+        "href": "/dashboard/submit"
+      }
+    ],
+    "AdminMenus": [
+      {
+        "name": "ユーザー管理",
+        "href": "/dashboard/users"
+      },
+      {
+        "name": "ショーケース管理",
+        "href": "/dashboard/showcases"
+      },
+      {
+        "name": "ブログ管理",
+        "href": "/dashboard/blogs"
+      },
+      {
+        "name": "R2リソース",
+        "href": "/dashboard/images"
+      },
+      {
+        "name": "料金プラン管理",
+        "href": "/dashboard/prices"
+      }
+    ]
+  },
+  "Blogs": {
+    "title": "ブログ一覧",
+    "description": "ブログ投稿の一覧",
+    "emptyState": {
+      "title": "ブログ投稿がありません",
+      "description": "興味深いコンテンツを作成中です。お楽しみに！"
+    }
+  },
+  "About": {
+    "title": "サイトについて",
+    "description": "サイトについて"
+  },
+  "TermsOfService": {
+    "title": "サービス利用規約",
+    "description": "サービス利用規約"
+  },
+  "PrivacyPolicy": {
+    "title": "プライバシーポリシー",
+    "description": "プライバシーポリシー"
+  },
+  "Dashboard": {
+    "User": {
+      "Settings": {
+        "title": "設定",
+        "description": "アカウント設定や個人情報の管理ができます。",
+        "form": {
+          "emailLabel": "メールアドレス",
+          "fullNameLabel": "お名前",
+          "fullNamePlaceholder": "お名前を入力してください",
+          "avatarLabel": "プロフィール画像",
+          "avatarHint": "ファイルサイズ上限：{maxSizeInMB}MB。対応形式：{allowedTypes}。",
+          "updateButton": "設定を保存",
+          "updatingButton": "保存中..."
+        },
+        "toast": {
+          "fullNameLengthError": "お名前は{maxLength}文字以内でご入力ください",
+          "fullNameInvalidCharactersError": "お名前に使用できない文字が含まれています",
+          "errorInvalidFileType": "対応していないファイル形式です。{allowedTypes}のみ対応しています。",
+          "errorInvalidFileTypeDescription": "{maxSizeInMB}MB以下のファイルをアップロードしてください。",
+          "errorFileSizeExceeded": "ファイルサイズが上限（{maxSizeInMB}MB）を超えています。",
+          "errorFileSizeExceededDescription": "{maxSizeInMB}MB以下のファイルを選択してください。",
+          "errorInvalidFullName": "入力されたお名前が無効です。",
+          "errorFullNameRequired": "お名前は必須項目です。",
+          "updateSuccessTitle": "更新完了",
+          "updateSuccessDescription": "設定が正常に更新されました。",
+          "updateErrorTitle": "更新エラー",
+          "updateErrorDescription": "設定の更新に失敗しました。お手数ですが、再度お試しください。",
+          "errorDeleteOldAvatar": "前のプロフィール画像の削除に失敗しました。",
+          "errorUploadAvatar": "画像のアップロードに失敗しました。",
+          "errorUpdateAuthUser": "認証情報の更新に失敗しました。",
+          "errorUpdateUserProfile": "プロフィール情報の更新に失敗しました。"
+        }
+      }
+    },
+    "Admin": {
+      "Users": {
+        "title": "ユーザー管理",
+        "description": "ユーザー管理（管理者専用）"
+      },
+      "Images": {
+        "title": "R2画像/動画管理",
+        "description": "Cloudflare R2に保存されたファイルを管理します（管理者専用）"
+      },
+      "Prices": {
+        "title": "料金プラン管理",
+        "description": "テスト環境および本番環境の料金プランを管理できます（管理者専用）。",
+        "createNewPlan": "新規プラン作成",
+        "PricesDataTable": {
+          "deleteError": "プラン削除に失敗しました（ステータス: {status}）",
+          "deleteError2": "プランの削除処理に失敗しました",
+          "deleteSuccess": "料金プラン「{title}」が正常に削除されました。",
+          "allEnvironments": "すべての環境",
+          "test": "テスト環境",
+          "live": "本番環境",
+          "columnsVisibility": "表示列設定",
+          "toggleColumns": "列表示切替",
+          "noPlansFound": "料金プランが登録されていません。"
+        },
+        "DeletePlanDialog": {
+          "title": "削除の確認",
+          "description": "この操作は取り消せません。料金プラン「{title}」をデータベースから完全に削除します。",
+          "cancelButton": "キャンセル",
+          "deleteButton": "削除する",
+          "deleting": "削除中..."
+        },
+        "CreatePlan": {
+          "title": "新規プラン作成",
+          "description": "新規プランを作成します。（管理者専用）"
+        },
+        "EditPlan": {
+          "title": "プラン編集",
+          "description": "「{title}（{environment}）」プランの詳細情報を変更します。（管理者専用）"
+        },
+        "PricePlanForm": {
+          "stripePriceIdRequired": "Stripe価格IDを先に入力してください。",
+          "verifyStripeError": "価格IDの検証に失敗しました（ステータス: {status}）",
+          "verifyStripeError2": "価格IDの検証に失敗しました",
+          "stripePriceIdVerified": "Stripe価格IDの検証が完了しました！",
+          "multiLanguageTemplateGenerated": "多言語テンプレートが生成されました。以下のJSONを編集してください。",
+          "translateError": "翻訳の生成に失敗しました",
+          "createUpdateError": "プランの{mode}に失敗しました（ステータス: {status}）",
+          "createUpdateError2": "料金プランの{mode}に失敗しました",
+          "createUpdateSuccess": "料金プランが正常に{mode}されました！",
+          "coreInformation": "基本情報",
+          "environmentDescription": "このプランが属するStripe環境を選択します。",
+          "cardTitle": "カードタイトル",
+          "cardDescription": "カード説明文",
+          "cardDescriptionPlaceholder": "カード上に表示される簡潔な説明文...",
+          "stripeIntegration": "Stripe連携（任意）",
+          "stripeIntegrationDescription": "自動決済処理のためにStripe価格IDと連携できます。手動設定の場合は空欄にしてください。",
+          "verifyAndFetch": "検証して取得",
+          "stripePriceIdDescription": "StripeダッシュボードからPrice ID（{environment}環境）を入力してください。",
+          "currencyCodeDescription": "小文字3文字のISO通貨コード。",
+          "displayAndContent": "表示内容設定",
+          "displayPrice": "表示価格",
+          "displayPriceDescription": "カード上に表示される価格。",
+          "displayPricePlaceholder": "例: $199",
+          "displayOriginalPrice": "元の価格",
+          "displayOriginalPriceDescription": "オプションで取り消し線付きの元価格などを表示。",
+          "originalPricePlaceholder": "例: $299",
+          "displayPriceSuffix": "価格の後ろの単位",
+          "priceSuffixPlaceholder": "例: /月",
+          "priceSuffixDescription": "価格の後に表示するテキスト（例: /月、/年など）。",
+          "featuresList": "機能リスト",
+          "featuresListDescription": "このプランに含まれる機能を追加します。",
+          "included": "含まれる機能",
+          "addFeature": "機能を追加",
+          "highlightThisPlan": "プランを強調表示",
+          "highlightThisPlanDescription": "料金ページでこのプランを視覚的に目立たせます。",
+          "highlightText": "強調表示テキスト",
+          "highlightTextDescription": "強調バッジに表示するテキスト。",
+          "buttonText": "ボタンテキスト",
+          "buttonTextDescription": "ボタンに表示するテキスト。空欄の場合はデフォルト値が適用されます。",
+          "buttonLink": "ボタンリンク/アクション",
+          "buttonLinkPlaceholder": "Stripe決済の場合は空欄、または URL（https://...）や mailto: を入力",
+          "buttonLinkDescription": "入力するとStripe決済が上書きされます。完全なURLまたは`mailto:email@example.com`形式で指定してください。",
+          "multiLanguageTranslations": "多言語翻訳（任意）",
+          "multiLanguageTranslationsDescription": "テキストフィールドの翻訳をJSON形式で提供してください。",
+          "generateTemplate": "テンプレート生成",
+          "translateByAI": "AI翻訳を実行",
+          "translateByAIDescription": "環境変数 NEXT_PUBLIC_AI_MODEL_ID と NEXT_PUBLIC_AI_PROVIDER を設定するとAI翻訳が使用できます。",
+          "languageJSON": "言語JSON",
+          "languageJSONDescription": "言語コード（\"en\"、\"zh\"、\"ja\"など）をキーとするJSONオブジェクト。有効なJSON形式で入力してください。",
+          "planBenefits": "特典",
+          "planBenefitsDescription": "ユーザーが支払い後に獲得できる特典を定義します。",
+          "benefitsJSON": "特典JSON",
+          "formatJson": "JSON形式に変換",
+          "invalidJsonError": "JSON形式が無効です",
+          "benefitsJSONDescription": "JSON形式でユーザーが支払い後に獲得できる特典を定義します。",
+          "settings": "設定",
+          "displayOrder": "表示順序",
+          "displayOrderDescription": "数字が小さいほど先に表示されます。デフォルトは0です。",
+          "activeStatus": "有効状態",
+          "activeStatusDescription": "このプランをユーザーに表示するかどうかを制御します。",
+          "createPlan": "プランを作成",
+          "saveChanges": "変更を保存",
+          "cancel": "キャンセル"
+        },
+        "API": {
+          "missingRequiredFields": "必須フィールドが不足しています: environment, card_title",
+          "invalidLangJsonbFormat": "lang_jsonbの形式が無効です。有効なJSONオブジェクトまたはJSON文字列化されたオブジェクトである必要があります。",
+          "invalidJsonFormatInLangJsonbString": "lang_jsonb文字列のJSON形式が無効です。",
+          "invalidBenefitsJsonFormat": "特典の形式が無効です。有効なJSONオブジェクトまたはJSON文字列化されたオブジェクトである必要があります。",
+          "invalidJsonFormatInBenefitsString": "benefits文字列のJSON形式が無効です。",
+          "createPlanServerError": "料金プランの作成に失敗しました",
+          "createPlanConflict": "料金プランの作成に失敗しました: {message}",
+          "missingPlanId": "プランIDが不足しています",
+          "invalidJsonBody": "JSON形式が無効です",
+          "updatePlanNotFound": "プランID {id} が見つかりません",
+          "updatePlanServerError": "料金プランの更新に失敗しました",
+          "deletePlanServerError": "料金プランの削除に失敗しました",
+          "deletePlanNotFound": "プランID {id} が見つかりません",
+          "deletePlanSuccess": "プランID {id} が正常に削除されました",
+          "invalidPayload": "無効なペイロードです。必須フィールド: priceId (string), environment (test or live)",
+          "stripeSecretKeyNotConfigured": "{environment}環境のStripeシークレットキーが設定されていません。",
+          "priceIdEnvironmentMismatch": "Price ID {priceId} は {belongsToEnvironment} 環境に属していますが、リクエストは {requestEnvironment} 環境を指定しています。",
+          "priceNotFound": "Stripe Price ID {priceId} が {environment} 環境で見つかりません。",
+          "stripeAuthenticationFailed": "Stripe認証に失敗しました。{environment} 環境のAPIキーを確認してください。",
+          "stripeApiError": "Stripe APIエラー！ code: {code}, type: {type}, message: {message}"
+        }
+      }
+    }
+  },
+  "AIDemo": {
+    "title": "AI機能デモ",
+    "description": "このページは非公開の機能を紹介しており、テンプレートをご購入いただいたユーザー様のみがご利用いただけます。AIモデルの呼び出しプロセスを学習し、テストするためのものです。ご利用には、ローカルでテンプレートを起動し、環境変数に自身のAPIキーを入力してください。AIデモには、シングルターンとマルチターンの会話、テキストから画像への変換、画像から画像への変換、テキスト/画像から動画への変換などの機能が含まれています。このデモを通じて、AI呼び出しのワークフローを迅速に理解し、AIアプリケーション構築への道のりを加速させることができます。",
+    "metaDescription": "このページでは、シングルターンとマルチターンの会話、テキストから画像への変換、画像から画像への変換、テキスト/画像から動画への変換など、AIの能力を紹介しています。"
+  },
+  "ErrorPage": {
+    "403": {
+      "title": "403 - アクセスが拒否されました",
+      "description": "このページにアクセスする権限がありません。",
+      "button": {
+        "label": "ホームに戻る",
+        "href": "/"
+      }
+    },
+    "RedirectError": {
+      "title": "リダイレクトエラー",
+      "description": "認証過程でエラーが発生しました。",
+      "goToHome": "ホームに戻る",
+      "goToLogin": "ログイン画面に戻る",
+      "invalid_params": {
+        "title": "パラメータエラー",
+        "description": "リクエストに必要なパラメータが不足しています。"
+      },
+      "invalid_redirect": {
+        "title": "重定向エラー",
+        "description": "提供されたリダイレクトURLが許可されていません。"
+      },
+      "token_expired": {
+        "title": "トークン期限切れ",
+        "description": "検証トークンが期限切れになりました。再度ログインしてください。"
+      },
+      "invalid_token": {
+        "title": "トークンエラー",
+        "description": "提供された検証トークンが無効です。"
+      },
+      "invalid_link_or_expired": {
+        "title": "リンクエラー",
+        "description": "メール検証リンクが無効または期限切れです。"
+      },
+      "server_error": {
+        "title": "サーバーエラー",
+        "description": "認証中にサーバーで予期せぬエラーが発生しました。"
+      },
+      "unknown": {
+        "title": "認証エラー",
+        "description": "認証中に未知のエラーが発生しました。"
+      }
+    },
+    "StripeError": {
+      "goToHome": "ホームに戻る",
+      "goToDashboard": "ダッシュボードに戻る",
+      "title": "Payment Portal Error",
+      "description": "支払い情報にエラーが発生しました。"
+    }
+  }
+}

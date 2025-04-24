@@ -1,0 +1,735 @@
+{
+  "LanguageDetection": {
+    "title": "语言建议",
+    "description": "检测到你的浏览器语言和当前语言不一样，你随时都可切换语言 👉",
+    "countdown": "将在 {countdown} 秒后关闭"
+  },
+  "Header": {
+    "links": [
+      {
+        "name": "功能特性",
+        "href": "/#features"
+      },
+      {
+        "name": "技术栈",
+        "href": "/#tech-stack"
+      },
+      {
+        "name": "定价",
+        "href": "/#pricing"
+      },
+      {
+        "name": "AI Demo",
+        "href": "/ai-demo"
+      }
+    ]
+  },
+  "Footer": {
+    "Copyright": "版权所有 © {year} Nexty.dev 保留所有权利。",
+    "PrivacyPolicy": "隐私政策",
+    "TermsOfService": "条款与条件",
+    "Newsletter": {
+      "title": "订阅我们的邮件",
+      "description": "获取最新的更新和教程",
+      "subscribe": {
+        "invalidEmail": "请输入有效的邮箱地址",
+        "defaultErrorMessage": "订阅失败，请稍后再试",
+        "successMessage": "订阅成功",
+        "emailSubject": "你已成功订阅 Nexty 邮件通知",
+        "multipleSubmissions": "你已多次提交，请明天再试再试"
+      },
+      "unsubscribe": {
+        "title": "邮件订阅状态变更",
+        "success": "你已成功退订 Nexty 邮件通知。",
+        "emailPrefix": "邮箱:",
+        "regretMessage": "你随时可以重新订阅邮件，获取 Nexty 最新更新和教程。",
+        "errorGeneric": "处理你的退订请求时发生错误",
+        "errorNoToken": "未提供退出令牌",
+        "errorMessage": "请确保你使用了正确的退订链接。如果问题持续存在，请联系我们的客服团队获取帮助。",
+        "contactPrefix": "请发送邮件至：",
+        "contactPrefixSuccess": "如有任何问题，请随时联系我们：",
+        "backToHome": "返回主页",
+        "invalidEmail": "不是有效的邮箱",
+        "notInNewsletter": "该邮箱不在我们的订阅列表中"
+      }
+    },
+    "Links": {
+      "groups": [
+        {
+          "title": "产品",
+          "links": [
+            {
+              "href": "/#features",
+              "label": "功能特性"
+            },
+            {
+              "href": "/#tech-stack",
+              "label": "技术栈"
+            },
+            {
+              "href": "/#pricing",
+              "label": "定价"
+            },
+            {
+              "href": "/blogs",
+              "label": "博客"
+            }
+          ]
+        },
+        {
+          "title": "支持",
+          "links": [
+            {
+              "href": "mailto:hi@nexty.dev",
+              "label": "联系我们"
+            }
+          ]
+        },
+        {
+          "title": "语言",
+          "links": [
+            {
+              "href": "/en",
+              "label": "English",
+              "useA": true
+            },
+            {
+              "href": "/zh",
+              "label": "中文",
+              "useA": true
+            },
+            {
+              "href": "/ja",
+              "label": "日本語",
+              "useA": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Home": {
+    "title": "Nexty.dev",
+    "tagLine": "多场景 Next.js 全栈 SaaS 开发模板",
+    "description": "Nexty 是一个功能齐全的 Next.js SaaS 全栈模板，让你能够快速构建各种商业网站，无论是内容站、工具站还是集成 AI 能力的付费网站。"
+  },
+  "Landing": {
+    "Hero": {
+      "title": "多场景全栈 SaaS 开发模板",
+      "titleHighlight": "全栈 SaaS",
+      "description": "Nexty 是一个功能齐全的 Next.js SaaS 全栈模板，让你能够快速构建各种商业网站，无论是内容站、工具站还是集成 AI 能力的付费网站。",
+      "getStarted": "立即开始",
+      "viewShowcase": "查看案例"
+    },
+    "Features": {
+      "title": "为极速开发打造的完整功能套件",
+      "titleHighlight": "极速开发",
+      "description": "我们的模板涵盖了现代 SaaS 应用所需的所有核心功能，让你可以专注于业务逻辑的开发。",
+      "items": [
+        {
+          "icon": "KeyRound",
+          "title": "登录认证系统",
+          "description": "集成 Supabase 的认证系统，支持 Google 登录、Github 登录和邮箱验证等多种登录方式。"
+        },
+        {
+          "icon": "CreditCard",
+          "title": "支付系统",
+          "description": "集成 Stripe 支付，支持一次性支付和订阅模式，轻松应对 SaaS 产品不同定价策略。"
+        },
+        {
+          "icon": "Bot",
+          "title": "AI 能力",
+          "description": "整合 AI SDK，快速实现 AI 对话和图像生成功能，0基础开发 AI 工具不是梦。"
+        },
+        {
+          "icon": "FileText",
+          "title": "内容管理（CMS）",
+          "description": "内置 CMS 系统，轻松管理博客和文档，支持 Markdown 格式，还有精美的 Markdown 主题为你的网站加分。"
+        },
+        {
+          "icon": "Save",
+          "title": "文件存储",
+          "description": "支持文件存储功能，快速完成图片、视频、音频等文件的上传、管理等操作。"
+        },
+        {
+          "icon": "Globe",
+          "title": "多语言支持",
+          "description": "内置 i18n 国际化支持，轻松添加多种语言，扩展全球市场，提高产品的国际可访问性。"
+        },
+        {
+          "icon": "Mail",
+          "title": "邮件订阅",
+          "description": "集成 Resend 邮箱功能，轻松实现邮件订阅和邮件发送功能。"
+        },
+        {
+          "icon": "ChartNoAxesCombined",
+          "title": "分析与广告",
+          "description": "支持 Google Analytics、Plausible 等多种分析工具，以及 AdSense 广告系统，轻松实现网站变现。"
+        },
+        {
+          "icon": "Search",
+          "title": "SEO优化",
+          "description": "做到 SEO 最佳实践，包括元标签、结构化数据、网站地图和 OpenGraph 标签，提升搜索引擎排名。"
+        }
+      ]
+    },
+    "TechStack": {
+      "badge": "技术生态",
+      "title": "由流行技术栈驱动",
+      "titleHighlight": "流行技术栈",
+      "description": "精心选择的最新技术组合，确保你的产品稳定、可扩展且易于维护",
+      "groups": [
+        {
+          "title": "前端框架",
+          "icon": "Code",
+          "description": "基于 Next.js 与 React 构建的现代化响应式界面",
+          "colorClass": "bg-blue-50 dark:bg-blue-950/20",
+          "borderClass": "border-blue-200 dark:border-blue-800",
+          "iconClass": "text-blue-600 dark:text-blue-400",
+          "items": [
+            {
+              "name": "Next.js",
+              "description": "React 全栈框架",
+              "logo": "/images/nextjs.svg"
+            },
+            {
+              "name": "TypeScript",
+              "description": "类型安全保障",
+              "logo": "/images/typescript.svg"
+            },
+            {
+              "name": "Tailwind CSS",
+              "description": "高效样式设计",
+              "logo": "/images/tailwindcss.svg"
+            },
+            {
+              "name": "Shadcn/ui",
+              "description": "可定制UI组件",
+              "logo": "/images/shadcn.svg"
+            }
+          ]
+        },
+        {
+          "title": "后端与数据库",
+          "icon": "Server",
+          "description": "安全可靠的数据存储和用户认证系统",
+          "colorClass": "bg-emerald-50 dark:bg-emerald-950/20",
+          "borderClass": "border-emerald-200 dark:border-emerald-800",
+          "iconClass": "text-emerald-600 dark:text-emerald-400",
+          "items": [
+            {
+              "name": "Supabase",
+              "description": "PostgreSQL + 认证",
+              "logo": "/images/supabase.svg"
+            },
+            {
+              "name": "Upstash Redis",
+              "description": "边缘缓存服务",
+              "logo": "/images/upstash.png"
+            },
+            {
+              "name": "Cloudflare",
+              "description": "CDN与网络服务",
+              "logo": "/images/cloudflare.svg"
+            },
+            {
+              "name": "Vercel",
+              "description": "一键部署",
+              "logo": "/images/vercel.svg"
+            }
+          ]
+        },
+        {
+          "title": "AI & 集成服务",
+          "icon": "Sparkles",
+          "description": "AI 功能和第三方服务集成",
+          "colorClass": "bg-violet-50 dark:bg-violet-950/20",
+          "borderClass": "border-violet-200 dark:border-violet-800",
+          "iconClass": "text-violet-600 dark:text-violet-400",
+          "items": [
+            {
+              "name": "AI SDK",
+              "description": "AI 应用开发",
+              "logo": "/images/vercel.svg"
+            },
+            {
+              "name": "Replicate",
+              "description": "多模型 AI 接口",
+              "logo": "/images/replicate.svg"
+            },
+            {
+              "name": "Resend",
+              "description": "开发者邮件 API",
+              "logo": "/images/resend.svg"
+            },
+            {
+              "name": "Stripe",
+              "description": "安全支付处理",
+              "logo": "/images/stripe.svg"
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "title": "一步到位的全栈解决方案",
+        "description": "精心选择的技术组合，为你的项目提供稳固的开发基础。从前端到后端，从数据库到部署，一步到位满足你的需求。"
+      }
+    },
+    "UseCases": {
+      "title": "一套模板，多场景应用",
+      "titleHighlight": "多场景",
+      "description": "Nexty 适用于开发不同场景的网站，从内容站到 AI 工具，从免费服务到付费订阅，都可快速开发上线。",
+      "cases": [
+        {
+          "title": "品牌落地页",
+          "description": "轻松创建引人注目的品牌页面，展示产品和服务，提升品牌形象。利用我们的模板，快速构建响应式和优化的落地页，吸引访客并转化为潜在客户，助力品牌成功推广。",
+          "tags": [
+            "响应式设计",
+            "高转化",
+            "动画效果"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "GalleryVertical",
+          "color": "green"
+        },
+        {
+          "title": "AdSense 内容站",
+          "description": "快速搭建 SEO 友好的内容网站，集成 AdSense 实现被动收入。内置 CMS 系统和多语言支持，轻松管理大量内容。",
+          "tags": [
+            "CMS",
+            "SEO",
+            "多语言",
+            "AdSense"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "FileText",
+          "color": "indigo"
+        },
+        {
+          "title": "免费工具站",
+          "description": "轻松构建用户友好的工具平台，提供高效的使用体验。借助我们的模板，你可以快速上线兼顾页面体验和 SEO 的工具站，吸引用户并提升流量。",
+          "tags": [
+            "高性能",
+            "Analytics",
+            "广告变现"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "Wrench",
+          "color": "cyan"
+        },
+        {
+          "title": "付费AI工具站",
+          "description": "快速构建高效、功能强大的 AI 应用，提供优质的用户体验和流畅的支付流程。利用我们的模板，轻松实现订阅模式，吸引用户并提升收益，助力你的 AI 项目成功上线。",
+          "tags": [
+            "AI SDK",
+            "订阅系统",
+            "使用配额",
+            "付费墙"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "Bot",
+          "color": "purple"
+        }
+      ]
+    },
+    "WhyChoose": {
+      "title": "为什么选择 Nexty？",
+      "description": "无论你是开发者还是产品经理，Nexty 都能为你节省大量时间和资源。",
+      "groups": [
+        {
+          "title": "开发者的最佳选择",
+          "icon": "Code",
+          "items": [
+            {
+              "text": "大幅节省基础架构开发时间，让你专注于核心功能开发"
+            },
+            {
+              "text": "结构清晰的代码，遵循行业最佳实践，便于后续扩展"
+            },
+            {
+              "text": "完整的 TypeScript 类型定义，降低出错率，提升开发效率"
+            },
+            {
+              "text": "详尽的文档与示例，助你快速上手，避免常见问题"
+            }
+          ]
+        },
+        {
+          "title": "产品经理的得力助手",
+          "icon": "ChartPie",
+          "items": [
+            {
+              "text": "缩短产品上市周期，迅速验证你的创意"
+            },
+            {
+              "text": "集成数据分析工具，深入了解用户行为，优化产品策略"
+            },
+            {
+              "text": "优秀的代码结构，即使没有编程经验，也能借助AI轻松添加新功能。"
+            },
+            {
+              "text": "良好的 SEO 和性能优化，提高用户获取效率"
+            }
+          ]
+        }
+      ]
+    },
+    "Testimonials": {
+      "title": "我们的客户快速上线了 AI 工具、SaaS 产品",
+      "titleHighlight": "AI 工具、SaaS 产品",
+      "description": "了解开发者和产品经理的真实反馈，看他们如何使用 Nexty 加速项目开发进程。"
+    },
+    "FAQ": {
+      "title": "常见问题解答",
+      "description": "以下是开发者和产品经理最常问的问题",
+      "items": [
+        {
+          "question": "我需要具备什么技术知识才能使用这个模板？",
+          "answer": "Nexty 是 AI 友好的模板，如果你没有编程基础，那么可以使用 AI 辅助编程，为你实现需求；如果你具备基本的 React 和 Next.js 知识，那么你将更加得心应手。除此之外，我们提供详细的文档和示例，优先阅读文档将对你有所帮助。"
+        },
+        {
+          "question": "购买后是否提供技术支持？",
+          "answer": "是的，所有版本都提供技术支持。Pro 版提供 24 小时邮件支持，定制版提供专人一对一支持。"
+        },
+        {
+          "question": "模板是否包含页面中提到的所有功能？",
+          "answer": "是的，所有提到的功能都已包含在模板中，并且可以正常工作。如果你有新的需求希望添加，可以联系我们，我们将在认真考虑"
+        },
+        {
+          "question": "模板是否支持周期订阅功能？",
+          "answer": "可以，Nexty 模板支持周期订阅功能，你可以根据你的需求修改组件，并设置订阅价格。"
+        },
+        {
+          "question": "模板是否支持多语言？",
+          "answer": "可以，Nexty 模板支持多语言功能，并且默认提供English、中文、日本语三种语言，你可以根据需求添加更多语言。"
+        },
+        {
+          "question": "我要如何管理定价卡片？",
+          "answer": "这是 Nexty 的一个重要卖点，你可以在 Dashboard 中管理定价卡片，包括添加、编辑和删除定价卡片，并且支持 AI 多语言翻译，这样就无需进行繁琐的多语言文件配置。"
+        },
+        {
+          "question": "有哪些AI功能已经内置在模板中？",
+          "answer": "模板内置了 AI 图像生成和 AI 文本对话功能，可与主流 AI 提供商的 API 集成，如OpenAI、Claude、Gemini、Grok & DeppSeek 等等，让你轻松构建AI驱动的应用。"
+        }
+      ]
+    },
+    "CTA": {
+      "title": "快速上线，抢占先机",
+      "description": "无需从零开始！使用 Nexty 模板，让你专注于核心创意，快速构建、验证并开始赚钱。",
+      "button": "立即获取模板"
+    },
+    "Pricing": {
+      "title": "一次付费，永久使用",
+      "titleHighlight": "永久使用",
+      "description": "我们数月打磨，让你能够快速发布"
+    }
+  },
+  "Login": {
+    "title": "欢迎回来",
+    "description": "你可以通过以下方式登录",
+    "Toast": {
+      "Email": {
+        "successTitle": "邮件已发送",
+        "successDescription": "请检查你的邮箱获取登录链接。",
+        "errorTitle": "错误",
+        "errorDescription": "发送邮件失败，请重试。"
+      },
+      "Google": {
+        "errorTitle": "错误",
+        "errorDescription": "使用 Google 登录失败，请重试。"
+      },
+      "Github": {
+        "errorTitle": "错误",
+        "errorDescription": "使用 GitHub 登录失败，请重试。"
+      }
+    },
+    "signInMethods": {
+      "or": "或者",
+      "signInWithGoogle": "使用 Google 登录",
+      "signInWithGithub": "使用 GitHub 登录",
+      "signInWithEmail": "使用邮箱登录"
+    },
+    "Button": {
+      "signIn": "登录",
+      "signOut": "退出"
+    },
+    "UserMenus": [
+      {
+        "name": "个人设置",
+        "href": "/dashboard/settings"
+      },
+      {
+        "name": "管理订阅",
+        "href": "/dashboard/subscription"
+      },
+      {
+        "name": "联盟计划",
+        "href": "/dashboard/affiliate"
+      },
+      {
+        "name": "提交网站",
+        "href": "/dashboard/submit"
+      }
+    ],
+    "AdminMenus": [
+      {
+        "name": "用户管理",
+        "href": "/dashboard/users"
+      },
+      {
+        "name": "网站管理",
+        "href": "/dashboard/showcases"
+      },
+      {
+        "name": "博客管理",
+        "href": "/dashboard/blogs"
+      },
+      {
+        "name": "R2资源管理",
+        "href": "/dashboard/images"
+      },
+      {
+        "name": "定价管理",
+        "href": "/dashboard/prices"
+      }
+    ]
+  },
+  "Blogs": {
+    "title": "博客列表",
+    "description": "博客列表",
+    "emptyState": {
+      "title": "暂无博客文章",
+      "description": "我们正在创作精彩内容，敬请期待！"
+    }
+  },
+  "About": {
+    "title": "关于",
+    "description": "关于网站"
+  },
+  "TermsOfService": {
+    "title": "服务条款",
+    "description": "服务条款"
+  },
+  "PrivacyPolicy": {
+    "title": "隐私政策",
+    "description": "隐私政策"
+  },
+  "Dashboard": {
+    "User": {
+      "Settings": {
+        "title": "个人设置",
+        "description": "管理你的账户设置和个人信息。",
+        "form": {
+          "emailLabel": "邮箱",
+          "fullNameLabel": "全名",
+          "fullNamePlaceholder": "输入你的全名",
+          "avatarLabel": "头像",
+          "avatarHint": "最大文件大小: {maxSizeInMB} MB。 允许的文件类型: {allowedTypes}.",
+          "updateButton": "提交更新",
+          "updatingButton": "更新中..."
+        },
+        "toast": {
+          "fullNameLengthError": "全名必须小于 {maxLength} 个字符",
+          "fullNameInvalidCharactersError": "全名包含非法字符",
+          "errorInvalidFileType": "头像文件类型无效。只允许以下类型: {allowedTypes}.",
+          "errorInvalidFileTypeDescription": "请上传小于 {maxSizeInMB} MB 的文件。",
+          "errorFileSizeExceeded": "头像文件大小超过 {maxSizeInMB}MB 限制。",
+          "errorFileSizeExceededDescription": "请上传小于 {maxSizeInMB} MB 的文件。",
+          "errorInvalidFullName": "输入的全名无效。",
+          "errorFullNameRequired": "全名是必填的。",
+          "updateSuccessTitle": "更新成功",
+          "updateSuccessDescription": "你的个人资料已更新成功。",
+          "updateErrorTitle": "更新失败",
+          "updateErrorDescription": "更新设置失败。请稍后再试。",
+          "errorDeleteOldAvatar": "删除旧头像失败。",
+          "errorUploadAvatar": "上传头像失败。",
+          "errorUpdateAuthUser": "更新用户信息失败。",
+          "errorUpdateUserProfile": "更新用户资料失败。"
+        }
+      }
+    },
+    "Admin": {
+      "Users": {
+        "title": "用户管理",
+        "description": "管理用户（仅限管理员）"
+      },
+      "Images": {
+        "title": "R2图片/视频管理",
+        "description": "管理Cloudflare R2中存储的文件（仅限管理员）"
+      },
+      "Prices": {
+        "title": "定价卡片管理",
+        "description": "管理测试环境和生产环境的各项定价卡片（仅管理员可用）。",
+        "createNewPlan": "新建定价卡片",
+        "PricesDataTable": {
+          "deleteError": "删除卡片失败（状态码：{status}）",
+          "deleteError2": "删除定价卡片失败",
+          "deleteSuccess": "定价卡片「{title}」已成功删除。",
+          "allEnvironments": "全部",
+          "test": "测试环境",
+          "live": "生产环境",
+          "columnsVisibility": "列显示设置",
+          "toggleColumns": "切换显示列",
+          "noPlansFound": "暂无定价卡片。"
+        },
+        "DeletePlanDialog": {
+          "title": "确定要删除吗？",
+          "description": "此操作无法撤销。这将从数据库中永久删除「{title}」定价卡片。",
+          "cancelButton": "取消",
+          "deleteButton": "删除",
+          "deleting": "删除中..."
+        },
+        "CreatePlan": {
+          "title": "创建新定价卡片",
+          "description": "创建一个用于测试和生产环境的定价卡片。（仅管理员可用）"
+        },
+        "EditPlan": {
+          "title": "编辑定价卡片",
+          "description": "修改「{title}（{environment}）」定价卡片的详细信息。（仅管理员可用）"
+        },
+        "PricePlanForm": {
+          "stripePriceIdRequired": "请先输入Stripe价格ID。",
+          "verifyStripeError": "验证价格ID失败（状态码：{response.status}）",
+          "verifyStripeError2": "验证价格ID失败",
+          "stripePriceIdVerified": "Stripe价格ID验证成功！",
+          "multiLanguageTemplateGenerated": "多语言模板已生成，请在下方编辑JSON数据。",
+          "translateError": "生成翻译内容失败",
+          "createUpdateError": "{mode}失败（状态码：{status}）",
+          "createUpdateError2": "{mode}定价卡片失败",
+          "createUpdateSuccess": "定价卡片{mode}成功！",
+          "coreInformation": "基本信息",
+          "environmentDescription": "此定价卡片所属的Stripe环境。",
+          "cardTitle": "卡片标题",
+          "cardDescription": "卡片描述",
+          "cardDescriptionPlaceholder": "在卡片上显示的简短描述...",
+          "stripeIntegration": "Stripe集成（可选）",
+          "stripeIntegrationDescription": "将此方案关联到Stripe价格ID以实现自动结账。如需手动配置，请留空。",
+          "verifyAndFetch": "验证并获取",
+          "stripePriceIdDescription": "输入来自Stripe控制台的价格ID（{environment}环境）。",
+          "currencyCodeDescription": "小写三字母ISO货币代码。",
+          "displayAndContent": "显示与内容",
+          "displayPrice": "显示价格",
+          "displayPriceDescription": "在卡片上显示的价格。",
+          "displayPricePlaceholder": "例如：$199",
+          "displayOriginalPrice": "显示原价",
+          "displayOriginalPriceDescription": "可选显示，如带删除线的原价。",
+          "originalPricePlaceholder": "例如：$299",
+          "displayPriceSuffix": "价格后缀",
+          "priceSuffixPlaceholder": "例如：/月",
+          "priceSuffixDescription": "价格后显示的文字（如/月、/年等）。",
+          "featuresList": "功能列表",
+          "featuresListDescription": "添加此方案包含的功能特点。",
+          "included": "包含",
+          "addFeature": "添加功能",
+          "highlightThisPlan": "卡片高亮显示",
+          "highlightThisPlanDescription": "在定价页面上视觉上突出显示此卡片。",
+          "highlightText": "高亮文本",
+          "highlightTextDescription": "在高亮标签显示的文字。",
+          "buttonText": "按钮文字",
+          "buttonTextDescription": "按钮上的文字。如留空则使用默认值。",
+          "buttonLink": "按钮链接",
+          "buttonLinkPlaceholder": "留空则使用Stripe结账；也可以手动输入URL（https://...）或mailto:地址",
+          "buttonLinkDescription": "如手动填写，请输入完整URL或`mailto:email@example.com`格式的地址，此操作会覆盖Stripe付款行为。",
+          "multiLanguageTranslations": "多语言翻译（可选）",
+          "multiLanguageTranslationsDescription": "以JSON格式提供文本字段的翻译。",
+          "generateTemplate": "生成模板",
+          "translateByAI": "AI智能翻译",
+          "translateByAIDescription": "配置了环境变量 NEXT_PUBLIC_AI_MODEL_ID 和 NEXT_PUBLIC_AI_PROVIDER 才可使用AI翻译",
+          "languageJSON": "多语言JSON",
+          "languageJSONDescription": "以语言代码为键的JSON对象（如 \"en\", \"zh\", \"jp\"）。请确保JSON格式有效。",
+          "planBenefits": "权益",
+          "planBenefitsDescription": "定义用户付费后可以获得的权益。",
+          "benefitsJSON": "权益JSON",
+          "formatJson": "格式化JSON",
+          "invalidJsonError": "无效的JSON格式",
+          "benefitsJSONDescription": "以JSON格式定义用户付费后可以获得的权益。",
+          "settings": "设置",
+          "displayOrder": "显示顺序",
+          "displayOrderDescription": "数字越小越靠前显示。默认为0。",
+          "activeStatus": "是否启用",
+          "activeStatusDescription": "控制此卡片是否对用户可见。",
+          "createPlan": "创建卡片",
+          "saveChanges": "保存更改",
+          "cancel": "取消"
+        },
+        "API": {
+          "missingRequiredFields": "缺少必填字段：environment, card_title",
+          "invalidLangJsonbFormat": "无效的lang_jsonb格式。必须是一个有效的JSON对象或字符串化的JSON。",
+          "invalidJsonFormatInLangJsonbString": "lang_jsonb字符串中的JSON格式无效。",
+          "invalidBenefitsJsonFormat": "无效的benefits格式。必须是一个有效的JSON对象或字符串化的JSON。",
+          "invalidJsonFormatInBenefitsString": "benefits字符串中的JSON格式无效。",
+          "createPlanServerError": "创建定价卡片失败",
+          "createPlanConflict": "创建定价卡片失败：{message}",
+          "missingPlanId": "缺少计划ID",
+          "invalidJsonBody": "无效的JSON体",
+          "updatePlanNotFound": "定价卡片ID {id} 未找到",
+          "updatePlanServerError": "更新定价卡片失败",
+          "deletePlanServerError": "删除定价卡片失败",
+          "deletePlanNotFound": "定价卡片ID {id} 未找到",
+          "deletePlanSuccess": "定价卡片 {id} 已成功删除",
+          "invalidPayload": "无效的负载。必填字段：priceId (string), environment (test or live)",
+          "stripeSecretKeyNotConfigured": "Stripe secret key for {environment} 环境未配置。",
+          "priceIdEnvironmentMismatch": "价格ID {priceId} 属于 {belongsToEnvironment} 环境，但请求指定 {requestEnvironment} 环境。",
+          "priceNotFound": "Stripe Price ID {priceId} 未找到 {environment} 模式。",
+          "stripeAuthenticationFailed": "Stripe 认证失败。检查 {environment} 环境的API密钥。",
+          "stripeApiError": "Stripe API 错误！code: {code}, type: {type}, message: {message}"
+        }
+      }
+    }
+  },
+  "AIDemo": {
+    "title": "AI 能力演示",
+    "description": "本页面非公开功能，仅用于购买模板的用户学习和测试 AI 模型调用流程。在本地启动模板后，环境变量填写自己的 API Key 即可使用。AI Demo 包括单轮对话、多轮对话、文本转图像、图像转图像、文本/图像转视频的转换，通过 Demo 你可以快速理解 AI 调用流程，以加速你的AI应用构建之旅。",
+    "metaDescription": "本页面提供包括单轮对话、多轮对话、文本转图像、图像转图像、文本/图像转视频等 AI 能力调用展示。"
+  },
+  "ErrorPage": {
+    "403": {
+      "title": "403 - 访问被拒绝",
+      "description": "你没有权限访问此页面。",
+      "button": {
+        "label": "返回首页",
+        "href": "/"
+      }
+    },
+    "RedirectError": {
+      "title": "重定向错误",
+      "description": "认证过程中发生错误。",
+      "goToHome": "返回首页",
+      "goToLogin": "返回登录页面",
+      "invalid_params": {
+        "title": "参数错误",
+        "description": "请求缺少必要参数。"
+      },
+      "invalid_redirect": {
+        "title": "重定向错误",
+        "description": "重定向 URL 无效。"
+      },
+      "token_expired": {
+        "title": "令牌过期",
+        "description": "你的验证令牌已过期。请重新登录。"
+      },
+      "invalid_token": {
+        "title": "令牌错误",
+        "description": "提供的验证令牌无效。"
+      },
+      "invalid_link_or_expired": {
+        "title": "链接错误",
+        "description": "邮箱验证链接无效或已过期。"
+      },
+      "server_error": {
+        "title": "服务器错误",
+        "description": "认证过程中服务器发生意外错误。"
+      },
+      "unknown": {
+        "title": "认证错误",
+        "description": "认证过程中发生未知错误。"
+      }
+    },
+    "StripeError": {
+      "goToHome": "返回首页",
+      "goToDashboard": "返回仪表盘",
+      "title": "Payment Portal Error",
+      "description": "支付信息发生错误。"
+    }
+  }
+}

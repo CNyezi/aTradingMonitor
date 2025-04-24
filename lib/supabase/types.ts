@@ -1,0 +1,492 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  public: {
+    Tables: {
+      orders: {
+        Row: {
+          amount_discount: number | null
+          amount_subtotal: number | null
+          amount_tax: number | null
+          amount_total: number
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          order_type: string
+          period_end: string | null
+          period_start: string | null
+          plan_id: string | null
+          price_id: string | null
+          product_id: string | null
+          provider: string
+          provider_order_id: string
+          status: string
+          subscription_provider_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_discount?: number | null
+          amount_subtotal?: number | null
+          amount_tax?: number | null
+          amount_total: number
+          created_at?: string
+          currency: string
+          id?: string
+          metadata?: Json | null
+          order_type: string
+          period_end?: string | null
+          period_start?: string | null
+          plan_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
+          provider: string
+          provider_order_id: string
+          status: string
+          subscription_provider_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_discount?: number | null
+          amount_subtotal?: number | null
+          amount_tax?: number | null
+          amount_total?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          order_type?: string
+          period_end?: string | null
+          period_start?: string | null
+          plan_id?: string | null
+          price_id?: string | null
+          product_id?: string | null
+          provider?: string
+          provider_order_id?: string
+          status?: string
+          subscription_provider_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_plans: {
+        Row: {
+          benefits_jsonb: Json | null
+          button_link: string | null
+          button_text: string | null
+          card_description: string | null
+          card_title: string
+          created_at: string
+          currency: string | null
+          display_order: number
+          display_price: string | null
+          environment: string
+          features: Json
+          highlight_text: string | null
+          id: string
+          is_active: boolean
+          is_highlighted: boolean
+          lang_jsonb: Json
+          original_price: string | null
+          payment_type: string | null
+          price: number | null
+          price_suffix: string | null
+          recurring_interval: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          trial_period_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          benefits_jsonb?: Json | null
+          button_link?: string | null
+          button_text?: string | null
+          card_description?: string | null
+          card_title: string
+          created_at?: string
+          currency?: string | null
+          display_order?: number
+          display_price?: string | null
+          environment: string
+          features?: Json
+          highlight_text?: string | null
+          id?: string
+          is_active?: boolean
+          is_highlighted?: boolean
+          lang_jsonb?: Json
+          original_price?: string | null
+          payment_type?: string | null
+          price?: number | null
+          price_suffix?: string | null
+          recurring_interval?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          trial_period_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          benefits_jsonb?: Json | null
+          button_link?: string | null
+          button_text?: string | null
+          card_description?: string | null
+          card_title?: string
+          created_at?: string
+          currency?: string | null
+          display_order?: number
+          display_price?: string | null
+          environment?: string
+          features?: Json
+          highlight_text?: string | null
+          id?: string
+          is_active?: boolean
+          is_highlighted?: boolean
+          lang_jsonb?: Json
+          original_price?: string | null
+          payment_type?: string | null
+          price?: number | null
+          price_suffix?: string | null
+          recurring_interval?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          trial_period_days?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          plan_id: string
+          price_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          plan_id: string
+          price_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          plan_id?: string
+          price_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usage: {
+        Row: {
+          created_at: string
+          id: string
+          one_time_credits_balance: number
+          subscription_credits_balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          one_time_credits_balance?: number
+          subscription_credits_balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          one_time_credits_balance?: number
+          subscription_credits_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          avatar_url: string | null
+          billing_address: Json | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          invite_code: string | null
+          inviter_user_id: string | null
+          payment_provider: string | null
+          role: string
+          stripe_customer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          billing_address?: Json | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          invite_code?: string | null
+          inviter_user_id?: string | null
+          payment_provider?: string | null
+          role?: string
+          stripe_customer_id?: string | null
+          updated_at: string
+        }
+        Update: {
+          avatar_url?: string | null
+          billing_address?: Json | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          invite_code?: string | null
+          inviter_user_id?: string | null
+          payment_provider?: string | null
+          role?: string
+          stripe_customer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_inviter_user_id_fkey"
+            columns: ["inviter_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      revoke_credits: {
+        Args: {
+          p_user_id: string
+          p_revoke_one_time: number
+          p_revoke_subscription: number
+        }
+        Returns: boolean
+      }
+      update_my_profile: {
+        Args: {
+          new_full_name: string
+          new_avatar_url: string
+          new_billing_address: Json
+          new_invite_code: string
+        }
+        Returns: undefined
+      }
+      upsert_and_increment_one_time_credits: {
+        Args: { p_user_id: string; p_credits_to_add: number }
+        Returns: undefined
+      }
+      upsert_and_set_subscription_credits: {
+        Args: { p_user_id: string; p_credits_to_set: number }
+        Returns: undefined
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DefaultSchema = Database[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof Database },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof Database },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof Database },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

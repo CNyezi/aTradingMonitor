@@ -1,0 +1,735 @@
+{
+  "LanguageDetection": {
+    "title": "Language Suggestion",
+    "description": "We noticed your browser language differs from the current site language. You can switch languages anytime 👉",
+    "countdown": "Closing in {countdown} seconds"
+  },
+  "Header": {
+    "links": [
+      {
+        "name": "Features",
+        "href": "/#features"
+      },
+      {
+        "name": "Tech Stack",
+        "href": "/#tech-stack"
+      },
+      {
+        "name": "Pricing",
+        "href": "/#pricing"
+      },
+      {
+        "name": "AI Demo",
+        "href": "/ai-demo"
+      }
+    ]
+  },
+  "Footer": {
+    "Copyright": "Copyright © {year} Nexty.dev All rights reserved.",
+    "PrivacyPolicy": "Privacy Policy",
+    "TermsOfService": "Terms of Service",
+    "Newsletter": {
+      "title": "Subscribe to our newsletter",
+      "description": "Stay up to date with our latest news.",
+      "subscribe": {
+        "invalidEmail": "Please enter a valid email address",
+        "defaultErrorMessage": "Subscription failed. Please try again later",
+        "successMessage": "Successfully subscribed!",
+        "emailSubject": "Welcome to Nexty Newsletter!",
+        "multipleSubmissions": "Too many requests. Please try again tomorrow"
+      },
+      "unsubscribe": {
+        "title": "Subscription Status Update",
+        "success": "You've been successfully unsubscribed from Nexty newsletter.",
+        "emailPrefix": "Email:",
+        "regretMessage": "You can resubscribe anytime to stay up to date with our latest news.",
+        "errorGeneric": "An error occurred while processing your unsubscribe request",
+        "errorNoToken": "Unsubscribe token not provided",
+        "errorMessage": "Please ensure you're using the correct unsubscribe link. If the issue persists, please contact our support team for assistance.",
+        "contactPrefix": "Please email us at:",
+        "contactPrefixSuccess": "Questions? Feel free to reach out at:",
+        "backToHome": "Back to Homepage",
+        "invalidEmail": "Invalid email address",
+        "notInNewsletter": "This email is not subscribed to our newsletter"
+      }
+    },
+    "Links": {
+      "groups": [
+        {
+          "title": "Products",
+          "links": [
+            {
+              "href": "/#features",
+              "label": "Features"
+            },
+            {
+              "href": "/#tech-stack",
+              "label": "Tech Stack"
+            },
+            {
+              "href": "/#pricing",
+              "label": "Pricing"
+            },
+            {
+              "href": "/blogs",
+              "label": "Blogs"
+            }
+          ]
+        },
+        {
+          "title": "Support",
+          "links": [
+            {
+              "href": "mailto:hi@nexty.dev",
+              "label": "Contact Us"
+            }
+          ]
+        },
+        {
+          "title": "Languages",
+          "links": [
+            {
+              "href": "/en",
+              "label": "English",
+              "useA": true
+            },
+            {
+              "href": "/zh",
+              "label": "中文",
+              "useA": true
+            },
+            {
+              "href": "/ja",
+              "label": "日本語",
+              "useA": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Home": {
+    "title": "Nexty.dev",
+    "tagLine": "A Modern Next.js Full-Stack SaaS Template",
+    "description": "A production-ready Next.js and Supabase starter template for building modern SaaS applications. Launch your content, AI, or subscription service faster."
+  },
+  "Landing": {
+    "Hero": {
+      "title": "A Modern Full-Stack SaaS Template",
+      "titleHighlight": "Full-Stack SaaS",
+      "description": "A production-ready Next.js and Supabase starter template for building modern SaaS applications. Launch your content, AI, or subscription service faster.",
+      "getStarted": "Get Started",
+      "viewShowcase": "View Showcase"
+    },
+    "Features": {
+      "title": "Complete Feature Suite for Rapid Development",
+      "titleHighlight": "Rapid Development",
+      "description": "Our template includes all essential features for modern SaaS applications, allowing you to focus on building your business logic.",
+      "items": [
+        {
+          "icon": "KeyRound",
+          "title": "Authentication System",
+          "description": "Integrated Supabase authentication with multiple sign-in options including Google, GitHub, and email verification."
+        },
+        {
+          "icon": "CreditCard",
+          "title": "Payment Integration",
+          "description": "Built-in Stripe payment system supporting both one-time payments and subscriptions, perfect for various SaaS pricing models."
+        },
+        {
+          "icon": "Bot",
+          "title": "AI Capabilities",
+          "description": "Seamlessly integrate AI features using AI SDK. Build AI-powered chat and image generation tools with zero AI expertise."
+        },
+        {
+          "icon": "FileText",
+          "title": "Content Management",
+          "description": "Built-in CMS with Markdown support, featuring elegant themes for blogs and documentation. Manage your content effortlessly."
+        },
+        {
+          "icon": "Save",
+          "title": "File Storage",
+          "description": "Robust file storage system for handling uploads and management of images, videos, and audio files with ease."
+        },
+        {
+          "icon": "Globe",
+          "title": "Internationalization",
+          "description": "Built-in i18n support for seamless localization. Expand your global reach and enhance accessibility across markets."
+        },
+        {
+          "icon": "Mail",
+          "title": "Email Newsletter",
+          "description": "Integrated Resend email system for managing subscriptions and sending newsletters to your audience."
+        },
+        {
+          "icon": "ChartNoAxesCombined",
+          "title": "Analytics & Ads",
+          "description": "Support for Google Analytics, Plausible, and AdSense integration. Monitor performance and monetize your platform effectively."
+        },
+        {
+          "icon": "Search",
+          "title": "SEO Optimization",
+          "description": "Implement SEO best practices with meta tags, structured data, sitemaps, and OpenGraph tags to improve search engine rankings."
+        }
+      ]
+    },
+    "TechStack": {
+      "badge": "Tech Stack",
+      "title": "Powered by Modern Technologies",
+      "titleHighlight": "Modern",
+      "description": "A carefully curated stack of modern technologies ensuring your product is stable, scalable, and maintainable",
+      "groups": [
+        {
+          "title": "Frontend Framework",
+          "icon": "Code",
+          "description": "Modern responsive interfaces built with Next.js and React",
+          "colorClass": "bg-blue-50 dark:bg-blue-950/20",
+          "borderClass": "border-blue-200 dark:border-blue-800",
+          "iconClass": "text-blue-600 dark:text-blue-400",
+          "items": [
+            {
+              "name": "Next.js",
+              "description": "React Framework",
+              "logo": "/images/nextjs.svg"
+            },
+            {
+              "name": "TypeScript",
+              "description": "Type Safety",
+              "logo": "/images/typescript.svg"
+            },
+            {
+              "name": "Tailwind CSS",
+              "description": "Utility-First CSS",
+              "logo": "/images/tailwindcss.svg"
+            },
+            {
+              "name": "Shadcn/ui",
+              "description": "Custom Components",
+              "logo": "/images/shadcn.svg"
+            }
+          ]
+        },
+        {
+          "title": "Backend & Database",
+          "icon": "Server",
+          "description": "Secure and reliable data storage with robust authentication",
+          "colorClass": "bg-emerald-50 dark:bg-emerald-950/20",
+          "borderClass": "border-emerald-200 dark:border-emerald-800",
+          "iconClass": "text-emerald-600 dark:text-emerald-400",
+          "items": [
+            {
+              "name": "Supabase",
+              "description": "PostgreSQL + Auth",
+              "logo": "/images/supabase.svg"
+            },
+            {
+              "name": "Upstash Redis",
+              "description": "Edge Caching",
+              "logo": "/images/upstash.png"
+            },
+            {
+              "name": "Cloudflare",
+              "description": "CDN & Network",
+              "logo": "/images/cloudflare.svg"
+            },
+            {
+              "name": "Vercel",
+              "description": "Deploy Instantly",
+              "logo": "/images/vercel.svg"
+            }
+          ]
+        },
+        {
+          "title": "AI & Integration",
+          "icon": "Sparkles",
+          "description": "AI capabilities and third-party service integration",
+          "colorClass": "bg-violet-50 dark:bg-violet-950/20",
+          "borderClass": "border-violet-200 dark:border-violet-800",
+          "iconClass": "text-violet-600 dark:text-violet-400",
+          "items": [
+            {
+              "name": "AI SDK",
+              "description": "AI Development",
+              "logo": "/images/vercel.svg"
+            },
+            {
+              "name": "Replicate",
+              "description": "Multi-Model AI",
+              "logo": "/images/replicate.svg"
+            },
+            {
+              "name": "Resend",
+              "description": "Email API",
+              "logo": "/images/resend.svg"
+            },
+            {
+              "name": "Stripe",
+              "description": "Secure Payments",
+              "logo": "/images/stripe.svg"
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "title": "All-in-One Full-Stack Solution",
+        "description": "A meticulously selected tech stack providing a solid foundation for your project. From frontend to backend, from database to deployment, everything you need in one place."
+      }
+    },
+    "UseCases": {
+      "title": "One Template, Multiple Solutions",
+      "titleHighlight": "Multiple Solutions",
+      "description": "Nexty is versatile enough to power various web projects - from content sites to AI tools, from free utilities to premium subscription services, all with rapid development and deployment.",
+      "cases": [
+        {
+          "title": "Brand Landing Pages",
+          "description": "Create compelling brand pages that showcase your products and services with impact. Our template allows you to build responsive, optimized landing pages that capture visitors' attention and convert them into potential customers, driving successful brand campaigns.",
+          "tags": [
+            "Responsive Design",
+            "High Conversion",
+            "Animation Effects"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "GalleryVertical",
+          "color": "green"
+        },
+        {
+          "title": "AdSense Content Platforms",
+          "description": "Quickly build SEO-friendly content websites with AdSense integration for passive income generation. With built-in CMS and multilingual support, managing large volumes of content becomes effortless.",
+          "tags": [
+            "CMS",
+            "SEO",
+            "Multilingual",
+            "AdSense"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "FileText",
+          "color": "indigo"
+        },
+        {
+          "title": "Free Utility Websites",
+          "description": "Develop user-friendly tool platforms that deliver efficient experiences. With our template, you can rapidly launch tools that balance great UX with strong SEO, attracting users and increasing traffic to your platform.",
+          "tags": [
+            "High Performance",
+            "Analytics",
+            "Ad Monetization"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "Wrench",
+          "color": "cyan"
+        },
+        {
+          "title": "Premium AI Tools",
+          "description": "Build efficient, powerful AI applications with premium user experiences and seamless payment flows. Our template makes it easy to implement subscription models, attract users, and boost revenue, helping your AI project launch successfully.",
+          "tags": [
+            "AI SDK",
+            "Subscription System",
+            "Usage Quotas",
+            "Paywall"
+          ],
+          "image": "/placeholder.webp",
+          "icon": "Bot",
+          "color": "purple"
+        }
+      ]
+    },
+    "WhyChoose": {
+      "title": "Why Choose Nexty?",
+      "description": "Whether you're a developer or a product manager, Nexty helps you save two weeks of time and resources.",
+      "groups": [
+        {
+          "title": "Perfect for Developers",
+          "icon": "Code",
+          "items": [
+            {
+              "text": "Drastically reduce infrastructure development time so you can focus on core functionality"
+            },
+            {
+              "text": "Clean, well-structured code following industry best practices for seamless scalability"
+            },
+            {
+              "text": "Comprehensive TypeScript definitions to minimize errors and boost development efficiency"
+            },
+            {
+              "text": "Extensive documentation and examples to accelerate your learning curve and avoid common pitfalls"
+            }
+          ]
+        },
+        {
+          "title": "Empowering Product Managers",
+          "icon": "ChartPie",
+          "items": [
+            {
+              "text": "Shorten time-to-market and quickly validate your innovative concepts"
+            },
+            {
+              "text": "Integrated analytics tools provide deep insights into user behavior to optimize product strategy"
+            },
+            {
+              "text": "Superior code architecture allows easy feature additions with AI assistance, even without programming experience"
+            },
+            {
+              "text": "Built-in SEO and performance optimizations to enhance user acquisition efficiency"
+            }
+          ]
+        }
+      ]
+    },
+    "Testimonials": {
+      "title": "Our Customers Rapidly Launched AI Tools & SaaS Products",
+      "titleHighlight": "AI Tools & SaaS Products",
+      "description": "Discover authentic feedback from developers and product managers who accelerated their project development with Nexty."
+    },
+    "FAQ": {
+      "title": "Frequently Asked Questions",
+      "description": "Common questions from developers and product managers",
+      "items": [
+        {
+          "question": "What technical knowledge do I need to use this template?",
+          "answer": "Nexty is an AI-friendly template that caters to all skill levels. If you're new to programming, you can leverage AI-assisted development to implement your requirements. For developers familiar with React and Next.js, you'll find the template particularly intuitive. We provide comprehensive documentation and examples - reviewing these resources first will significantly enhance your development experience."
+        },
+        {
+          "question": "Is technical support included with purchase?",
+          "answer": "Absolutely! Technical support is included with all versions. Pro users receive 24/7 email support, while Enterprise customers benefit from dedicated one-on-one support with our technical team."
+        },
+        {
+          "question": "Does the template include all features shown in the demo?",
+          "answer": "Yes, every feature showcased in our demo is fully implemented and production-ready in the template. If you have specific feature requests, our team is open to discussing potential additions to future releases."
+        },
+        {
+          "question": "Does the template support subscription billing?",
+          "answer": "Yes, Nexty fully supports recurring subscription functionality. You can customize the subscription components and configure pricing tiers according to your business needs."
+        },
+        {
+          "question": "Is multilingual support available?",
+          "answer": "Yes, Nexty comes with built-in internationalization support. The template includes English, Chinese, and Japanese out of the box, and you can easily extend it to support additional languages as needed."
+        },
+        {
+          "question": "How do I manage pricing plans?",
+          "answer": "This is one of Nexty's standout features. You can manage pricing plans directly through the Dashboard, including creating, editing, and removing pricing tiers. The template includes AI-powered translation capabilities, eliminating the need for manual language file configuration."
+        },
+        {
+          "question": "What AI capabilities are built into the template?",
+          "answer": "The template comes with integrated AI image generation and conversational AI features. It's designed to seamlessly integrate with leading AI providers including OpenAI, Claude, Gemini, Grok & DeepSeek, enabling you to easily build AI-powered applications."
+        }
+      ]
+    },
+    "CTA": {
+      "title": "Launch Your Product Fast, and Earn Money Fast",
+      "description": "Stop starting from scratch! Use Nexty templates to focus on your core idea, rapidly build, validate, and start earning.",
+      "button": "Get Template Now"
+    },
+    "Pricing": {
+      "title": "One-Time Payment, Lifetime Access",
+      "titleHighlight": "Lifetime Access",
+      "description": "We spent months, so you can launch in just days."
+    }
+  },
+  "Login": {
+    "title": "Welcome back",
+    "description": "Sign in with the following methods",
+    "Toast": {
+      "Email": {
+        "successTitle": "Magic link sent!",
+        "successDescription": "Please check your email for the login link.",
+        "errorTitle": "Error",
+        "errorDescription": "Failed to send magic link. Please try again."
+      },
+      "Google": {
+        "errorTitle": "Error",
+        "errorDescription": "Failed to sign in with Google. Please try again."
+      },
+      "Github": {
+        "errorTitle": "Error",
+        "errorDescription": "Failed to sign in with Github. Please try again."
+      }
+    },
+    "signInMethods": {
+      "or": "Or continue with",
+      "signInWithGoogle": "Continue with Google",
+      "signInWithGithub": "Continue with Github",
+      "signInWithEmail": "Continue with Email"
+    },
+    "Button": {
+      "signIn": "Sign In",
+      "signOut": "Sign Out"
+    },
+    "UserMenus": [
+      {
+        "name": "Settings",
+        "href": "/dashboard/settings"
+      },
+      {
+        "name": "Subscription",
+        "href": "/dashboard/subscription"
+      },
+      {
+        "name": "Affiliate",
+        "href": "/dashboard/affiliate"
+      },
+      {
+        "name": "Submit Showcase",
+        "href": "/dashboard/submit"
+      }
+    ],
+    "AdminMenus": [
+      {
+        "name": "Users",
+        "href": "/dashboard/users"
+      },
+      {
+        "name": "Showcases",
+        "href": "/dashboard/showcases"
+      },
+      {
+        "name": "Blogs",
+        "href": "/dashboard/blogs"
+      },
+      {
+        "name": "R2 Files",
+        "href": "/dashboard/images"
+      },
+      {
+        "name": "Prices",
+        "href": "/dashboard/prices"
+      }
+    ]
+  },
+  "Blogs": {
+    "title": "Blog Posts",
+    "description": "A list of blog posts",
+    "emptyState": {
+      "title": "No blog posts",
+      "description": "We are creating exciting content, please stay tuned!"
+    }
+  },
+  "About": {
+    "title": "About",
+    "description": "About the site"
+  },
+  "TermsOfService": {
+    "title": "Terms of Service",
+    "description": "Terms of Service"
+  },
+  "PrivacyPolicy": {
+    "title": "Privacy Policy",
+    "description": "Privacy Policy"
+  },
+  "Dashboard": {
+    "User": {
+      "Settings": {
+        "title": "Settings",
+        "description": "Manage your account settings and profile information.",
+        "form": {
+          "emailLabel": "Email",
+          "fullNameLabel": "Full Name",
+          "fullNamePlaceholder": "Enter your full name",
+          "avatarLabel": "Avatar",
+          "avatarHint": "Max file size: {maxSizeInMB} MB. Allowed types: {allowedTypes}.",
+          "updateButton": "Update Settings",
+          "updatingButton": "Updating..."
+        },
+        "toast": {
+          "fullNameLengthError": "Full name must be less than {maxLength} characters",
+          "fullNameInvalidCharactersError": "Full name contains invalid characters",
+          "errorInvalidFileType": "Invalid file type for avatar. Only {allowedTypes} are allowed.",
+          "errorInvalidFileTypeDescription": "Please upload a file smaller than {maxSizeInMB} MB.",
+          "errorFileSizeExceeded": "Avatar size exceeds the {maxSizeInMB} MB limit.",
+          "errorFileSizeExceededDescription": "Please upload a file smaller than {maxSizeInMB} MB.",
+          "errorInvalidFullName": "Invalid full name provided.",
+          "errorFullNameRequired": "Full name is required.",
+          "updateSuccessTitle": "Profile Updated",
+          "updateSuccessDescription": "Your profile has been updated successfully.",
+          "updateErrorTitle": "Update Failed",
+          "updateErrorDescription": "Failed to update settings. Please try again later.",
+          "errorDeleteOldAvatar": "Failed to delete old avatar.",
+          "errorUploadAvatar": "Failed to upload avatar.",
+          "errorUpdateAuthUser": "Failed to update auth user.",
+          "errorUpdateUserProfile": "Failed to update user profile."
+        }
+      }
+    },
+    "Admin": {
+      "Users": {
+        "title": "Users",
+        "description": "Manage users (Admin only)."
+      },
+      "Images": {
+        "title": "R2 Image/Video Management",
+        "description": "Browse files stored in Cloudflare R2 (Admin only)."
+      },
+      "Prices": {
+        "title": "Pricing Plans",
+        "description": "Manage pricing plans for test and live environments. (Admin only).",
+        "createNewPlan": "Create New Plan",
+        "PricesDataTable": {
+          "deleteError": "Failed to delete plan (status: {response.status})",
+          "deleteError2": "Failed to delete plan",
+          "deleteSuccess": "Plan {title} deleted successfully.",
+          "allEnvironments": "All Environments",
+          "test": "Test",
+          "live": "Live",
+          "columnsVisibility": "Columns Visibility",
+          "toggleColumns": "Toggle Columns",
+          "noPlansFound": "No pricing plans found."
+        },
+        "DeletePlanDialog": {
+          "title": "Are you absolutely sure?",
+          "description": "This action cannot be undone. This will permanently delete the pricing plan {title} from the database.",
+          "cancelButton": "Cancel",
+          "deleteButton": "Delete",
+          "deleting": "Deleting..."
+        },
+        "CreatePlan": {
+          "title": "Create New Plan",
+          "description": "Create a new pricing plan for test and live environments. (Admin only)."
+        },
+        "EditPlan": {
+          "title": "Edit Plan",
+          "description": "Modify the details for plan: {title} ({environment}).(Admin only)."
+        },
+        "PricePlanForm": {
+          "stripePriceIdRequired": "Please enter a Stripe Price ID first.",
+          "verifyStripeError": "Failed to verify Price ID (Status: {status})",
+          "verifyStripeError2": "Failed to verify Price ID",
+          "stripePriceIdVerified": "Stripe Price ID verified successfully!",
+          "multiLanguageTemplateGenerated": "Multi-language template generated. Edit the JSON below.",
+          "translateError": "Failed to generate response",
+          "createUpdateError": "Failed to {mode} plan (Status {status})",
+          "createUpdateError2": "Failed to {mode} plan",
+          "createUpdateSuccess": "Pricing plan {mode} successfully!",
+          "coreInformation": "Core Information",
+          "environmentDescription": "The Stripe environment this plan belongs to.",
+          "cardTitle": "Card Title",
+          "cardDescription": "Card Description",
+          "cardDescriptionPlaceholder": "Short description shown on the card...",
+          "stripeIntegration": "Stripe Integration (Optional)",
+          "stripeIntegrationDescription": "Link this plan to a Stripe Price ID for automated checkout. Leave blank for manual configuration.",
+          "verifyAndFetch": "Verify & Fetch",
+          "stripePriceIdDescription": "Enter the Price ID from your Stripe Dashboard ({environment} environment).",
+          "currencyCodeDescription": "Lowercase, 3-letter ISO code.",
+          "displayAndContent": "Display & Content",
+          "displayPrice": "Display Price",
+          "displayPriceDescription": "The price shown on the card.",
+          "displayPricePlaceholder": "e.g., $199",
+          "displayOriginalPrice": "Display Original Price",
+          "displayOriginalPriceDescription": "Optional text like a strikethrough price.",
+          "originalPricePlaceholder": "e.g., $299",
+          "displayPriceSuffix": "Display Price Suffix",
+          "priceSuffixPlaceholder": "e.g., / month",
+          "priceSuffixDescription": "Text shown after the price (e.g., /month, /year).",
+          "featuresList": "Features List",
+          "featuresListDescription": "Add features included in this plan.",
+          "included": "Included",
+          "addFeature": "Add Feature",
+          "highlightThisPlan": "Highlight This Plan",
+          "highlightThisPlanDescription": "Make this plan stand out visually on the pricing page.",
+          "highlightText": "Highlight Text",
+          "highlightTextDescription": "Text displayed on the highlight badge.",
+          "buttonText": "Button Text",
+          "buttonTextDescription": "Text for the call-to-action button. Defaults might apply if empty.",
+          "buttonLink": "Button Link/Action",
+          "buttonLinkPlaceholder": "Leave empty for Stripe Checkout, or enter URL (https://...) or mailto:",
+          "buttonLinkDescription": "Override Stripe Checkout if filled. Use full URLs or `mailto:email@example.com`.",
+          "multiLanguageTranslations": "Multi-language Translations (Optional)",
+          "multiLanguageTranslationsDescription": "Provide translations for text fields in JSON format.",
+          "generateTemplate": "Generate Template",
+          "translateByAI": "Translate by AI",
+          "translateByAIDescription": "Configure environment variables NEXT_PUBLIC_AI_MODEL_ID and NEXT_PUBLIC_AI_PROVIDER to use AI translation.",
+          "languageJSON": "Language JSON",
+          "languageJSONDescription": "JSON object keyed by language code (e.g., \"en\", \"zh\", \"jp\"). Ensure valid JSON.",
+          "planBenefits": "Benefits",
+          "planBenefitsDescription": "Define the benefits users receive after purchasing this plan.",
+          "benefitsJSON": "Benefits JSON",
+          "formatJson": "Format JSON",
+          "invalidJsonError": "Invalid JSON format",
+          "benefitsJSONDescription": "Define the benefits users receive after purchasing this plan in JSON format.",
+          "settings": "Settings",
+          "displayOrder": "Display Order",
+          "displayOrderDescription": "Lower numbers appear first. Defaults to 0.",
+          "activeStatus": "Active Status",
+          "activeStatusDescription": "Controls whether this plan is visible to users.",
+          "createPlan": "Create Plan",
+          "saveChanges": "Save Changes",
+          "cancel": "Cancel"
+        },
+        "API": {
+          "missingRequiredFields": "Missing required fields: environment, card_title",
+          "invalidLangJsonbFormat": "Invalid lang_jsonb format. Must be a valid JSON object or stringified JSON.",
+          "invalidJsonFormatInLangJsonbString": "Invalid JSON format in lang_jsonb string.",
+          "invalidBenefitsJsonFormat": "Invalid benefits format. Must be a valid JSON object or stringified JSON.",
+          "invalidJsonFormatInBenefitsString": "Invalid JSON format in benefits string.",
+          "createPlanServerError": "Failed to create pricing plan",
+          "createPlanConflict": "Pricing plan creation failed: {message}",
+          "missingPlanId": "Missing plan ID",
+          "invalidJsonBody": "Invalid JSON body",
+          "updatePlanNotFound": "Pricing plan with ID {id} not found for update",
+          "updatePlanServerError": "Failed to update pricing plan",
+          "deletePlanServerError": "Failed to delete pricing plan",
+          "deletePlanNotFound": "Pricing plan with ID {id} not found for deletion",
+          "deletePlanSuccess": "Pricing plan {id} deleted successfully",
+          "invalidPayload": "Invalid payload. Required fields: priceId (string), environment (test or live)",
+          "stripeSecretKeyNotConfigured": "Stripe secret key for {environment} environment is not configured.",
+          "priceIdEnvironmentMismatch": "Price ID {priceId} belongs to the {belongsToEnvironment} environment, but the request specified {requestEnvironment}.",
+          "priceNotFound": "Stripe Price ID {priceId} not found in {environment} mode.",
+          "stripeAuthenticationFailed": "Stripe authentication failed. Check your API key for the {environment} environment.",
+          "stripeApiError": "Stripe API error! code: {code}, type: {type}, message: {message}"
+        }
+      }
+    }
+  },
+  "AIDemo": {
+    "title": "AI Capabilities Demo",
+    "description": "This page showcases non-public features and is exclusively for users who have purchased the template. It's designed for learning and testing the AI model invocation process. To use it, simply launch the template locally and input your API key in the environment variables. The AI demo includes functionalities like single-turn and multi-turn conversations, text-to-image, image-to-image, and text/image-to-video conversions. Through this demo, you can quickly grasp the AI invocation workflow, accelerating your journey in building AI applications.",
+    "metaDescription": "This page showcases AI capabilities including single-turn and multi-turn conversations, text-to-image, image-to-image, and text/image-to-video conversions."
+  },
+  "ErrorPage": {
+    "403": {
+      "title": "403 - Access Denied",
+      "description": "You don't have permission to access this page.",
+      "button": {
+        "label": "Back to homepage",
+        "href": "/"
+      }
+    },
+    "RedirectError": {
+      "title": "Redirect Error",
+      "description": "An error occurred during the authentication process.",
+      "goToHome": "Go to Home",
+      "goToLogin": "Go to Login",
+      "invalid_params": {
+        "title": "Invalid Parameters",
+        "description": "Required parameters are missing in the request."
+      },
+      "invalid_redirect": {
+        "title": "Invalid Redirect URL",
+        "description": "The redirect URL provided is not allowed."
+      },
+      "token_expired": {
+        "title": "Token Expired",
+        "description": "Your verification token has expired. Please try logging in again."
+      },
+      "invalid_token": {
+        "title": "Invalid Token",
+        "description": "The verification token provided is invalid."
+      },
+      "invalid_link_or_expired": {
+        "title": "Invalid or Expired Link",
+        "description": "The email verification link is invalid or has expired."
+      },
+      "server_error": {
+        "title": "Server Error",
+        "description": "An unexpected error occurred on the server during authentication."
+      },
+      "unknown": {
+        "title": "Authentication Error",
+        "description": "An unknown error occurred during the authentication process."
+      }
+    },
+    "StripeError": {
+      "title": "Payment Portal Error",
+      "description": "An error occurred with your payment information.",
+      "goToHome": "Go to Home",
+      "goToDashboard": "Go to Dashboard"
+    }
+  }
+}
