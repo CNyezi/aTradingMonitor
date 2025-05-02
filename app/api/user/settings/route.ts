@@ -35,7 +35,7 @@ export async function PUT(request: Request) {
       return apiResponse.badRequest(t("toast.errorInvalidFullName"));
     }
 
-    let avatarUrl: string = '';
+    let avatarUrl: string | undefined = '';
 
     if (avatar) {
       if (!ALLOWED_FILE_TYPES.includes(avatar.type)) {

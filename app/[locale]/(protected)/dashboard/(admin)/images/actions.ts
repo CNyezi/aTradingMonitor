@@ -50,6 +50,10 @@ export async function listR2Files(
   }
 
   const s3Client = createR2Client();
+  if (!s3Client) {
+    throw new Error("R2 client could not be initialized. Check R2 client environment variables.");
+  }
+
   const searchPrefix = filterPrefix ? `${categoryPrefix}${filterPrefix}` : categoryPrefix;
 
   try {

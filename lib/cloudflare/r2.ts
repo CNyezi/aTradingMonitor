@@ -12,14 +12,25 @@ export interface UploadResult {
   key: string;
 }
 
-export const createR2Client = () => new S3Client({
-  region: "auto",
-  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+export const createR2Client = () => {
+  const r2AccountId = process.env.R2_ACCOUNT_ID || "";
+  const r2AccessKeyId = process.env.R2_ACCESS_KEY_ID || "";
+  const r2SecretAccessKey = process.env.R2_SECRET_ACCESS_KEY || "";
+
+  if (!r2AccountId || !r2AccessKeyId || !r2SecretAccessKey) {
+    console.warn("Cloudflare R2 client environment variables (account id, access key id, secret access key) not set. R2 client unavailable.");
+    return null;
+  }
+
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: r2AccessKeyId,
+      secretAccessKey: r2SecretAccessKey,
+    },
+  });
+};
 
 export const uploadFile = async ({
   data,
@@ -27,11 +38,11 @@ export const uploadFile = async ({
   contentType,
   path = '',
 }: UploadOptions): Promise<UploadResult> => {
-  if (!process.env.R2_BUCKET_NAME || !process.env.R2_PUBLIC_URL) {
-    throw new Error('R2 configuration is missing');
+  const s3Client = createR2Client();
+  if (!s3Client) {
+    throw new Error("R2 client could not be initialized. Check R2 client environment variables.");
   }
 
-  const s3Client = createR2Client();
   const fileBuffer = Buffer.isBuffer(data)
     ? data
     : Buffer.from(data.replace(/^data:.*?;base64,/, ''), 'base64');
@@ -60,11 +71,14 @@ export const uploadFile = async ({
 };
 
 export const deleteFile = async (key: string): Promise<void> => {
-  if (!process.env.R2_BUCKET_NAME) {
-    throw new Error('R2 configuration is missing');
+  const s3Client = createR2Client();
+  if (!s3Client) {
+    throw new Error("R2 client could not be initialized. Check R2 client environment variables.");
   }
 
-  const s3Client = createR2Client();
+  if (!process.env.R2_BUCKET_NAME) {
+    throw new Error('R2 configuration for delete (bucket name) is missing');
+  }
 
   try {
     await s3Client.send(new DeleteObjectCommand({
