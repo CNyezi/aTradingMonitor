@@ -28,6 +28,10 @@ export async function POST(req: Request) {
     return apiResponse.badRequest('Webhook secret not configured');
   }
 
+  if (!stripe) {
+    return apiResponse.serverError('Stripe is not initialized. Please check your environment variables.');
+  }
+
   let event: Stripe.Event;
 
   try {

@@ -36,11 +36,8 @@ export async function POST(request: NextRequest) {
 
   const { priceId, environment } = payload;
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-
-  if (!secretKey) {
-    console.error(`Stripe secret key for ${environment} environment is not configured.`);
-    return apiResponse.serverError(t("stripeSecretKeyNotConfigured", { environment }));
+  if (!stripe) {
+    return apiResponse.serverError('Stripe is not initialized. Please check your environment variables.');
   }
 
   try {

@@ -183,6 +183,12 @@ export async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
   if (existingOrder) {
   } else {
+
+    if (!stripe) {
+      console.error('Stripe is not initialized. Please check your environment variables.');
+      return;
+    }
+
     let userId: string | null = null;
     let planId: string | null = null;
     let priceId: string | null = null;
@@ -528,6 +534,11 @@ export async function handleRefund(charge: Stripe.Charge) {
   if (!originalOrder) {
     // The invoice.paid event triggered by a subscription is recorded with invoice_id, not payment_intentId, so the revoke credits logic for the subscription will not be triggered in handleRefund.
     console.warn(`Original order for payment intent ${paymentIntentId} not found. Subscription will not be revoked.`);
+  }
+
+  if (!stripe) {
+    console.error('Stripe is not initialized. Please check your environment variables.');
+    return;
   }
 
   let userId: string | null = null;

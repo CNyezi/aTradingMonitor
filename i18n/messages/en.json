@@ -668,7 +668,6 @@
           "deletePlanNotFound": "Pricing plan with ID {id} not found for deletion",
           "deletePlanSuccess": "Pricing plan {id} deleted successfully",
           "invalidPayload": "Invalid payload. Required fields: priceId (string), environment (test or live)",
-          "stripeSecretKeyNotConfigured": "Stripe secret key for {environment} environment is not configured.",
           "priceIdEnvironmentMismatch": "Price ID {priceId} belongs to the {belongsToEnvironment} environment, but the request specified {requestEnvironment}.",
           "priceNotFound": "Stripe Price ID {priceId} not found in {environment} mode.",
           "stripeAuthenticationFailed": "Stripe authentication failed. Check your API key for the {environment} environment.",

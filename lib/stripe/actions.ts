@@ -111,6 +111,11 @@ export async function getOrCreateStripeCustomer(
     throw new Error(`Could not fetch user profile for ${userId}`);
   }
 
+  if (!stripe) {
+    console.error('Stripe is not initialized. Please check your environment variables.');
+    throw new Error(`Stripe is not initialized. Please check your environment variables.`);
+  }
+
   if (userProfile?.stripe_customer_id) {
     const customer = await stripe.customers.retrieve(userProfile.stripe_customer_id);
     if (customer && !customer.deleted) {
@@ -184,6 +189,11 @@ export async function createStripePortalSession(): Promise<void> {
     if (!domain) throw new Error("Could not determine domain for return URL.");
     const returnUrl = `${protocol}://${domain}/${process.env.STRIPE_CUSTOMER_PORTAL_URL}`;
 
+    if (!stripe) {
+      console.error('Stripe is not initialized. Please check your environment variables.');
+      throw new Error(`Stripe is not initialized. Please check your environment variables.`);
+    }
+
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
       return_url: returnUrl,
@@ -226,6 +236,11 @@ export async function syncSubscriptionData(
   );
 
   try {
+    if (!stripe) {
+      console.error('Stripe is not initialized. Please check your environment variables.');
+      throw new Error(`Stripe is not initialized. Please check your environment variables.`);
+    }
+
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
       expand: ['default_payment_method', 'customer']
     });
@@ -359,6 +374,11 @@ export async function sendInvoicePaymentFailedEmail({
   if (!process.env.ADMIN_EMAIL) {
     console.error('FROM_EMAIL environment variable is not set. Cannot send email.');
     return;
+  }
+
+  if (!stripe) {
+    console.error('Stripe is not initialized. Please check your environment variables.');
+    throw new Error(`Stripe is not initialized. Please check your environment variables.`);
   }
 
   let userEmail: string | null = null;

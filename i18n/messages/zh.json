@@ -668,7 +668,6 @@
           "deletePlanNotFound": "定价卡片ID {id} 未找到",
           "deletePlanSuccess": "定价卡片 {id} 已成功删除",
           "invalidPayload": "无效的负载。必填字段：priceId (string), environment (test or live)",
-          "stripeSecretKeyNotConfigured": "Stripe secret key for {environment} 环境未配置。",
           "priceIdEnvironmentMismatch": "价格ID {priceId} 属于 {belongsToEnvironment} 环境，但请求指定 {requestEnvironment} 环境。",
           "priceNotFound": "Stripe Price ID {priceId} 未找到 {environment} 模式。",
           "stripeAuthenticationFailed": "Stripe 认证失败。检查 {environment} 环境的API密钥。",

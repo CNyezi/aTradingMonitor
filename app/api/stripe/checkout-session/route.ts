@@ -95,6 +95,10 @@ export async function POST(req: Request) {
       if (couponCode) { sessionParams.discounts = [{ coupon: couponCode }]; }
     }
 
+    if (!stripe) {
+      return apiResponse.serverError('Stripe is not initialized. Please check your environment variables.');
+    }
+
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     if (!session.url && !session.id) {

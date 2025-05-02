@@ -668,7 +668,6 @@
           "deletePlanNotFound": "プランID {id} が見つかりません",
           "deletePlanSuccess": "プランID {id} が正常に削除されました",
           "invalidPayload": "無効なペイロードです。必須フィールド: priceId (string), environment (test or live)",
-          "stripeSecretKeyNotConfigured": "{environment}環境のStripeシークレットキーが設定されていません。",
           "priceIdEnvironmentMismatch": "Price ID {priceId} は {belongsToEnvironment} 環境に属していますが、リクエストは {requestEnvironment} 環境を指定しています。",
           "priceNotFound": "Stripe Price ID {priceId} が {environment} 環境で見つかりません。",
           "stripeAuthenticationFailed": "Stripe認証に失敗しました。{environment} 環境のAPIキーを確認してください。",

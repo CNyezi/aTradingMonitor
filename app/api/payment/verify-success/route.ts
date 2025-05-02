@@ -23,6 +23,10 @@ export async function GET(req: NextRequest) {
     return apiResponse.badRequest('Missing session_id parameter');
   }
 
+  if (!stripe) {
+    return apiResponse.serverError('Stripe is not initialized. Please check your environment variables.');
+  }
+
   try {
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['line_items', 'payment_intent', 'subscription']
