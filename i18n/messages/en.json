@@ -691,6 +691,8 @@
         "TagManager": {
           "title": "Tag Management",
           "description": "Manage blog tags.",
+          "manageTagsButton": "Manage Tags",
+          "newTagPlaceholder": "Enter tag name",
           "selectTags": "Select Tags",
           "selectedTagsLabel": "Selected Tags",
           "searchPlaceholder": "Search tags",
@@ -701,10 +703,18 @@
           "creatingButton": "Creating...",
           "createButton": "Create Tag",
           "closeButton": "Close",
+          "editButton": "Edit",
+          "deleteButton": "Delete",
+          "confirmDelete": "Are you sure you want to delete the tag \"{name}\"? This action cannot be undone.",
+          "deleteSuccess": "Tag \"{name}\" deleted successfully.",
+          "updateSuccess": "Tag \"{name}\" updated successfully.",
           "errors": {
-            "fetchFailed": "Failed to fetch tags",
-            "alreadyExists": "Tag \"{name}\" already exists.",
-            "createFailed": "Failed to create tag"
+            "nameRequired": "Tag name is required.",
+            "fetchFailed": "Failed to load tags",
+            "alreadyExists": "A tag with the name \"{name}\" already exists.",
+            "createFailed": "Failed to create tag",
+            "deleteFailed": "Failed to delete tag",
+            "updateFailed": "Failed to update tag"
           }
         }
       },

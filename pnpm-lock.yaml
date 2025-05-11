@@ -221,6 +221,9 @@ dependencies:
   use-debounce:
     specifier: ^10.0.4
     version: 10.0.4(react@19.0.0)
+  vaul:
+    specifier: ^1.1.2
+    version: 1.1.2(@types/react-dom@19.0.4)(@types/react@19.0.11)(react-dom@19.0.0)(react@19.0.0)
   winston:
     specifier: ^3.17.0
     version: 3.17.0
@@ -10123,6 +10126,20 @@ packages:
   /uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
+    dev: false
+
+  /vaul@1.1.2(@types/react-dom@19.0.4)(@types/react@19.0.11)(react-dom@19.0.0)(react@19.0.0):
+    resolution: {integrity: sha512-ZFkClGpWyI2WUQjdLJ/BaGuV6AVQiJ3uELGk3OYtP+B6yCO7Cmn9vPFXVJkRaGkOJu3m8bQMgtyzNHixULceQA==}
+    peerDependencies:
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0.0 || ^19.0.0-rc
+    dependencies:
+      '@radix-ui/react-dialog': 1.1.13(@types/react-dom@19.0.4)(@types/react@19.0.11)(react-dom@19.0.0)(react@19.0.0)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
     dev: false
 
   /vfile-matter@5.0.0:

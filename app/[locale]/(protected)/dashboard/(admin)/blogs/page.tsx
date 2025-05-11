@@ -6,6 +6,7 @@ import { PlusCircle } from "lucide-react";
 import { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PostsDataTable } from "./PostsDataTable";
+import { TagManagementDrawer } from "./TagManagementDrawer";
 
 const PAGE_SIZE = 20;
 
@@ -63,11 +64,17 @@ export default async function AdminBlogsPage() {
     <div className="space-y-4 p-4 md:p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
-        <Button asChild className="gradient-bg text-white">
-          <I18nLink href={`/dashboard/blogs/new`} title={t("createNewButton")}>
-            <PlusCircle className="mr-2 h-4 w-4" /> {t("createNewButton")}
-          </I18nLink>
-        </Button>
+        <div className="flex space-x-2">
+          <TagManagementDrawer />
+          <Button asChild className="gradient-bg text-white">
+            <I18nLink
+              href={`/dashboard/blogs/new`}
+              title={t("createNewButton")}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" /> {t("createNewButton")}
+            </I18nLink>
+          </Button>
+        </div>
       </div>
       <p className="text-muted-foreground">{t("description")}</p>
 

@@ -691,6 +691,8 @@
         "TagManager": {
           "title": "标签管理",
           "description": "管理博客标签。",
+          "manageTagsButton": "管理标签",
+          "newTagPlaceholder": "输入新标签名称",
           "selectTags": "选择标签",
           "selectedTagsLabel": "已选标签",
           "searchPlaceholder": "搜索标签",
@@ -701,10 +703,18 @@
           "creatingButton": "创建中...",
           "createButton": "创建标签",
           "closeButton": "关闭",
+          "editButton": "编辑",
+          "deleteButton": "删除",
+          "confirmDelete": "确定要删除标签「{name}」吗？",
+          "deleteSuccess": "标签「{name}」已删除成功。",
+          "updateSuccess": "标签「{name}」已更新成功。",
           "errors": {
+            "nameRequired": "标签名称是必填的。",
             "fetchFailed": "获取标签失败",
             "alreadyExists": "标签「{name}」已存在。",
-            "createFailed": "创建标签失败"
+            "createFailed": "创建标签失败",
+            "deleteFailed": "删除标签失败",
+            "updateFailed": "更新标签失败"
           }
         }
       },
