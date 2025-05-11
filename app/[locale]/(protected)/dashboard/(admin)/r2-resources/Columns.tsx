@@ -1,6 +1,7 @@
 "use client";
 
 import { R2File } from "@/actions/r2-resources";
+import { ImagePreview } from "@/components/ImagePreview";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -136,14 +137,15 @@ export const getColumns = (
 
       if (fileType === "image") {
         return (
-          <img
-            src={previewUrl}
-            alt={`Preview of ${file.key}`}
-            width={64}
-            height={64}
-            className="object-contain rounded border bg-muted"
-            // Optional: Add error handling or placeholder
-          />
+          <ImagePreview>
+            <img
+              src={previewUrl}
+              alt={`Preview of ${file.key}`}
+              width={64}
+              height={64}
+              className="object-contain rounded border bg-muted"
+            />
+          </ImagePreview>
         );
       } else if (fileType === "video") {
         return (
