@@ -1,5 +1,6 @@
 "use client";
 
+import { R2File } from "@/actions/r2-resources";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +13,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import { Copy, Download, MoreHorizontal, Trash2, Video } from "lucide-react";
 import { toast } from "sonner";
-import { R2File } from "./actions";
 
 const getFileType = (key: string): "image" | "video" | "other" => {
   const lowerKey = key.toLowerCase();

@@ -1,3 +1,4 @@
+import { listR2Files } from "@/actions/r2-resources";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BLOGS_IMAGE_PATH } from "@/config/common";
 import { constructMetadata } from "@/lib/metadata";
@@ -6,7 +7,6 @@ import { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import { listR2Files } from "./actions";
 import { ImagesDataTable } from "./ImagesDataTable";
 
 type Params = Promise<{ locale: string }>;
@@ -25,11 +25,11 @@ export async function generateMetadata({
   });
 
   return constructMetadata({
-    page: "Images",
+    page: "R2 Resources",
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    path: `/dashboard/r2`,
+    path: `/dashboard/r2-resources`,
   });
 }
 

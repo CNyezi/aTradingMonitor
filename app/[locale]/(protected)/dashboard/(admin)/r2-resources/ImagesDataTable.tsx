@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteR2File, listR2Files, R2File } from "@/actions/r2-resources";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,7 +22,6 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
-import { deleteR2File, listR2Files, R2File } from "./actions";
 import { getColumns } from "./Columns";
 
 interface ImagesDataTableProps {
