@@ -189,9 +189,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          result.error || t("verifyStripeError", { status: response.status })
-        );
+        throw new Error(result.error || t("verifyStripeError"));
       }
 
       if (!result.success) {
@@ -241,7 +239,9 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       toast.success(t("stripePriceIdVerified"));
     } catch (error: any) {
       console.error("Stripe verification failed:", error);
-      toast.error(t("verifyStripeError", { status: error.status }));
+      toast.error(t("verifyStripeError"), {
+        description: error.message || error.props,
+      });
       // Optional
       // form.setValue("stripe_product_id", "");
       // form.setValue("payment_type", "");

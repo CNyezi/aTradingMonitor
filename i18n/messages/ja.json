@@ -593,7 +593,7 @@
         },
         "PricePlanForm": {
           "stripePriceIdRequired": "Stripe価格IDを先に入力してください。",
-          "verifyStripeError": "価格IDの検証に失敗しました（ステータス: {status}）",
+          "verifyStripeError": "価格IDの検証に失敗しました",
           "verifyStripeError2": "価格IDの検証に失敗しました",
           "stripePriceIdVerified": "Stripe価格IDの検証が完了しました！",
           "multiLanguageTemplateGenerated": "多言語テンプレートが生成されました。以下のJSONを編集してください。",

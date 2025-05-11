@@ -593,7 +593,7 @@
         },
         "PricePlanForm": {
           "stripePriceIdRequired": "请先输入Stripe价格ID。",
-          "verifyStripeError": "验证价格ID失败（状态码：{status}）",
+          "verifyStripeError": "验证价格ID失败",
           "verifyStripeError2": "验证价格ID失败",
           "stripePriceIdVerified": "Stripe价格ID验证成功！",
           "multiLanguageTemplateGenerated": "多语言模板已生成，请在下方编辑JSON数据。",

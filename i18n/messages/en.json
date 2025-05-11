@@ -593,7 +593,7 @@
         },
         "PricePlanForm": {
           "stripePriceIdRequired": "Please enter a Stripe Price ID first.",
-          "verifyStripeError": "Failed to verify Price ID (Status: {status})",
+          "verifyStripeError": "Failed to verify Price ID",
           "verifyStripeError2": "Failed to verify Price ID",
           "stripePriceIdVerified": "Stripe Price ID verified successfully!",
           "multiLanguageTemplateGenerated": "Multi-language template generated. Edit the JSON below.",
