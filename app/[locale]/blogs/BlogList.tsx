@@ -1,6 +1,7 @@
 "use client";
 
 import { listPublishedPostsAction, PublicPost } from "@/actions/blogs/posts";
+import { Tag } from "@/actions/blogs/tags";
 import { BlogCard } from "@/app/[locale]/blogs/BlogCard";
 import { BlogPost } from "@/types/blog";
 import dayjs from "dayjs";
@@ -8,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { toast } from "sonner";
+import { TagSelector } from "./TagSelector";
 
 function mapServerPostToBlogCard(post: PublicPost, locale: string): BlogPost {
   return {
@@ -29,6 +31,7 @@ interface BlogListProps {
   localPosts: BlogPost[];
   initialPosts: PublicPost[];
   initialTotal: number;
+  serverTags: Tag[];
   locale: string;
   pageSize: number;
 }
@@ -37,6 +40,7 @@ export function BlogList({
   localPosts,
   initialPosts,
   initialTotal,
+  serverTags,
   locale,
   pageSize,
 }: BlogListProps) {
@@ -46,6 +50,7 @@ export function BlogList({
     initialPosts.length < initialTotal
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
   const { ref, inView } = useInView({
     threshold: 0,
     triggerOnce: false,
@@ -59,6 +64,7 @@ export function BlogList({
       pageIndex: pageIndex,
       pageSize: pageSize,
       locale: locale,
+      tagId: selectedTagId,
     });
 
     if (result.success && result.data?.posts) {
@@ -82,6 +88,7 @@ export function BlogList({
     hasMore,
     initialTotal,
     posts.length,
+    selectedTagId,
   ]);
 
   useEffect(() => {
@@ -96,36 +103,86 @@ export function BlogList({
     setHasMore(initialPosts.length < initialTotal);
   }, [initialPosts, initialTotal]);
 
+  const handleTagSelect = async (tagId: string | null) => {
+    if (tagId === selectedTagId) return;
+
+    setSelectedTagId(tagId);
+    setIsLoading(true);
+
+    const result = await listPublishedPostsAction({
+      pageIndex: 0,
+      pageSize: pageSize,
+      locale: locale,
+      tagId: tagId,
+    });
+
+    if (result.success && result.data?.posts) {
+      setPosts(result.data.posts);
+      setPageIndex(1);
+      setHasMore(result.data.posts.length < (result.data.count ?? 0));
+    } else {
+      console.error("Failed to filter posts by tag:", result.error);
+      toast.error("Failed to filter posts", {
+        description: result.error,
+      });
+    }
+
+    setIsLoading(false);
+  };
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {localPosts.map((post) => (
-          <BlogCard key={`local-${post.slug}`} locale={locale} post={post} />
-        ))}
-
-        {posts.map((post) => (
-          <BlogCard
-            key={`server-${post.id}`}
-            locale={locale}
-            post={mapServerPostToBlogCard(post, locale)}
-          />
-        ))}
-      </div>
-
-      {hasMore && (
-        <div ref={ref} className="flex justify-center items-center py-8">
-          {isLoading ? (
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          ) : (
-            <span className="text-gray-500">Loading more...</span>
-          )}
-        </div>
+      {serverTags.length > 0 && (
+        <TagSelector
+          tags={serverTags}
+          selectedTagId={selectedTagId}
+          onSelectTag={handleTagSelect}
+        />
       )}
 
-      {!hasMore && posts.length >= initialTotal && posts.length > 0 && (
-        <p className="text-center text-gray-500 py-8">
-          You've reached the end!
-        </p>
+      {isLoading && pageIndex === 1 ? (
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {selectedTagId === null &&
+              localPosts.map((post) => (
+                <BlogCard
+                  key={`local-${post.slug}`}
+                  locale={locale}
+                  post={post}
+                />
+              ))}
+
+            {posts.map((post) => (
+              <BlogCard
+                key={`server-${post.id}`}
+                locale={locale}
+                post={mapServerPostToBlogCard(post, locale)}
+              />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div ref={ref} className="flex justify-center items-center py-8">
+              {isLoading ? (
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              ) : (
+                <span className="text-gray-500">Loading more...</span>
+              )}
+            </div>
+          )}
+
+          {!hasMore && posts.length >= 0 && (
+            <p className="text-center text-gray-500 py-8">
+              {posts.length === 0
+                ? "No posts found for this tag."
+                : "You've reached the end!"}
+            </p>
+          )}
+        </>
       )}
     </>
   );

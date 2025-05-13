@@ -37,7 +37,7 @@ export async function listTagsAction({
   locale,
 }: {
   query?: string;
-  locale: Locale;
+  locale?: Locale;
 }): Promise<ListTagsResponse> {
   const supabase = await createClient();
 
@@ -79,18 +79,18 @@ export async function createTagAction({ name, locale }: { name: string, locale: 
   }
 
   try {
-    const { count, error: countError } = await supabaseAdmin
-      .from('tags')
-      .select('*', { count: 'exact', head: true });
+    // const { count, error: countError } = await supabaseAdmin
+    //   .from('tags')
+    //   .select('*', { count: 'exact', head: true });
 
-    if (countError) {
-      console.error("Error fetching tag count:", countError);
-      throw new Error("Failed to fetch tag count.");
-    }
+    // if (countError) {
+    //   console.error("Error fetching tag count:", countError);
+    //   throw new Error("Failed to fetch tag count.");
+    // }
 
-    if (count !== null && count >= 50) {
-      return actionResponse.badRequest("Maximum number of tags (50) reached.");
-    }
+    // if (count !== null && count >= 50) {
+    //   return actionResponse.badRequest("Maximum number of tags (50) reached.");
+    // }
 
     const { data: existingTag, error: fetchError } = await supabaseAdmin
       .from('tags')

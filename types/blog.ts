@@ -8,6 +8,7 @@ export type BlogPost = {
   tags?: string
   published_at: Date
   status?: 'draft' | 'published' | 'archived'
+  visibility?: 'public' | 'logged_in' | 'subscribers'
   is_pinned?: boolean
   content: string
   metadata?: {

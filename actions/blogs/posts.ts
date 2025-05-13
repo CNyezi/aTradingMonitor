@@ -438,6 +438,7 @@ export type PublicPost = Pick<
 interface ListPublishedPostsParams {
   pageIndex?: number;
   pageSize?: number;
+  tagId?: string | null;
   locale?: string;
 }
 
@@ -453,7 +454,8 @@ interface ListPublishedPostsResult {
 export async function listPublishedPostsAction({
   pageIndex = 0,
   pageSize = 60,
-  locale = 'en'
+  tagId = null,
+  locale = 'en',
 }: ListPublishedPostsParams = {}): Promise<ListPublishedPostsResult> {
   const supabaseAdmin = createAdminClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -461,16 +463,23 @@ export async function listPublishedPostsAction({
   );
 
   try {
+    const tagsSelectPart = tagId ? "tags!inner (id, name)" : "tags (id, name)";
+    const selectQuery = `
+        id, language, title, slug, description, featured_image_url, is_pinned, status, visibility, published_at, created_at,
+        ${tagsSelectPart}
+    `;
+
     let query = supabaseAdmin
       .from("posts")
-      .select(`
-        id, language, title, slug, description, featured_image_url, is_pinned, status, published_at, created_at,
-        tags (id, name)
-      `, { count: 'exact' })
+      .select(selectQuery, { count: 'exact' })
       .eq('status', 'published');
 
     if (locale) {
       query = query.eq('language', locale);
+    }
+
+    if (tagId) {
+      query = query.eq('tags.id', tagId);
     }
 
     const from = pageIndex * pageSize;
@@ -486,10 +495,10 @@ export async function listPublishedPostsAction({
 
     if (error) throw error;
 
-    const postsWithProcessedTags = (data || []).map(post => {
-      const { tags, ...restOfPost } = post;
-      const tagNames = (tags && tags.length > 0)
-        ? tags.map(tag => tag.name).join(', ')
+    const postsWithProcessedTags = (data || []).map((post) => {
+      const { tags, ...restOfPost } = post as unknown as PostWithTags;
+      const tagNames = (tags && Array.isArray(tags) && tags.length > 0)
+        ? tags.map(t => t.name).join(', ')
         : null;
       return {
         ...restOfPost,
@@ -505,3 +514,146 @@ export async function listPublishedPostsAction({
     return actionResponse.error(errorMessage);
   }
 }
+
+export type PublicPostWithContent = Pick<
+  Database['public']['Tables']['posts']['Row'],
+  | 'id'
+  | 'language'
+  | 'title'
+  | 'slug'
+  | 'description'
+  | 'content'
+  | 'featured_image_url'
+  | 'status'
+  | 'is_pinned'
+  | 'published_at'
+  | 'created_at'
+> & {
+  tags: string | null;
+};
+
+
+interface GetPublishedPostBySlugParams {
+  slug: string;
+  locale?: string;
+}
+
+interface GetPublishedPostBySlugResult {
+  success: boolean;
+  data?: {
+    post?: PublicPostWithContent;
+  }
+  error?: string;
+  customCode?: string
+}
+
+
+export async function getPublishedPostBySlugAction({
+  slug,
+  locale = 'en'
+}: GetPublishedPostBySlugParams): Promise<GetPublishedPostBySlugResult> {
+  if (!slug) {
+    return actionResponse.badRequest("Slug is required.");
+  }
+
+  const supabaseAdmin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  try {
+    const { data: post, error: fetchError } = await supabaseAdmin
+      .from('posts')
+      .select(`
+        id, language, title, slug, description, content, featured_image_url, is_pinned, status, visibility, published_at, created_at,
+        tags (id, name)
+      `)
+      .eq('slug', slug)
+      .eq('language', locale)
+      .eq('status', 'published')
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+    if (!post) return actionResponse.notFound("Published post not found with the given slug and locale.");
+
+    if (post.visibility === 'logged_in' || post.visibility === 'subscribers') {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        return actionResponse.unauthorized("You must be logged in to view this post.", 'unauthorized');
+      }
+
+      if (post.visibility === 'subscribers') {
+        // --- TODO: [custom] check user subscription or custom logic ---
+        const isSubscriber = await checkUserSubscription(user.id);
+        if (!isSubscriber) {
+          return actionResponse.forbidden("You must be a subscriber to view this post.", 'notSubscriber');
+        }
+        // --- End: [custom] check user subscription or custom logic
+      }
+    }
+
+    const { tags, ...restOfPost } = post;
+    const tagNames = (tags && tags.length > 0)
+      ? tags.map(tag => tag.name).join(', ')
+      : null;
+
+    const postWithProcessedTags: PublicPostWithContent = {
+      ...restOfPost,
+      content: restOfPost.content ?? '',
+      tags: tagNames
+    };
+
+    return actionResponse.success({ post: postWithProcessedTags });
+
+  } catch (error) {
+    console.error(`Get Published Post By Slug Action Failed for slug ${slug}, locale ${locale}:`, error);
+    const errorMessage = getErrorMessage(error);
+    return actionResponse.error(errorMessage);
+  }
+}
+
+// --- TODO: [custom] check user subscription or custom logic ---
+async function checkUserSubscription(userId: string): Promise<boolean> {
+  if (!userId) {
+    console.warn("checkUserSubscription called with no userId");
+    return false;
+  }
+
+  const supabaseAdmin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  try {
+    const { data: latestSubscriptionOrder, error: queryError } = await supabaseAdmin
+      .from('orders')
+      .select('status, period_end')
+      .eq('user_id', userId)
+      .in('order_type', ['subscription_initial', 'subscription_renewal'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (queryError) {
+      console.error(`Error fetching user subscription status for ${userId}:`, queryError.message);
+      return false;
+    }
+
+    if (!latestSubscriptionOrder) {
+      return false;
+    }
+
+    const isActive = latestSubscriptionOrder.status === 'active';
+    const isWithinPeriod = latestSubscriptionOrder.period_end && new Date(latestSubscriptionOrder.period_end) > new Date();
+
+    return !!(isActive && isWithinPeriod);
+
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error(`Exception in checkUserSubscription for user ${userId}:`, errorMessage);
+    return false;
+  }
+}
+// --- End: [custom] check user subscription or custom logic

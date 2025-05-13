@@ -1,28 +1,28 @@
 export type ActionResult<T = any> =
   | { success: true; data?: T }
-  | { success: false; error: string };
+  | { success: false; error: string, customCode?: string };
 
 export const actionResponse = {
   success: <T>(data?: T): ActionResult<T> => {
     return { success: true, data };
   },
-  error: (message: string): ActionResult<never> => {
-    return { success: false, error: message };
+  error: <T>(message: string, customCode?: string): ActionResult<T> => {
+    return { success: false, error: message, customCode };
   },
 
-  unauthorized: (message = "Unauthorized"): ActionResult<never> => {
-    return actionResponse.error(message);
+  unauthorized: <T>(message = "Unauthorized", customCode?: string): ActionResult<T> => {
+    return actionResponse.error(message, customCode);
   },
-  badRequest: (message = "Bad Request"): ActionResult<never> => {
-    return actionResponse.error(message);
+  badRequest: <T>(message = "Bad Request", customCode?: string): ActionResult<T> => {
+    return actionResponse.error(message, customCode);
   },
-  forbidden: (message = "Forbidden"): ActionResult<never> => {
-    return actionResponse.error(message);
+  forbidden: <T>(message = "Forbidden", customCode?: string): ActionResult<T> => {
+    return actionResponse.error(message, customCode);
   },
-  notFound: (message = "Not Found"): ActionResult<never> => {
-    return actionResponse.error(message);
+  notFound: <T>(message = "Not Found", customCode?: string): ActionResult<T> => {
+    return actionResponse.error(message, customCode);
   },
-  conflict: (message = "Conflict"): ActionResult<never> => {
-    return actionResponse.error(message);
+  conflict: <T>(message = "Conflict", customCode?: string): ActionResult<T> => {
+    return actionResponse.error(message, customCode);
   },
 };

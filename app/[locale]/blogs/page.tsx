@@ -1,4 +1,5 @@
 import { listPublishedPostsAction } from "@/actions/blogs/posts";
+import { listTagsAction, Tag } from "@/actions/blogs/tags";
 import { Locale } from "@/i18n/routing";
 import { getPosts } from "@/lib/getBlogs";
 import { constructMetadata } from "@/lib/metadata";
@@ -58,6 +59,12 @@ export default async function Page({ params }: { params: Params }) {
     );
   }
 
+  const tagsResult = await listTagsAction({});
+  let serverTags: Tag[] = [];
+  if (tagsResult.success && tagsResult.data?.tags) {
+    serverTags = tagsResult.data.tags;
+  }
+
   const noPostsFound =
     localPosts.length === 0 && initialServerPosts.length === 0;
 
@@ -81,6 +88,7 @@ export default async function Page({ params }: { params: Params }) {
           localPosts={localPosts}
           initialPosts={initialServerPosts}
           initialTotal={totalServerPosts}
+          serverTags={serverTags}
           locale={locale}
           pageSize={SERVER_POST_PAGE_SIZE}
         />
