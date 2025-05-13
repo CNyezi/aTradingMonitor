@@ -428,6 +428,7 @@ export type PublicPost = Pick<
   | 'description'
   | 'featured_image_url'
   | 'status'
+  | 'visibility'
   | 'is_pinned'
   | 'published_at'
   | 'created_at'
