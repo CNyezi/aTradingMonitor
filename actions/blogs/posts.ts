@@ -414,3 +414,94 @@ export async function deletePostAction({ postId, locale }: DeletePostParams): Pr
     return actionResponse.error(errorMessage);
   }
 }
+
+/**
+ * 英语：User-side functionality
+ */
+
+export type PublicPost = Pick<
+  Database['public']['Tables']['posts']['Row'],
+  | 'id'
+  | 'language'
+  | 'title'
+  | 'slug'
+  | 'description'
+  | 'featured_image_url'
+  | 'status'
+  | 'is_pinned'
+  | 'published_at'
+  | 'created_at'
+> & {
+  tags: string | null;
+};
+
+interface ListPublishedPostsParams {
+  pageIndex?: number;
+  pageSize?: number;
+  locale?: string;
+}
+
+interface ListPublishedPostsResult {
+  success: boolean;
+  data?: {
+    posts?: PublicPost[];
+    count?: number;
+  };
+  error?: string;
+}
+
+export async function listPublishedPostsAction({
+  pageIndex = 0,
+  pageSize = 60,
+  locale = 'en'
+}: ListPublishedPostsParams = {}): Promise<ListPublishedPostsResult> {
+  const supabaseAdmin = createAdminClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  try {
+    let query = supabaseAdmin
+      .from("posts")
+      .select(`
+        id, language, title, slug, description, featured_image_url, is_pinned, status, published_at, created_at,
+        tags (id, name)
+      `, { count: 'exact' })
+      .eq('status', 'published');
+
+    if (locale) {
+      query = query.eq('language', locale);
+    }
+
+    const from = pageIndex * pageSize;
+    const to = from + pageSize - 1;
+
+    query = query
+      .order('is_pinned', { ascending: false })
+      .order('published_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    const { data, error, count } = await query;
+
+    if (error) throw error;
+
+    const postsWithProcessedTags = (data || []).map(post => {
+      const { tags, ...restOfPost } = post;
+      const tagNames = (tags && tags.length > 0)
+        ? tags.map(tag => tag.name).join(', ')
+        : null;
+      return {
+        ...restOfPost,
+        tags: tagNames
+      };
+    }) as PublicPost[];
+
+    return actionResponse.success({ posts: postsWithProcessedTags, count: count ?? 0 });
+
+  } catch (error) {
+    console.error("List Published Posts Action Failed:", error);
+    const errorMessage = getErrorMessage(error);
+    return actionResponse.error(errorMessage);
+  }
+}
