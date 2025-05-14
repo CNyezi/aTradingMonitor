@@ -809,7 +809,7 @@
           "buttonLink": "Button Link/Action",
           "buttonLinkPlaceholder": "Leave empty for Stripe Checkout, or enter URL (https://...) or mailto:",
           "buttonLinkDescription": "Override Stripe Checkout if filled. Use full URLs or `mailto:email@example.com`.",
-          "multiLanguageTranslations": "Multi-language Translations (Optional)",
+          "multiLanguageTranslations": "Multi-language Translations",
           "multiLanguageTranslationsDescription": "Provide translations for text fields in JSON format.",
           "generateTemplate": "Generate Template",
           "translateByAI": "Translate by AI",

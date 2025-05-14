@@ -809,7 +809,7 @@
           "buttonLink": "按钮链接",
           "buttonLinkPlaceholder": "留空则使用Stripe结账；也可以手动输入URL（https://...）或mailto:地址",
           "buttonLinkDescription": "如手动填写，请输入完整URL或`mailto:email@example.com`格式的地址，此操作会覆盖Stripe付款行为。",
-          "multiLanguageTranslations": "多语言翻译（可选）",
+          "multiLanguageTranslations": "多语言翻译",
           "multiLanguageTranslationsDescription": "以JSON格式提供文本字段的翻译。",
           "generateTemplate": "生成模板",
           "translateByAI": "AI智能翻译",

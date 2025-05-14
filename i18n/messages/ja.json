@@ -809,7 +809,7 @@
           "buttonLink": "ボタンリンク/アクション",
           "buttonLinkPlaceholder": "Stripe決済の場合は空欄、または URL（https://...）や mailto: を入力",
           "buttonLinkDescription": "入力するとStripe決済が上書きされます。完全なURLまたは`mailto:email@example.com`形式で指定してください。",
-          "multiLanguageTranslations": "多言語翻訳（任意）",
+          "multiLanguageTranslations": "多言語翻訳",
           "multiLanguageTranslationsDescription": "テキストフィールドの翻訳をJSON形式で提供してください。",
           "generateTemplate": "テンプレート生成",
           "translateByAI": "AI翻訳を実行",
