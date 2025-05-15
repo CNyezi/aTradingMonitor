@@ -24,7 +24,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
-import { getUsers, GetUsersResult } from "./actions";
+import { getUsers, GetUsersResult } from "../../../../../../actions/users";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -73,8 +73,10 @@ export function DataTable<TData, TValue>({
           pageSize: pagination.pageSize,
           filter: debouncedGlobalFilter,
         });
-        setData(result.users as TData[]);
-        setPageCount(Math.ceil(result.totalCount / pagination.pageSize));
+        setData(result.data?.users as TData[]);
+        setPageCount(
+          Math.ceil((result.data?.totalCount || 0) / pagination.pageSize)
+        );
       } catch (error: any) {
         toast.error("Failed to fetch data", {
           description: error.message,
@@ -122,7 +124,7 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
       </div>
-      <div className="rounded-md border relative min-h-[200px] max-h-[70vh] overflow-y-auto">
+      <div className="rounded-md border relative min-h-[200px] max-h-[calc(100vh-300px)] overflow-y-auto">
         {isLoading && (
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-10">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />

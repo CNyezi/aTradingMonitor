@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
-import { getUsers } from "./actions";
+import { getUsers } from "../../../../../../actions/users";
 import { columns } from "./Columns";
 import { DataTable } from "./DataTable";
 
@@ -40,8 +40,10 @@ async function UsersTable() {
   return (
     <DataTable
       columns={columns}
-      initialData={initialData.users}
-      initialPageCount={Math.ceil(initialData.totalCount / PAGE_SIZE)}
+      initialData={initialData.data?.users || []}
+      initialPageCount={Math.ceil(
+        initialData.data?.totalCount || 0 / PAGE_SIZE
+      )}
       pageSize={PAGE_SIZE}
     />
   );

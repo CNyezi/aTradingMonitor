@@ -1,13 +1,18 @@
 "use server";
 
+import { actionResponse } from '@/lib/action-response';
 import { isAdmin } from '@/lib/supabase/isAdmin';
 import { Database } from '@/lib/supabase/types';
 import { UserType } from "@/types/admin/users";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export interface GetUsersResult {
-  users: UserType[];
-  totalCount: number;
+  success: boolean;
+  data?: {
+    users: UserType[];
+    totalCount: number;
+  };
+  error?: string;
 }
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -22,10 +27,8 @@ export async function getUsers({
   filter?: string;
 }): Promise<GetUsersResult> {
 
-  const isAdminUser = await isAdmin();
-  if (!isAdminUser) {
-    console.error(`not admin user`);
-    throw new Error("Permission denied: you are not an admin user");
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden("Admin privileges required.");
   }
 
   const supabaseAdmin = createAdminClient<Database>(
@@ -53,11 +56,11 @@ export async function getUsers({
 
   if (error) {
     console.error("Error fetching users:", error);
-    throw new Error(`Failed to fetch users: ${error.message}`);
+    return actionResponse.notFound("Failed to fetch users");
   }
 
-  return {
+  return actionResponse.success({
     users: users || [],
     totalCount: count || 0,
-  };
+  });
 } 
