@@ -1,5 +1,6 @@
 export const maxDuration = 30;
 
+import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { apiResponse } from '@/lib/api-response';
 import stripe from '@/lib/stripe/stripe';
 import { isAdmin } from '@/lib/supabase/isAdmin';
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
   const { get } = await headers();
   const locale = get("Accept-Language");
 
-  const t = await getTranslations({ locale: locale || "en", namespace: 'Dashboard.Admin.Prices.API' });
+  const t = await getTranslations({ locale: locale || DEFAULT_LOCALE, namespace: 'Dashboard.Admin.Prices.API' });
 
   let payload: VerifyPricePayload;
   try {

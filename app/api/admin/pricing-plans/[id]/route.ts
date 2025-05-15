@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { apiResponse } from '@/lib/api-response';
 import { isAdmin } from '@/lib/supabase/isAdmin';
 import { Json } from '@/lib/supabase/types';
@@ -24,7 +25,7 @@ export async function PUT(
   const { get } = await headers();
   const locale = get("Accept-Language");
 
-  const t = await getTranslations({ locale: locale || "en", namespace: 'Dashboard.Admin.Prices.API' });
+  const t = await getTranslations({ locale: locale || DEFAULT_LOCALE, namespace: 'Dashboard.Admin.Prices.API' });
 
   const { id } = await params;
   if (!id) {
@@ -120,7 +121,7 @@ export async function DELETE(
   const { get } = await headers();
   const locale = get("Accept-Language");
 
-  const t = await getTranslations({ locale: locale || "en", namespace: 'Dashboard.Admin.Prices.API' });
+  const t = await getTranslations({ locale: locale || DEFAULT_LOCALE, namespace: 'Dashboard.Admin.Prices.API' });
 
   const { id } = await params;
   if (!id) {

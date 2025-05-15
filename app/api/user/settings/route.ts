@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { apiResponse } from "@/lib/api-response";
 import { deleteFile, uploadFile } from "@/lib/cloudflare/r2";
 import { createClient } from "@/lib/supabase/server";
@@ -23,7 +24,7 @@ export async function PUT(request: Request) {
     const { get } = await headers();
     const locale = get("Accept-Language");
 
-    const t = await getTranslations({ locale: locale || "en", namespace: 'Dashboard.User.Settings' });
+    const t = await getTranslations({ locale: locale || DEFAULT_LOCALE, namespace: 'Dashboard.User.Settings' });
 
     const formData = await request.formData();
     const fullName = formData.get("fullName") as string;

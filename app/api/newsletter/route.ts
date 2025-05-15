@@ -1,4 +1,5 @@
 import { subscribeToNewsletter } from '@/app/actions/newsletter';
+import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { apiResponse } from '@/lib/api-response';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
@@ -8,7 +9,7 @@ export async function POST(request: Request,
 
   const { get } = await headers();
   const locale = get("Accept-Language");
-  const t = await getTranslations({ locale: locale || "en", namespace: 'Footer.Newsletter' });
+  const t = await getTranslations({ locale: locale || DEFAULT_LOCALE, namespace: 'Footer.Newsletter' });
 
   try {
     const { email } = await request.json();
