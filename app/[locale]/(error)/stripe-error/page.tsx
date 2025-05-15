@@ -46,12 +46,14 @@ export default async function StripeErrorPage({
         <p className="mb-6">{message}</p>
         <I18nLink
           href="/"
+          title={t("goToHome")}
           className="px-4 py-2 gradient-bg text-white rounded-md"
         >
           {t("goToHome")}
         </I18nLink>
         <I18nLink
           href="/dashboard"
+          title={t("goToDashboard")}
           className="ml-4 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
         >
           {t("goToDashboard")}

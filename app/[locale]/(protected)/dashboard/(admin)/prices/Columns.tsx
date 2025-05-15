@@ -196,7 +196,11 @@ export const columns: ColumnDef<PricingPlan>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <I18nLink href={`/dashboard/prices/${plan.id}/edit`}>
+              <I18nLink
+                href={`/dashboard/prices/${plan.id}/edit`}
+                title="Edit"
+                prefetch={false}
+              >
                 Edit Plan
               </I18nLink>
             </DropdownMenuItem>

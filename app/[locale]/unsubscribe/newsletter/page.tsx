@@ -79,6 +79,8 @@ export default async function Page(props: { searchParams: SearchParams }) {
               {t("unsubscribe.contactPrefix")}
               <I18nLink
                 href={`mailto:${process.env.ADMIN_EMAIL}`}
+                title={process.env.ADMIN_EMAIL}
+                prefetch={false}
                 className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
               >
                 {process.env.ADMIN_EMAIL}
@@ -91,6 +93,7 @@ export default async function Page(props: { searchParams: SearchParams }) {
       <div className="mt-8 text-center">
         <I18nLink
           href="/"
+          title={t("unsubscribe.backToHome")}
           prefetch={true}
           className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
         >

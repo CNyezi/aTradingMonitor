@@ -33,6 +33,7 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <I18nLink
                 href="/#pricing"
+                title={t("getStarted")}
                 prefetch={false}
                 className="gradient-bg text-white px-8 py-3 rounded-lg font-medium text-center hover:opacity-90 shadow-lg"
               >

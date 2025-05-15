@@ -106,6 +106,7 @@ export default async function BlogPage({ params }: { params: Params }) {
                 <Button asChild variant="outline">
                   <I18nLink
                     href={`/blogs`}
+                    title={t("BlogDetail.backToBlogs")}
                     prefetch={false}
                     className="inline-flex items-center justify-center gap-2"
                   >
@@ -119,7 +120,9 @@ export default async function BlogPage({ params }: { params: Params }) {
                 >
                   <I18nLink
                     href={actionLink}
+                    title={actionText}
                     className="inline-flex items-center justify-center gap-2"
+                    prefetch={false}
                   >
                     {actionText}
                     <ArrowRightIcon className="w-4 h-4" />
@@ -170,7 +173,11 @@ export default async function BlogPage({ params }: { params: Params }) {
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="mb-8">
         <Button asChild variant="ghost" size="sm" className="group">
-          <I18nLink href="/blogs" prefetch={false}>
+          <I18nLink
+            href="/blogs"
+            title={t("BlogDetail.backToBlogs")}
+            prefetch={false}
+          >
             <ArrowLeftIcon className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
             {t("BlogDetail.backToBlogs")}
           </I18nLink>
@@ -245,6 +252,7 @@ export default async function BlogPage({ params }: { params: Params }) {
         <Button asChild variant="outline" size="sm">
           <I18nLink
             href="/blogs"
+            title={t("BlogDetail.backToBlogs")}
             prefetch={false}
             className="inline-flex items-center"
           >

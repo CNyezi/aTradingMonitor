@@ -142,6 +142,8 @@ export default function TechStack() {
 
             <I18nLink
               href="/#pricing"
+              title="Pricing"
+              prefetch={false}
               className="flex-shrink-0 w-16 h-16 rounded-full bg-white dark:bg-gray-200 shadow-md hover:shadow-lg flex items-center justify-center group transition-all duration-300 border border-gray-100 dark:border-gray-700"
             >
               <ArrowRight className="w-6 h-6 text-indigo-600  group-hover:translate-x-1 transition-transform" />

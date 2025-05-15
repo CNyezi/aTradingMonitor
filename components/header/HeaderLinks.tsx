@@ -18,7 +18,7 @@ const HeaderLinks = () => {
           key={link.name}
           href={link.href}
           title={link.name}
-          prefetch={true}
+          prefetch={link.target && link.target === "_blank" ? false : true}
           target={link.target || "_self"}
           rel={link.rel || undefined}
           className={cn(

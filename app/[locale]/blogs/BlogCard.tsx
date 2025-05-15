@@ -33,6 +33,7 @@ export function BlogCard({ post, locale }: { post: BlogPost; locale: string }) {
   return (
     <I18nLink
       href={`/blogs/${post.slug}`}
+      title={post.title}
       prefetch={false}
       className="group block"
     >

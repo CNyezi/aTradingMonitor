@@ -15,6 +15,7 @@ const Header = () => {
         <div className="flex items-center space-x-6 md:space-x-12">
           <I18nLink
             href="/"
+            title={t("title")}
             prefetch={true}
             className="flex items-center space-x-1 font-bold"
           >

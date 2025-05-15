@@ -148,6 +148,7 @@ export default async function Footer() {
             <div className="flex space-x-6 mt-4 md:mt-0">
               <I18nLink
                 href="/privacy-policy"
+                title={tFooter("PrivacyPolicy")}
                 prefetch={false}
                 className="text-gray-400 hover:text-white text-sm"
               >
@@ -155,6 +156,7 @@ export default async function Footer() {
               </I18nLink>
               <I18nLink
                 href="/terms-of-service"
+                title={tFooter("TermsOfService")}
                 prefetch={false}
                 className="text-gray-400 hover:text-white text-sm"
               >

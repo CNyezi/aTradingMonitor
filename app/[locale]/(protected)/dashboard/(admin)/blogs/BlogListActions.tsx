@@ -75,7 +75,11 @@ export function BlogListActions({ post }: BlogListActionsProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem asChild>
-            <I18nLink href={`/dashboard/blogs/${post.id}/edit`}>
+            <I18nLink
+              href={`/dashboard/blogs/${post.id}/edit`}
+              title="Edit"
+              prefetch={false}
+            >
               <Pencil className="mr-2 h-4 w-4" /> Edit
             </I18nLink>
           </DropdownMenuItem>

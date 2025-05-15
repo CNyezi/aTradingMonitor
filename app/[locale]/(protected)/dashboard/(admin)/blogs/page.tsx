@@ -70,6 +70,7 @@ export default async function AdminBlogsPage() {
             <I18nLink
               href={`/dashboard/blogs/new`}
               title={t("createNewButton")}
+              prefetch={false}
             >
               <PlusCircle className="mr-2 h-4 w-4" /> {t("createNewButton")}
             </I18nLink>
