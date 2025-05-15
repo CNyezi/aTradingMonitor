@@ -11,7 +11,7 @@ import { NextRequest } from 'next/server';
 // POST /api/admin/pricing-plans - Create a new plan
 export async function POST(request: NextRequest) {
   if (!(await isAdmin())) {
-    return apiResponse.unauthorized();
+    return apiResponse.forbidden('Admin privileges required.');
   }
 
   const { get } = await headers();

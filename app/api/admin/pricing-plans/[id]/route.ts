@@ -14,7 +14,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await isAdmin())) {
-    return apiResponse.unauthorized();
+    return apiResponse.forbidden('Admin privileges required.');
   }
 
   const supabase = await createAdminClient(
@@ -110,7 +110,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   if (!(await isAdmin())) {
-    return apiResponse.unauthorized();
+    return apiResponse.forbidden('Admin privileges required.');
   }
 
   const supabase = await createAdminClient(

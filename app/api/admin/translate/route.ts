@@ -36,7 +36,7 @@ const inputSchema = z.object({
 export async function POST(req: Request) {
   try {
     if (!(await isAdmin())) {
-      return apiResponse.unauthorized();
+      return apiResponse.forbidden('Admin privileges required.');
     }
 
     const rawBody = await req.json();

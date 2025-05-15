@@ -15,7 +15,7 @@ interface VerifyPricePayload {
 
 export async function POST(request: NextRequest) {
   if (!(await isAdmin())) {
-    return apiResponse.unauthorized();
+    return apiResponse.forbidden('Admin privileges required.');
   }
 
   const { get } = await headers();
