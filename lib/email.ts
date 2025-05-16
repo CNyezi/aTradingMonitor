@@ -14,7 +14,7 @@ const EMAIL_REGEX = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-
 
 export function validateEmail(email: string): {
   isValid: boolean;
-  error?: string;
+  error?: EmailValidationError;
 } {
   if (!EMAIL_REGEX.test(email)) {
     return {
