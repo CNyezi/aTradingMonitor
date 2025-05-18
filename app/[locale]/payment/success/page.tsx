@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link as I18nLink, useRouter } from "@/i18n/routing";
+import { DEFAULT_LOCALE, Link as I18nLink, useRouter } from "@/i18n/routing";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import {
@@ -50,7 +50,7 @@ function SuccessContent() {
           `/api/payment/verify-success?session_id=${sessionId}`,
           {
             headers: {
-              "Accept-Language": (locale || "en") as string,
+              "Accept-Language": (locale || DEFAULT_LOCALE) as string,
             },
           }
         );

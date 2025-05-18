@@ -41,7 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRouter } from "@/i18n/routing";
+import { DEFAULT_LOCALE, useRouter } from "@/i18n/routing";
 import { PricingPlan } from "@/types/pricing";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -88,7 +88,7 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "Accept-Language": (locale || "en") as string,
+          "Accept-Language": (locale || DEFAULT_LOCALE) as string,
         },
       });
 

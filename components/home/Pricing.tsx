@@ -1,5 +1,6 @@
 import { getPublicPricingPlans } from "@/actions/prices";
 import PricingCTA from "@/components/home/PricingCTA";
+import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { PricingPlan } from "@/types/pricing";
 import { Check, X } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -53,7 +54,7 @@ export default async function Pricing() {
         >
           {newPlans.map((plan) => {
             const localizedPlan =
-              plan.lang_jsonb?.[locale] || plan.lang_jsonb?.["en"];
+              plan.lang_jsonb?.[locale] || plan.lang_jsonb?.[DEFAULT_LOCALE];
 
             if (!localizedPlan) {
               console.error(

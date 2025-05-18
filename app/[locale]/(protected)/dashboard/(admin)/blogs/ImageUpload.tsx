@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { Loader2, UploadCloud, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
@@ -48,7 +49,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
         method: "POST",
         body: formData,
         headers: {
-          "Accept-Language": (locale || "en") as string,
+          "Accept-Language": (locale || DEFAULT_LOCALE) as string,
         },
       });
       const result = await response.json();

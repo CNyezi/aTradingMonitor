@@ -180,7 +180,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept-Language": (locale || "en") as string,
+          "Accept-Language": (locale || DEFAULT_LOCALE) as string,
         },
         body: JSON.stringify({ priceId, environment }),
       });
@@ -397,7 +397,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
           method: isEditMode ? "PUT" : "POST",
           headers: {
             "Content-Type": "application/json",
-            "Accept-Language": (locale || "en") as string,
+            "Accept-Language": (locale || DEFAULT_LOCALE) as string,
           },
           body: JSON.stringify(payload),
         }

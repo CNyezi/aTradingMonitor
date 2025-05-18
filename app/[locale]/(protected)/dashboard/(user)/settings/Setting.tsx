@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DEFAULT_LOCALE } from "@/i18n/routing";
 import {
   AVATAR_ACCEPT_ATTRIBUTE,
   AVATAR_ALLOWED_EXTENSIONS,
@@ -102,7 +103,7 @@ export default function Settings() {
         method: "PUT",
         body: formData,
         headers: {
-          "Accept-Language": (locale || "en") as string,
+          "Accept-Language": (locale || DEFAULT_LOCALE) as string,
         },
       });
 
