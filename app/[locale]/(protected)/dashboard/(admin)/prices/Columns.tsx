@@ -1,28 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Link as I18nLink } from "@/i18n/routing";
 import { PricingPlan } from "@/types/pricing";
-import { ColumnDef, TableMeta } from "@tanstack/react-table";
-import { ArrowUpDown, ExternalLink, MoreHorizontal } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
-
-interface CustomTableMeta extends TableMeta<PricingPlan> {
-  openDeleteDialog: (plan: PricingPlan) => void;
-}
+import { PriceListActions } from "./PriceListActions";
 
 export const columns: ColumnDef<PricingPlan>[] = [
   {
@@ -185,51 +173,8 @@ export const columns: ColumnDef<PricingPlan>[] = [
     id: "actions",
     cell: ({ row, table }) => {
       const plan = row.original;
-      const meta = table.options.meta as CustomTableMeta;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild>
-              <I18nLink
-                href={`/dashboard/prices/${plan.id}/edit`}
-                title="Edit"
-                prefetch={false}
-              >
-                Edit Plan
-              </I18nLink>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(plan.id)}
-            >
-              Copy plan ID
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                plan.stripe_price_id &&
-                navigator.clipboard.writeText(plan.stripe_price_id)
-              }
-              disabled={!plan.stripe_price_id}
-            >
-              Copy Stripe Price ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-red-600 focus:text-red-700 focus:bg-red-100"
-              onClick={() => meta.openDeleteDialog(plan)}
-            >
-              Delete Plan
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <PriceListActions plan={plan} />;
     },
     enableSorting: false,
     enableHiding: false,

@@ -1,21 +1,5 @@
 "use client";
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  TableMeta,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import * as React from "react";
-import { columns } from "./Columns";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -41,16 +25,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DEFAULT_LOCALE, useRouter } from "@/i18n/routing";
 import { PricingPlan } from "@/types/pricing";
-import { useLocale, useTranslations } from "next-intl";
-import { toast } from "sonner";
-import { DeletePlanDialog } from "./DeletePlanDialog";
-const PAGE_SIZE = 20;
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
+import * as React from "react";
+import { columns } from "./Columns";
 
-interface CustomTableMeta extends TableMeta<any> {
-  openDeleteDialog: (plan: PricingPlan) => void;
-}
+const PAGE_SIZE = 20;
 
 interface DataTableProps<TData extends PricingPlan, TValue> {
   data: TData[];
@@ -61,9 +53,7 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
 }: DataTableProps<TData, TValue>) {
   const t = useTranslations("Dashboard.Admin.Prices.PricesDataTable");
   const tCommon = useTranslations("Dashboard.Common");
-  const locale = useLocale();
 
-  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -71,51 +61,6 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [planToDelete, setPlanToDelete] = React.useState<PricingPlan | null>(
-    null
-  );
-
-  const handleOpenDeleteDialog = (plan: PricingPlan) => {
-    setPlanToDelete(plan);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async (planId: string) => {
-    try {
-      const response = await fetch(`/api/admin/pricing-plans/${planId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept-Language": (locale || DEFAULT_LOCALE) as string,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || t("deleteError", { status: response.status })
-        );
-      }
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || t("deleteError2"));
-      }
-
-      toast.success(
-        t("deleteSuccess", { title: planToDelete?.card_title || planId })
-      );
-      setIsDeleteDialogOpen(false);
-      setPlanToDelete(null);
-      router.refresh();
-    } catch (error: any) {
-      console.error("Deletion failed:", error);
-      toast.error(`Deletion failed: ${error.message}`);
-    }
-  };
 
   const table = useReactTable({
     data,
@@ -128,9 +73,6 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    meta: {
-      openDeleteDialog: handleOpenDeleteDialog,
-    } as CustomTableMeta,
     state: {
       sorting,
       columnFilters,
@@ -297,14 +239,6 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
           </Button>
         </div>
       </div>
-
-      <DeletePlanDialog
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        planId={planToDelete?.id ?? null}
-        planTitle={planToDelete?.card_title ?? null}
-        onConfirmDelete={handleConfirmDelete}
-      />
     </div>
   );
 }
