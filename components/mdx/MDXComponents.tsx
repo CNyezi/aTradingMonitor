@@ -1,5 +1,6 @@
 import { Aside } from "@/components/mdx/Aside";
 import { Callout } from "@/components/mdx/Callout";
+import CodeBlock from "@/components/mdx/CodeBlock";
 import { MdxCard } from "@/components/mdx/MdxCard";
 import React, { ReactNode } from "react";
 
@@ -75,17 +76,21 @@ const MDXComponents: MDXComponentsProps = {
     <li className="mb-3 text-gray-700 dark:text-gray-300" {...props} />
   ),
   code: (props) => (
-    <code
+    <span
       className="bg-gray-100 dark:bg-gray-700 rounded px-2 py-1 font-mono text-sm"
       {...props}
     />
   ),
-  pre: (props) => (
-    <pre
-      className="rounded-lg p-4 overflow-x-auto my-4 bg-gray-100 dark:bg-gray-800"
-      {...props}
-    />
-  ),
+  pre: (props) => {
+    const preStyles =
+      "rounded-lg p-4 overflow-x-auto my-4 bg-gray-100 dark:bg-gray-800";
+    return (
+      <CodeBlock
+        {...props}
+        className={`${props.className || ""} ${preStyles}`.trim()}
+      />
+    );
+  },
   blockquote: (props) => (
     <blockquote
       className="pl-6 border-l-4 my-6 text-gray-600 dark:text-gray-400 italic"
