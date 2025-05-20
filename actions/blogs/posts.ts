@@ -592,7 +592,9 @@ export async function getPublishedPostBySlugAction({
         return actionResponse.unauthorized(t("BlogDetail.unauthorized"), 'unauthorized');
       }
 
-      if (post.visibility === 'subscribers') {
+      const userIsAdmin = await isAdmin();
+
+      if (!userIsAdmin && post.visibility === 'subscribers') {
         // --- TODO: [custom] check user subscription or custom logic ---
         const isSubscriber = await checkUserSubscription(user.id);
         if (!isSubscriber) {
