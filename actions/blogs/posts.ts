@@ -416,9 +416,8 @@ export async function deletePostAction({ postId, locale }: DeletePostParams): Pr
 }
 
 /**
- * 英语：User-side functionality
+ * User-side functionality
  */
-
 export type PublicPost = Pick<
   Database['public']['Tables']['posts']['Row'],
   | 'id'
