@@ -493,16 +493,16 @@
         "href": "/dashboard/users"
       },
       {
+        "name": "料金プラン管理",
+        "href": "/dashboard/prices"
+      },
+      {
         "name": "ブログ管理",
         "href": "/dashboard/blogs"
       },
       {
         "name": "R2リソース",
         "href": "/dashboard/r2-resources"
-      },
-      {
-        "name": "料金プラン管理",
-        "href": "/dashboard/prices"
       }
     ]
   },
