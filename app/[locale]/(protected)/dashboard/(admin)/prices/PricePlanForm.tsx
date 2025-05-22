@@ -1143,7 +1143,13 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
             </div>
 
             {/* Pricing Card Preview */}
-            <PricingCardPreview watchedValues={watchedValues} />
+            <PricingCardPreview
+              watchedValues={
+                isTranslating
+                  ? { ...watchedValues, lang_jsonb: "" }
+                  : watchedValues
+              }
+            />
           </div>
         </div>
       </form>
