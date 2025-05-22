@@ -841,7 +841,7 @@
           "createPlan": "创建卡片",
           "saveChanges": "保存更改",
           "cancel": "取消",
-          "pleaseEnterLanguageData": "提交前，请确保「多语言JSON」字段已更新，这些内容将直接显示给不同语言的用户。"
+          "pleaseEnterLanguageData": "提交前，请确保「多语言JSON」字段已更新，这一项显示优先级最高。"
         },
         "API": {
           "missingRequiredFields": "缺少必填字段：environment, card_title",
