@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Copy, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface PromoCodeProps {
   code: string;
@@ -23,7 +22,6 @@ export default function PromoCodeTag({
   const copyToClipboard = () => {
     navigator.clipboard.writeText(code);
     setIsCopied(true);
-    toast.success(t("copyToast"));
     setTimeout(() => setIsCopied(false), 2000);
   };
 

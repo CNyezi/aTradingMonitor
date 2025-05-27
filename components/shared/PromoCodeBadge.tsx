@@ -4,7 +4,6 @@ import { useRouter } from "@/i18n/routing";
 import { Check, Copy, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface PromoCodeBadgeProps {
   code: string;
@@ -27,7 +26,6 @@ export default function PromoCodeBadge({
     router.push(t("goToPricing"));
     navigator.clipboard.writeText(code);
     setIsCopied(true);
-    toast.success(t("copyToast"));
     setTimeout(() => setIsCopied(false), 2000);
   };
 
