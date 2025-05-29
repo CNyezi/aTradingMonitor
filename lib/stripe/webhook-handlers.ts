@@ -406,14 +406,18 @@ export async function revokeSubscriptionCredits(userId: string, planId: string, 
       return;
     }
 
+    let subscriptionToRevoke = 0;
     const benefits = planData.benefits_jsonb as any;
-    const subCreditsDefined = benefits?.monthly_credits as number | undefined;
 
-    if (subCreditsDefined !== undefined && subCreditsDefined >= 0) {
+    if (benefits?.monthly_credits > 0) {
+      subscriptionToRevoke = benefits.monthly_credits;
+    }
+
+    if (subscriptionToRevoke >= 0) {
       const { data: revokeResult, error: revokeError } = await supabaseAdmin.rpc('revoke_credits', {
         p_user_id: userId,
         p_revoke_one_time: 0,
-        p_revoke_subscription: subCreditsDefined
+        p_revoke_subscription: subscriptionToRevoke
       });
 
       if (revokeError) {
