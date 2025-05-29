@@ -318,10 +318,9 @@ export async function upgradeSubscriptionCredits(userId: string, planId: string,
     if (planError || !planData) {
       console.error(`Error fetching plan benefits for planId ${planId} during invoice ${invoiceId} processing:`, planError);
     } else {
-      const benefits = planData.benefits_jsonb as any;
-      const creditsToGrant = benefits?.monthly_credits as number | undefined;
+      const creditsToGrant = (planData.benefits_jsonb as any)?.monthly_credits || 0;
 
-      if (creditsToGrant !== undefined && creditsToGrant >= 0) {
+      if (creditsToGrant && creditsToGrant > 0) {
         const { error: usageError } = await supabaseAdmin.rpc('upsert_and_set_subscription_credits', {
           p_user_id: userId,
           p_credits_to_set: creditsToGrant
