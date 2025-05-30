@@ -1,7 +1,9 @@
 "use client";
 
+import { generatePresignedUploadUrl } from "@/actions/r2-resources";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_LOCALE } from "@/i18n/routing";
+import { BLOGS_IMAGE_PATH } from "@/config/common";
+import { getErrorMessage } from "@/lib/error-utils";
 import { Loader2, UploadCloud, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
@@ -33,6 +35,16 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       return;
     }
 
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast.error(t("uploadError"), {
+        description: t("fileSizeExceeded", {
+          maxSizeInMB: maxSize / 1024 / 1024,
+        }),
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewUrl(reader.result as string);
@@ -40,41 +52,55 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     reader.readAsDataURL(file);
 
     setIsLoading(true);
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("prefix", "featured-image");
 
     try {
-      const response = await fetch("/api/admin/blogs/upload-image", {
-        method: "POST",
-        body: formData,
+      const filenamePrefix = "featured-image";
+
+      const presignedUrlActionResponse = await generatePresignedUploadUrl({
+        fileName: file.name,
+        contentType: file.type,
+        prefix: filenamePrefix,
+        path: BLOGS_IMAGE_PATH,
+      });
+
+      if (
+        !presignedUrlActionResponse.success ||
+        !presignedUrlActionResponse.data
+      ) {
+        toast.error(t("uploadError"), {
+          description:
+            presignedUrlActionResponse.error || t("presignedUrlError"),
+        });
+        return "";
+      }
+
+      const { presignedUrl, publicObjectUrl } = presignedUrlActionResponse.data;
+
+      const uploadResponse = await fetch(presignedUrl, {
+        method: "PUT",
+        body: file,
         headers: {
-          "Accept-Language": (locale || DEFAULT_LOCALE) as string,
+          "Content-Type": file.type,
         },
       });
-      const result = await response.json();
 
-      if (!response.ok) {
-        setPreviewUrl(value || null);
-        throw new Error(result.error || t("uploadError"));
+      if (!uploadResponse.ok) {
+        let r2Error = "";
+        try {
+          r2Error = await uploadResponse.text();
+        } catch {}
+        console.error("R2 Upload Error:", r2Error, uploadResponse);
+        throw new Error(r2Error);
       }
 
-      if (!result.success) {
-        setPreviewUrl(value || null);
-        throw new Error(result.error || t("uploadError"));
-      }
-
-      onChange(result.data.url);
+      onChange(publicObjectUrl);
       toast.success(t("uploadSuccess"), {
         description: t("uploadSuccessDesc"),
       });
     } catch (error) {
-      setPreviewUrl(value || null);
-      toast.error(t("uploadError"), {
-        description:
-          error instanceof Error ? error.message : t("uploadErrorUnexpected"),
-      });
-      console.error("Upload failed:", error);
+      console.error("MDX Image Upload failed:", error);
+      toast.error(getErrorMessage(error) || t("upload.uploadErrorUnexpected"));
+      throw error;
     } finally {
       setIsLoading(false);
       if (fileInputRef.current) {

@@ -705,6 +705,7 @@
             "noPrefix": "Image naming prefix not provided.",
             "invalidFileType": "Invalid file type. Only image files are allowed.",
             "fileSizeExceeded": "File size limit: {maxSizeInMB}MB.",
+            "presignedUrlError": "Failed to generate presigned URL",
             "uploadErrorUnexpected": "An unexpected error occurred.",
             "uploadSuccess": "Upload Successful",
             "uploadSuccessDesc": "Image uploaded to R2 storage."

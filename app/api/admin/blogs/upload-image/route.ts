@@ -1,4 +1,15 @@
 /**
+ * DEPRECATED/BACKUP: Direct file upload to R2 via server
+ * 
+ * This route handler is kept as a backup upload method. The RECOMMENDED approach 
+ * is now to use pre-signed URLs for direct client-to-R2 uploads, which offers 
+ * better performance and reduces server load.
+ * 
+ * Recommended method: Use `generatePresignedUploadUrl()` function from 
+ * `actions/r2-resources/index.ts` to get a pre-signed URL, then upload 
+ * directly from client to R2 using a PUT request.
+ * 
+ * Legacy notes:
  * 1、Due to the default 1MB body size limit for Server Actions, we recommend implementing file uploads via Route Handlers.
  * 2、The file upload process typically goes from local to server, and then from server to R2. For the server-to-R2 leg of this journey, the Edge runtime offers better performance.
  */

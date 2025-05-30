@@ -1,8 +1,11 @@
 "use server";
 
 import { actionResponse } from "@/lib/action-response";
-import { deleteFile as deleteR2Util, ListedObject, listR2Objects } from "@/lib/cloudflare/r2";
+import { createR2Client, deleteFile as deleteR2Util, ListedObject, listR2Objects } from "@/lib/cloudflare/r2";
+import { getErrorMessage } from "@/lib/error-utils";
 import { isAdmin } from "@/lib/supabase/isAdmin";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { z } from "zod";
 
 export type R2File = ListedObject;
@@ -16,11 +19,6 @@ export interface ListR2FilesData {
   error?: string;
 }
 
-export interface DeleteR2FileData {
-  success: boolean;
-  error?: string;
-}
-
 const listSchema = z.object({
   categoryPrefix: z.string(),
   filterPrefix: z.string().optional(),
@@ -28,21 +26,17 @@ const listSchema = z.object({
   pageSize: z.number().int().positive().max(100).default(20),
 });
 
-const deleteSchema = z.object({
-  key: z.string().min(1, "File key cannot be empty"),
-});
-
 export async function listR2Files(
   input: z.infer<typeof listSchema>
 ): Promise<ListR2FilesData> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden("Admin privileges required.");
+  }
+
   const validationResult = listSchema.safeParse(input);
   if (!validationResult.success) {
     const formattedErrors = validationResult.error.flatten().fieldErrors;
     return actionResponse.badRequest(`Invalid input: ${JSON.stringify(formattedErrors)}`);
-  }
-
-  if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
   }
 
   const { categoryPrefix, filterPrefix, continuationToken, pageSize } = validationResult.data;
@@ -70,7 +64,20 @@ export async function listR2Files(
   }
 }
 
+export interface DeleteR2FileData {
+  success: boolean;
+  error?: string;
+}
+
+const deleteSchema = z.object({
+  key: z.string().min(1, "File key cannot be empty"),
+});
+
 export async function deleteR2File(input: z.infer<typeof deleteSchema>): Promise<DeleteR2FileData> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden("Admin privileges required.");
+  }
+
   const validationResult = deleteSchema.safeParse(input);
   if (!validationResult.success) {
     const formattedErrors = validationResult.error.flatten().fieldErrors;
@@ -79,15 +86,85 @@ export async function deleteR2File(input: z.infer<typeof deleteSchema>): Promise
 
   const { key } = validationResult.data;
 
-  if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
-  }
-
   try {
     await deleteR2Util(key);
     return actionResponse.success();
   } catch (error: any) {
     console.error(`Failed to delete R2 file (${key}):`, error);
     return actionResponse.error(error.message || 'Failed to delete file from R2.');
+  }
+}
+
+export interface GeneratePresignedUploadUrlData {
+  success: boolean;
+  data?: {
+    presignedUrl: string;
+    key: string;
+    publicObjectUrl: string;
+  };
+  error?: string;
+}
+const generatePresignedUrlSchema = z.object({
+  fileName: z.string().min(1, "File name cannot be empty"),
+  contentType: z.string().min(1, "Content type cannot be empty"),
+  prefix: z.string().optional(),
+  path: z.string(),
+});
+
+export async function generatePresignedUploadUrl(
+  input: z.infer<typeof generatePresignedUrlSchema>
+): Promise<GeneratePresignedUploadUrlData> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden("Admin privileges required.");
+  }
+
+  const validationResult = generatePresignedUrlSchema.safeParse(input);
+  if (!validationResult.success) {
+    const formattedErrors = validationResult.error.flatten().fieldErrors;
+    return actionResponse.badRequest(
+      `Invalid input: ${JSON.stringify(formattedErrors)}`
+    );
+  }
+
+  const { fileName, contentType, path, prefix } = validationResult.data;
+
+  if (!process.env.R2_BUCKET_NAME || !process.env.R2_PUBLIC_URL) {
+    console.error("R2 configuration is missing (bucket name or public URL).");
+    return actionResponse.error("Server configuration error: R2 settings are incomplete.");
+  }
+
+  const originalFileExtension = fileName.split(".").pop();
+  const uniqueTimestampRandomPart = `${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 8)}${originalFileExtension ? `.${originalFileExtension}` : ""}`;
+
+  const finalFileName = prefix ? `${prefix}-${uniqueTimestampRandomPart}` : uniqueTimestampRandomPart;
+  const cleanedPath = path.replace(/^\/+|\/+$/g, '');
+  const objectKey = cleanedPath ? `${cleanedPath}/${finalFileName}` : finalFileName;
+
+  const s3Client = createR2Client();
+
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME,
+    Key: objectKey,
+    ContentType: contentType,
+  });
+
+  try {
+    // @ts-ignore
+    const presignedUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 600,
+    });
+
+    const publicObjectUrl = `${process.env.R2_PUBLIC_URL.replace(/\/$/, '')}/${objectKey}`;
+
+    return actionResponse.success({
+      presignedUrl,
+      key: objectKey,
+      publicObjectUrl,
+    });
+  } catch (error: any) {
+    console.error(`Failed to generate pre-signed URL for ${objectKey}:`, error);
+    return actionResponse.error(getErrorMessage(error) || "Failed to generate pre-signed URL");
   }
 } 

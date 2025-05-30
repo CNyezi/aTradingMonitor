@@ -705,6 +705,7 @@
             "noPrefix": "未提供图片命名前缀。",
             "invalidFileType": "无效的文件类型。仅允许图片文件。",
             "fileSizeExceeded": "文件大小限制 {maxSizeInMB}MB。",
+            "presignedUrlError": "生成预签名URL失败",
             "uploadErrorUnexpected": "发生未知错误。",
             "uploadSuccess": "上传成功",
             "uploadSuccessDesc": "图片已上传到 R2。"

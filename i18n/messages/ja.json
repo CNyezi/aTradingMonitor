@@ -705,6 +705,7 @@
             "noPrefix": "画像の命名プレフィックスが提供されていません。",
             "invalidFileType": "無効なファイル形式です。画像ファイルのみ許可されています。",
             "fileSizeExceeded": "ファイルサイズ制限：{maxSizeInMB}MB。",
+            "presignedUrlError": "生成預签名URLに失敗しました",
             "uploadErrorUnexpected": "予期しないエラーが発生しました。",
             "uploadSuccess": "アップロード成功",
             "uploadSuccessDesc": "画像がR2ストレージにアップロードされました。"

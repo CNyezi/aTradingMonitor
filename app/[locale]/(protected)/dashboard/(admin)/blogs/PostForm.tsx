@@ -1,6 +1,7 @@
 "use client";
 
 import { type PostWithTags } from "@/actions/blogs/posts";
+import { generatePresignedUploadUrl } from "@/actions/r2-resources";
 import { basePostSchema } from "@/app/[locale]/(protected)/dashboard/(admin)/blogs/schema";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,6 +35,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { BLOGS_IMAGE_PATH } from "@/config/common";
 import {
   DEFAULT_LOCALE,
   Locale,
@@ -41,6 +43,7 @@ import {
   LOCALES,
   useRouter,
 } from "@/i18n/routing";
+import { getErrorMessage } from "@/lib/error-utils";
 import { useCompletion } from "@ai-sdk/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -284,21 +287,61 @@ export function PostForm({
       return "";
     }
 
-    const formData = new FormData();
-    formData.append("image", imageFile);
-    formData.append("prefix", "post-image");
-
-    const response = await fetch("/api/admin/blogs/upload-image", {
-      method: "POST",
-      body: formData,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-      throw new Error(result.error || t("upload.uploadError"));
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (imageFile.size > maxSize) {
+      toast.error(t("upload.uploadError"), {
+        description: t("upload.fileSizeExceeded", {
+          maxSizeInMB: maxSize / 1024 / 1024,
+        }),
+      });
+      return "";
     }
-    return result.data.url;
+
+    try {
+      const filenamePrefix = "post-image";
+
+      const presignedUrlActionResponse = await generatePresignedUploadUrl({
+        fileName: imageFile.name,
+        contentType: imageFile.type,
+        prefix: filenamePrefix,
+        path: BLOGS_IMAGE_PATH,
+      });
+
+      if (
+        !presignedUrlActionResponse.success ||
+        !presignedUrlActionResponse.data
+      ) {
+        toast.error(t("upload.uploadError"), {
+          description:
+            presignedUrlActionResponse.error || t("upload.presignedUrlError"),
+        });
+        return "";
+      }
+
+      const { presignedUrl, publicObjectUrl } = presignedUrlActionResponse.data;
+
+      const uploadResponse = await fetch(presignedUrl, {
+        method: "PUT",
+        body: imageFile,
+        headers: {
+          "Content-Type": imageFile.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        let r2Error = "";
+        try {
+          r2Error = await uploadResponse.text();
+        } catch {}
+        console.error("R2 Upload Error (MDX):", r2Error, uploadResponse);
+        throw new Error(r2Error);
+      }
+      return publicObjectUrl;
+    } catch (error) {
+      console.error("MDX Image Upload failed:", error);
+      toast.error(getErrorMessage(error) || t("upload.uploadErrorUnexpected"));
+      throw error;
+    }
   };
 
   useEffect(() => {
