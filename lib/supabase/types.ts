@@ -185,6 +185,7 @@ export type Database = {
           currency: string | null
           display_order: number
           display_price: string | null
+          enable_manual_input_coupon: boolean
           environment: string
           features: Json
           highlight_text: string | null
@@ -197,6 +198,7 @@ export type Database = {
           price: number | null
           price_suffix: string | null
           recurring_interval: string | null
+          stripe_coupon_id: string | null
           stripe_price_id: string | null
           stripe_product_id: string | null
           trial_period_days: number | null
@@ -212,6 +214,7 @@ export type Database = {
           currency?: string | null
           display_order?: number
           display_price?: string | null
+          enable_manual_input_coupon?: boolean
           environment: string
           features?: Json
           highlight_text?: string | null
@@ -224,6 +227,7 @@ export type Database = {
           price?: number | null
           price_suffix?: string | null
           recurring_interval?: string | null
+          stripe_coupon_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           trial_period_days?: number | null
@@ -239,6 +243,7 @@ export type Database = {
           currency?: string | null
           display_order?: number
           display_price?: string | null
+          enable_manual_input_coupon?: boolean
           environment?: string
           features?: Json
           highlight_text?: string | null
@@ -251,6 +256,7 @@ export type Database = {
           price?: number | null
           price_suffix?: string | null
           recurring_interval?: string | null
+          stripe_coupon_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           trial_period_days?: number | null
@@ -447,6 +453,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      allocate_specific_monthly_credit_for_year_plan: {
+        Args: {
+          p_user_id: string
+          p_credits_per_month: number
+          p_current_yyyy_mm: string
+        }
+        Returns: undefined
+      }
       deduct_credits_priority_one_time: {
         Args: { p_user_id: string; p_amount_to_deduct: number }
         Returns: {
@@ -487,11 +501,22 @@ export type Database = {
           new_total_available_credits: number
         }[]
       }
+      initialize_or_reset_yearly_allocation: {
+        Args: {
+          p_user_id: string
+          p_total_months: number
+          p_credits_per_month: number
+          p_subscription_start_date: string
+        }
+        Returns: undefined
+      }
       revoke_credits: {
         Args: {
           p_user_id: string
           p_revoke_one_time: number
           p_revoke_subscription: number
+          p_clear_yearly_details?: boolean
+          p_clear_monthly_details?: boolean
         }
         Returns: boolean
       }

@@ -7,6 +7,8 @@ CREATE TABLE public.pricing_plans (
     card_description text NULL,
     stripe_price_id character varying(255) NULL,
     stripe_product_id character varying(255) NULL,
+    stripe_coupon_id character varying(255) NULL,
+    enable_manual_input_coupon boolean DEFAULT false NOT NULL,
     payment_type character varying(50) NULL,
     recurring_interval character varying(50) NULL,
     trial_period_days integer NULL,

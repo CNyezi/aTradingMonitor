@@ -146,6 +146,8 @@ export async function createPricingPlanAction({
         card_description: planData.card_description,
         stripe_price_id: planData.stripe_price_id,
         stripe_product_id: planData.stripe_product_id,
+        stripe_coupon_id: planData.stripe_coupon_id,
+        enable_manual_input_coupon: planData.enable_manual_input_coupon ?? false,
         payment_type: planData.payment_type,
         recurring_interval: planData.recurring_interval,
         price: planData.price,

@@ -26,12 +26,14 @@ export default function PricingCTA({
   const router = useRouter();
   const locale = useLocale();
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (applyCoupon = true) => {
     const stripePriceId = plan.stripe_price_id ?? null;
     if (!stripePriceId) {
       toast.error("Price ID is missing for this plan.");
       return;
     }
+
+    const couponCode = plan.stripe_coupon_id;
 
     setIsLoading(true);
     try {
@@ -44,6 +46,10 @@ export default function PricingCTA({
       } = {
         priceId: stripePriceId,
       };
+
+      if (applyCoupon && couponCode) {
+        requestBody.couponCode = couponCode;
+      }
 
       if (toltReferral) {
         requestBody.referral = toltReferral;
@@ -97,8 +103,12 @@ export default function PricingCTA({
       <Button
         asChild={!!plan.button_link}
         disabled={isLoading}
-        className={`w-full flex items-center justify-center gap-2 text-white py-5 mb-6 font-medium ${
+        className={`w-full flex items-center justify-center gap-2 text-white py-5 font-medium ${
           plan.is_highlighted ? highlightedCtaStyle : defaultCtaStyle
+        } ${
+          plan.stripe_coupon_id && plan.enable_manual_input_coupon
+            ? "mb-2"
+            : "mb-6"
         }`}
         {...(!plan.button_link && {
           onClick: () => handleCheckout(),
@@ -108,9 +118,9 @@ export default function PricingCTA({
           <Link
             href={plan.button_link}
             title={localizedPlan.button_text || plan.button_text}
-            prefetch={false}
             rel="noopener noreferrer nofollow"
             target="_blank"
+            prefetch={false}
           >
             {localizedPlan.button_text || plan.button_text}
             {plan.is_highlighted && <MousePointerClick className="w-5 h-5" />}
@@ -128,6 +138,17 @@ export default function PricingCTA({
           </>
         )}
       </Button>
+      {plan.stripe_coupon_id && plan.enable_manual_input_coupon && (
+        <div className="text-center mb-2">
+          <button
+            onClick={() => handleCheckout(false)}
+            disabled={isLoading}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 underline underline-offset-2"
+          >
+            I have a different coupon code
+          </button>
+        </div>
+      )}
     </div>
   );
 }

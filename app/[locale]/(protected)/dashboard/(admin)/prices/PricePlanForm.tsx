@@ -19,6 +19,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -37,8 +44,10 @@ import {
   Info,
   Loader2,
   PlusCircle,
+  RefreshCw,
   Trash2,
   Wand2,
+  XCircle,
   Zap,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -71,6 +80,8 @@ const pricingPlanFormSchema = z.object({
   card_description: z.string().optional().nullable(),
   stripe_price_id: z.string().optional().nullable(),
   stripe_product_id: z.string().optional().nullable(),
+  stripe_coupon_id: z.string().optional().nullable(),
+  enable_manual_input_coupon: z.boolean().optional().nullable(),
   payment_type: z.string().optional().nullable(),
   recurring_interval: z.string().optional().nullable(),
   price: z.number().optional().nullable(),
@@ -115,6 +126,8 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifyingStripe, setIsVerifyingStripe] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isFetchingCoupons, setIsFetchingCoupons] = useState(false);
+  const [coupons, setCoupons] = useState<any[]>([]);
 
   useEffect(() => {
     setIsEditMode(!!planId);
@@ -128,6 +141,9 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       card_description: initialData?.card_description ?? "",
       stripe_price_id: initialData?.stripe_price_id ?? "",
       stripe_product_id: initialData?.stripe_product_id ?? "",
+      stripe_coupon_id: initialData?.stripe_coupon_id ?? "",
+      enable_manual_input_coupon:
+        initialData?.enable_manual_input_coupon ?? false,
       payment_type: initialData?.payment_type ?? "",
       recurring_interval: initialData?.recurring_interval ?? "",
       price: initialData?.price ?? undefined,
@@ -166,6 +182,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   const watchStripePriceId = form.watch("stripe_price_id");
   const watchEnvironment = form.watch("environment");
   const watchIsHighlighted = form.watch("is_highlighted");
+  const watchStripeCouponId = form.watch("stripe_coupon_id");
 
   useEffect(() => {
     if (watchStripePriceId !== initialData?.stripe_price_id) {
@@ -176,6 +193,83 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       form.setValue("currency", "", { shouldValidate: true });
     }
   }, [watchStripePriceId, initialData?.stripe_price_id]);
+
+  useEffect(() => {
+    handleFetchCoupons();
+  }, [watchEnvironment]);
+
+  useEffect(() => {
+    const calculateDisplayPrice = async () => {
+      const numericPrice = form.getValues("price");
+      const currency = form.getValues("currency");
+      const originalPrice = form.getValues("original_price");
+
+      if (
+        numericPrice === null ||
+        numericPrice === undefined ||
+        !currency ||
+        !originalPrice
+      ) {
+        return;
+      }
+
+      if (!watchStripeCouponId) {
+        form.setValue("display_price", originalPrice);
+        form.setValue("enable_manual_input_coupon", false);
+        return;
+      }
+
+      const coupon = coupons.find((c) => c.id === watchStripeCouponId);
+      if (!coupon) {
+        form.setValue("display_price", originalPrice);
+        return;
+      }
+
+      let discountedPrice: number;
+
+      if (coupon.percent_off) {
+        discountedPrice = numericPrice * (1 - coupon.percent_off / 100);
+      } else if (coupon.amount_off) {
+        discountedPrice = numericPrice - coupon.amount_off / 100;
+      } else {
+        form.setValue("display_price", originalPrice);
+        return;
+      }
+
+      discountedPrice = Math.max(0, discountedPrice);
+
+      const formattedDiscountedPrice = await formatCurrency(
+        discountedPrice,
+        currency
+      );
+      form.setValue("display_price", formattedDiscountedPrice, {
+        shouldValidate: true,
+      });
+    };
+
+    calculateDisplayPrice();
+  }, [watchStripeCouponId, coupons]);
+
+  const handleFetchCoupons = async () => {
+    setIsFetchingCoupons(true);
+    try {
+      const response = await fetch(`/api/admin/stripe/coupons`);
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to fetch coupons.");
+      }
+      const fetchedCoupons = result.data.coupons || [];
+      setCoupons(fetchedCoupons);
+    } catch (error: any) {
+      console.error("Failed to fetch Stripe coupons:", error);
+      toast.error("Failed to fetch Stripe coupons", {
+        description: error.message,
+      });
+      setCoupons([]);
+    } finally {
+      setIsFetchingCoupons(false);
+    }
+  };
 
   const handleStripeVerify = async () => {
     const priceId = form.getValues("stripe_price_id");
@@ -229,11 +323,11 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       form.setValue("price", priceInCorrectUnit, { shouldValidate: true });
       form.setValue("currency", currency, { shouldValidate: true });
 
+      const formattedPrice = await formatCurrency(priceInCorrectUnit, currency);
+      form.setValue("original_price", formattedPrice, {
+        shouldValidate: true,
+      });
       if (!form.getValues("display_price")) {
-        const formattedPrice = await formatCurrency(
-          priceInCorrectUnit,
-          currency
-        );
         form.setValue("display_price", formattedPrice, {
           shouldValidate: true,
         });
@@ -670,14 +764,114 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                             placeholder="Fetched from Stripe"
                           />
                         </FormControl>
-                        <FormDescription>
-                          {t("currencyCodeDescription")}
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="stripe_coupon_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stripe Coupon</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value ?? ""}
+                          disabled={
+                            isLoading ||
+                            isFetchingCoupons ||
+                            coupons.length === 0
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a coupon (optional)" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {coupons.map((coupon) => (
+                              <SelectItem key={coupon.id} value={coupon.id}>
+                                {coupon.name || coupon.id} (
+                                {coupon.percent_off
+                                  ? `${coupon.percent_off}% off`
+                                  : `${
+                                      (coupon.amount_off ?? 0) / 100
+                                    } ${coupon.currency?.toUpperCase()} off`}
+                                )
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={handleFetchCoupons}
+                          disabled={isFetchingCoupons || isLoading}
+                        >
+                          {isFetchingCoupons ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="text-muted-foreground"
+                                onClick={() =>
+                                  form.setValue("stripe_coupon_id", "", {
+                                    shouldValidate: true,
+                                  })
+                                }
+                                disabled={!field.value || isLoading}
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Clear selection</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {watchStripeCouponId && (
+                  <FormField
+                    control={form.control}
+                    name="enable_manual_input_coupon"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Allow manual coupon input
+                          </FormLabel>
+                          <FormDescription>
+                            If enabled, users can opt-out of the applied coupon
+                            and enter one manually at checkout.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value ?? false}
+                            onCheckedChange={field.onChange}
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
               </CardContent>
             </Card>
 

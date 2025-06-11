@@ -24,6 +24,8 @@ export interface PricingPlan {
   card_description?: string | null;
   stripe_price_id?: string | null;
   stripe_product_id?: string | null;
+  stripe_coupon_id?: string | null;
+  enable_manual_input_coupon?: boolean;
   payment_type?: 'one_time' | 'recurring' | string | null;
   recurring_interval?: 'month' | 'year' | 'week' | string | null;
   price?: number | null;
