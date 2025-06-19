@@ -25,7 +25,7 @@ export async function deductCredits(
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return actionResponse.unauthorized('User not authenticated.');
+    return actionResponse.unauthorized();
   }
 
   if (amountToDeduct <= 0) {
@@ -75,7 +75,7 @@ export async function getClientUserBenefits(): Promise<ActionResult<UserBenefits
   const supabase = await createClient();
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
-    return actionResponse.unauthorized('User not authenticated.');
+    return actionResponse.unauthorized();
   }
   try {
     const benefits = await fetchUserBenefitsInternal(user.id);

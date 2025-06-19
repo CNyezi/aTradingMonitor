@@ -187,7 +187,7 @@ export async function createPostAction({ data }: CreatePostParams): Promise<Acti
   const supabase = await createClient();
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError || !user) {
-    return actionResponse.unauthorized("Failed to get current user.");
+    return actionResponse.unauthorized();
   }
   const authorId = user.id;
 

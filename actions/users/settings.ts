@@ -33,7 +33,7 @@ export async function updateUserSettingsAction({
     } = await supabase.auth.getUser();
 
     if (authError || !authUser) {
-      return actionResponse.unauthorized("User not authenticated.");
+      return actionResponse.unauthorized();
     }
 
     const t = await getTranslations({

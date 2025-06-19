@@ -37,7 +37,7 @@ export async function getCreditLogs({
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return actionResponse.unauthorized('User not authenticated.');
+    return actionResponse.unauthorized();
   }
 
   try {

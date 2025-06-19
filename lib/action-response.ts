@@ -10,7 +10,7 @@ export const actionResponse = {
     return { success: false, error: message, customCode };
   },
 
-  unauthorized: <T>(message = "Unauthorized", customCode?: string): ActionResult<T> => {
+  unauthorized: <T>(message = "User not authenticated.", customCode?: string): ActionResult<T> => {
     return actionResponse.error(message, customCode);
   },
   badRequest: <T>(message = "Bad Request", customCode?: string): ActionResult<T> => {
