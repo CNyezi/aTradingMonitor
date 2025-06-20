@@ -141,7 +141,7 @@ export default function TechStack() {
             </div>
 
             <I18nLink
-              href="/#pricing"
+              href={process.env.NEXT_PUBLIC_PRICING_PATH!}
               title="Pricing"
               prefetch={false}
               className="flex-shrink-0 w-16 h-16 rounded-full bg-white dark:bg-gray-200 shadow-md hover:shadow-lg flex items-center justify-center group transition-all duration-300 border border-gray-100 dark:border-gray-700"

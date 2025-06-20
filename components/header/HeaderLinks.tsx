@@ -10,6 +10,10 @@ const HeaderLinks = () => {
   const pathname = usePathname();
 
   const headerLinks: HeaderLink[] = tHeader.raw("links");
+  const pricingLink = headerLinks.find((link) => link.name === "Pricing");
+  if (pricingLink) {
+    pricingLink.href = process.env.NEXT_PUBLIC_PRICING_PATH!;
+  }
 
   return (
     <div className="hidden md:flex flex-row items-center gap-x-4">

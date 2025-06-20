@@ -84,7 +84,7 @@ export default async function BlogPage({ params }: { params: Params }) {
       messageTitle = t("BlogDetail.premium");
       messageContent = t("BlogDetail.premiumContent");
       actionText = t("BlogDetail.upgrade");
-      actionLink = `/#pricing`;
+      actionLink = process.env.NEXT_PUBLIC_PRICING_PATH!;
     }
   }
 

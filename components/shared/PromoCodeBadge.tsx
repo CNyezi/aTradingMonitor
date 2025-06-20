@@ -23,7 +23,7 @@ export default function PromoCodeBadge({
   const t = useTranslations("Shared.promoCode");
 
   const copyToClipboard = () => {
-    router.push(t("goToPricing"));
+    router.push(process.env.NEXT_PUBLIC_PRICING_PATH!);
     navigator.clipboard.writeText(code);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);

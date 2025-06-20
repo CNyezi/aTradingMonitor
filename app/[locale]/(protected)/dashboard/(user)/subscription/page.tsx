@@ -51,7 +51,11 @@ export default async function SubscriptionPage() {
           <>
             <p>You are currently not subscribed to any plan.</p>
             <Button asChild>
-              <I18nLink href="/#pricing" title="Upgrade Plan" prefetch={false}>
+              <I18nLink
+                href={process.env.NEXT_PUBLIC_PRICING_PATH!}
+                title="Upgrade Plan"
+                prefetch={false}
+              >
                 Upgrade Plan
               </I18nLink>
             </Button>

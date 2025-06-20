@@ -28,6 +28,12 @@ export default async function Footer() {
   const tFooter = await getTranslations("Footer");
 
   const footerLinks: FooterLink[] = tFooter.raw("Links.groups");
+  footerLinks.forEach((group) => {
+    const pricingLink = group.links.find((link) => link.label === "Pricing");
+    if (pricingLink) {
+      pricingLink.href = process.env.NEXT_PUBLIC_PRICING_PATH!;
+    }
+  });
 
   return (
     <div className="bg-gray-900 text-gray-300">

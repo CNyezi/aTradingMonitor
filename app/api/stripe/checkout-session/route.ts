@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       ],
       mode: mode,
       success_url: getURL('payment/success?session_id={CHECKOUT_SESSION_ID}'),
-      cancel_url: getURL('#pricing'),
+      cancel_url: getURL(process.env.NEXT_PUBLIC_PRICING_PATH!),
       // payment_method_types: ["wechat_pay", "alipay", "card"],
       // payment_method_options: {
       //   wechat_pay: {

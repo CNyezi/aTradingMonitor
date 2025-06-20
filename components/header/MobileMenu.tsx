@@ -25,6 +25,10 @@ export default function MobileMenu() {
   const { user } = useAuth();
 
   const headerLinks: HeaderLink[] = tHeader.raw("links");
+  const pricingLink = headerLinks.find((link) => link.name === "Pricing");
+  if (pricingLink) {
+    pricingLink.href = process.env.NEXT_PUBLIC_PRICING_PATH!;
+  }
 
   return (
     <div className="flex items-center md:hidden">

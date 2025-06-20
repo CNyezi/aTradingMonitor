@@ -222,7 +222,11 @@ function SuccessContent() {
         className="flex flex-col sm:flex-row gap-3 w-full max-w-md"
       >
         <Button className="flex-1 gap-2" asChild>
-          <I18nLink href="/#pricing" title="Back to Home" prefetch={true}>
+          <I18nLink
+            href={process.env.NEXT_PUBLIC_PRICING_PATH!}
+            title="Back to Home"
+            prefetch={true}
+          >
             <CreditCard className="w-4 h-4" /> Back to Home
           </I18nLink>
         </Button>
