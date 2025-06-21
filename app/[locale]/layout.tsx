@@ -20,6 +20,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import "@/styles/loading.css";
+import "@/styles/theme.css";
 import { Analytics } from "@vercel/analytics/react";
 import { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";

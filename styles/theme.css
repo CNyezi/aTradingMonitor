@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+  :root {
+    --main: #4F46E5;
+    --main-foreground: #ffffff;
+
+    --main-gradient-from: #4F46E5;  /* indigo-600 */
+    --main-gradient-to: #06B6D4;    /* cyan-500 */
+
+    --code-bg: #1a1a1a;
+    --code-header: #2d2d2d;
+    --code-text: #A9B1D6;
+  }
+
+  .dark {
+    --main: #4338CA;
+    --main-foreground: #ffffff;
+
+    --main-gradient-from: #5b61fc;
+    --main-gradient-to: #38d9ec;
+
+    --code-bg: #1a1a1a;
+    --code-header: #2d2d2d;
+    --code-text: #A9B1D6;
+  }
+}
+@layer components {
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[--main-gradient-from] to-[--main-gradient-to];
+  }
+
+  .gradient-bg {
+    @apply bg-gradient-to-r from-[--main-gradient-from] to-[--main-gradient-to];
+  }
+
+  .dark .gradient-bg {
+    box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.15);
+  }
+
+  .button-gradient-bg {
+    @apply gradient-bg text-white px-8 py-3 rounded-lg font-medium text-center hover:opacity-90 shadow-lg;
+  }
+
+  .code-window {
+    @apply bg-[--code-bg] rounded-lg overflow-hidden;
+  }
+
+  .code-header {
+    @apply bg-[--code-header] px-4 py-2 flex items-center;
+  }
+
+  .window-btn {
+    @apply h-3 w-3 rounded-full mr-1.5;
+  }
+
+  .btn-red { @apply bg-[#ff5f56]; }
+  .btn-yellow { @apply bg-[#ffbd2e]; }
+  .btn-green { @apply bg-[#27c93f]; }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .card {
+    @apply transition-all duration-300 border border-gray-200 dark:border-gray-800;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border-color: var(--main);
+  }
+  
+  .dark .card:hover {
+    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(99, 102, 241, 0.06);
+    border-color: var(--main-gradient-from);
+  }
+}
