@@ -1,6 +1,6 @@
 "use client";
 
-import { generatePresignedUploadUrl } from "@/actions/r2-resources";
+import { generateAdminPresignedUploadUrl } from "@/actions/r2-resources";
 import { Button } from "@/components/ui/button";
 import { BLOGS_IMAGE_PATH } from "@/config/common";
 import { getErrorMessage } from "@/lib/error-utils";
@@ -56,7 +56,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
     try {
       const filenamePrefix = "featured-image";
 
-      const presignedUrlActionResponse = await generatePresignedUploadUrl({
+      const presignedUrlActionResponse = await generateAdminPresignedUploadUrl({
         fileName: file.name,
         contentType: file.type,
         prefix: filenamePrefix,

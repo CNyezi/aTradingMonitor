@@ -1,7 +1,7 @@
 "use client";
 
 import { type PostWithTags } from "@/actions/blogs/posts";
-import { generatePresignedUploadUrl } from "@/actions/r2-resources";
+import { generateAdminPresignedUploadUrl } from "@/actions/r2-resources";
 import { basePostSchema } from "@/app/[locale]/(protected)/dashboard/(admin)/blogs/schema";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -300,7 +300,7 @@ export function PostForm({
     try {
       const filenamePrefix = "post-image";
 
-      const presignedUrlActionResponse = await generatePresignedUploadUrl({
+      const presignedUrlActionResponse = await generateAdminPresignedUploadUrl({
         fileName: imageFile.name,
         contentType: imageFile.type,
         prefix: filenamePrefix,

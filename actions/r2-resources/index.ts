@@ -4,6 +4,7 @@ import { actionResponse } from "@/lib/action-response";
 import { createR2Client, deleteFile as deleteR2Util, ListedObject, listR2Objects } from "@/lib/cloudflare/r2";
 import { getErrorMessage } from "@/lib/error-utils";
 import { isAdmin } from "@/lib/supabase/isAdmin";
+import { createClient } from "@/lib/supabase/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { z } from "zod";
@@ -110,14 +111,13 @@ const generatePresignedUrlSchema = z.object({
   prefix: z.string().optional(),
   path: z.string(),
 });
+type GeneratePresignedUploadUrlInput = z.infer<
+  typeof generatePresignedUrlSchema
+>;
 
 export async function generatePresignedUploadUrl(
-  input: z.infer<typeof generatePresignedUrlSchema>
+  input: GeneratePresignedUploadUrlInput
 ): Promise<GeneratePresignedUploadUrlData> {
-  if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
-  }
-
   const validationResult = generatePresignedUrlSchema.safeParse(input);
   if (!validationResult.success) {
     const formattedErrors = validationResult.error.flatten().fieldErrors;
@@ -139,7 +139,7 @@ export async function generatePresignedUploadUrl(
     .substring(2, 8)}${originalFileExtension ? `.${originalFileExtension}` : ""}`;
 
   const finalFileName = prefix ? `${prefix}-${uniqueTimestampRandomPart}` : uniqueTimestampRandomPart;
-  const cleanedPath = path.replace(/^\/+|\/+$/g, '');
+  const cleanedPath = path.replace(/^\/+|\/+$/g, "");
   const objectKey = cleanedPath ? `${cleanedPath}/${finalFileName}` : finalFileName;
 
   const s3Client = createR2Client();
@@ -167,4 +167,30 @@ export async function generatePresignedUploadUrl(
     console.error(`Failed to generate pre-signed URL for ${objectKey}:`, error);
     return actionResponse.error(getErrorMessage(error) || "Failed to generate pre-signed URL");
   }
-} 
+}
+
+export async function generateAdminPresignedUploadUrl(
+  input: GeneratePresignedUploadUrlInput
+): Promise<GeneratePresignedUploadUrlData> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden("Admin privileges required.");
+  }
+  return generatePresignedUploadUrl(input);
+}
+
+export async function generateUserPresignedUploadUrl(
+  input: GeneratePresignedUploadUrlInput
+): Promise<GeneratePresignedUploadUrlData> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return actionResponse.unauthorized();
+  }
+
+  const userPath = `/users/${input.path}/userid-${user.id}`;
+
+  return generatePresignedUploadUrl({ ...input, path: userPath });
+}

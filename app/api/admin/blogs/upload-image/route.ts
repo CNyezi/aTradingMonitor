@@ -5,7 +5,7 @@
  * is now to use pre-signed URLs for direct client-to-R2 uploads, which offers 
  * better performance and reduces server load.
  * 
- * Recommended method: Use `generatePresignedUploadUrl()` function from 
+ * Recommended method: Use `generateAdminPresignedUploadUrl()` function from 
  * `actions/r2-resources/index.ts` to get a pre-signed URL, then upload 
  * directly from client to R2 using a PUT request.
  * 
