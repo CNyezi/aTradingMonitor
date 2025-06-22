@@ -15,7 +15,7 @@ export const runtime = "edge";
 
 import { IMAGE_TO_VIDEO_MODELS } from "@/lib/ai/models";
 import { apiResponse } from "@/lib/api-response";
-// import { serverUploadFile } from "@/lib/cloudflare/r2"; // Optional: Uncomment if you want to upload results to R2
+// import { generateR2Key, getDataFromDataUrl, serverUploadFile } from "@/lib/cloudflare/r2";
 import { ReplicatePredictionResponse } from "@/types/ai";
 import Replicate from "replicate";
 import { z } from 'zod';
@@ -102,45 +102,51 @@ export async function POST(req: Request) {
         return apiResponse.serverError("Video generation succeeded, but no valid video URL was found in the output.");
       }
 
-      // console.log("Generated Replicate Video URL:", replicateVideoUrl);
+      let finalVideoUrl = replicateVideoUrl;
 
-      // Optional: Upload result image to R2
+      // Optional: Upload to R2
       // ---- Start R2 Upload ----
-      // let finalVideoUrl = replicateVideoUrl; // Default to replicate URL if R2 fails
       // try {
-      //   console.log(`Fetching video from Replicate URL: ${replicateVideoUrl}`);
+      //   const path = `image-to-videos/${provider}/${fullModelVersionId.replace(':', '/')}`;
+
       //   const videoResponse = await fetch(replicateVideoUrl);
       //   if (!videoResponse.ok) {
       //     throw new Error(`Failed to fetch video from Replicate: ${videoResponse.statusText}`);
       //   }
-      //   // Get video data as ArrayBuffer, then Buffer
-      //   const videoArrayBuffer = await videoResponse.arrayBuffer();
-      //   const videoBuffer = Buffer.from(videoArrayBuffer);
-      //   const contentType = videoResponse.headers.get("content-type") || "video/mp4"; // Get actual content type or default
-
-      //   const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      //   const path = `image-to-videos/${provider}/${fullModelVersionId.replace(':', '/')}/`; // Store by provider/model/version
-      //   const fileName = `${uniqueId}_${prompt.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '_')}.mp4`; // Create a somewhat descriptive filename
-
-      //   console.log(`Uploading video to R2: ${path}${fileName}`);
-
-      //   const uploadResult = await serverUploadFile({
-      //     data: videoBuffer,
-      //     fileName: fileName,
-      //     contentType: contentType,
+      //   const videoBuffer = Buffer.from(await videoResponse.arrayBuffer());
+      //   const videoContentType = videoResponse.headers.get("content-type") || "video/mp4";
+      //   const videoKey = generateR2Key({
+      //     fileName: videoContentType.split('/')[1] || 'mp4',
       //     path: path,
       //   });
 
-      //   console.log("Successfully uploaded video to R2:", uploadResult.url);
-      //   finalVideoUrl = uploadResult.url;
+      //   const originalImageData = getDataFromDataUrl(imageBase64DataUri);
+
+      //   if (!originalImageData) {
+      //     throw new Error("Invalid source image data.");
+      //   }
+      //   const originalImageKey = generateR2Key({
+      //     fileName: originalImageData.contentType.split('/')[1] || 'png',
+      //     path: path,
+      //   });
+
+      //   const [uploadVideoResult] = await Promise.all([
+      //     serverUploadFile({
+      //       data: videoBuffer,
+      //       contentType: videoContentType,
+      //       key: videoKey,
+      //     }),
+      //   ]);
+
+      //   finalVideoUrl = uploadVideoResult.url;
+      //   console.log("Uploaded generated video to R2:", uploadVideoResult.url);
       // } catch (uploadError: any) {
-      //   console.error("Failed to upload generated video to R2:", uploadError);
-      //   return apiResponse.serverError("Video generation succeeded, but failed to store permanently.");
+      //   console.error("Failed to upload assets to R2:", uploadError);
+      //   return apiResponse.serverError("Video generation succeeded, but failed to store the assets permanently.");
       // }
       // ---- End R2 Upload ----
 
-      // Return the final URL (either R2 or Replicate)
-      return apiResponse.success({ videoUrl: replicateVideoUrl });
+      return apiResponse.success({ videoUrl: finalVideoUrl });
 
     } else {
       console.error(`Replicate job did not succeed. Status: ${finalPrediction.status}`, finalPrediction.error);

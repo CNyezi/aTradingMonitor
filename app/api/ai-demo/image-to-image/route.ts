@@ -16,7 +16,7 @@ export const maxDuration = 60;
 
 import { IMAGE_TO_IMAGE_MODELS } from "@/lib/ai/models";
 import { apiResponse } from "@/lib/api-response";
-// import { serverUploadFile } from "@/lib/cloudflare/r2"; // Optional: Uncomment if you want to upload results to R2
+// import { generateR2Key, getDataFromDataUrl, serverUploadFile } from "@/lib/cloudflare/r2"; // Optional: Uncomment if you want to upload results to R2
 import { replicate } from "@ai-sdk/replicate";
 import { ImageModel, JSONValue, experimental_generateImage as generateImage } from 'ai';
 import { z } from 'zod';
@@ -84,31 +84,41 @@ export async function POST(req: Request) {
     // Optional: Upload result image to R2
     // ---- Start R2 Upload ----
     // try {
-    //   const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-    //   const path = `image-to-images/${provider}/${modelId}/`;
+    //   const path = `image-to-images/${provider}/${modelId}`;
 
-    //   const originalImageParts = imageBase64DataUri.split(';');
-    //   const originalImageType = originalImageParts[0].split(':')[1];
-    //   const originalImageBase64 = originalImageParts[1].split(',')[1];
-    //   const originalFileExtension = originalImageType.split('/')[1] || 'png';
-    //   const originalFileName = `${uniqueId}_original.${originalFileExtension}`;
+    //   const originalImageData = getDataFromDataUrl(imageBase64DataUri);
+    //   if (!originalImageData) {
+    //     console.error("Failed to process original image data URI.");
+    //     throw new Error("Invalid original image data.");
+    //   }
+    //   const originalImageExt = originalImageData.contentType.split('/')[1] || 'png';
+    //   const originalImageKey = generateR2Key({
+    //     fileName: `original.${originalImageExt}`,
+    //     path: path,
+    //     prefix: 'original'
+    //   });
 
-    //   const generatedFileName = `${uniqueId}_generated.png`;
-    //   const generatedContentType = 'image/png'; // Assuming generated image is always PNG
+    //   const generatedImageDataUri = `data:image/png;base64,${images[0].base64}`;
+    //   const generatedImageData = getDataFromDataUrl(generatedImageDataUri);
+    //   if (!generatedImageData) {
+    //     console.error("Failed to process generated image data URI.");
+    //     throw new Error("Invalid generated image data.");
+    //   }
+    //   const generatedImageKey = generateR2Key({
+    //     fileName: generatedImageData.contentType.split("/")[1],
+    //     path: path,
+    //   });
 
-    //   // Upload both images concurrently
     //   const [uploadOriginalResult, uploadGeneratedResult] = await Promise.all([
     //     serverUploadFile({
-    //       data: originalImageBase64,
-    //       fileName: originalFileName,
-    //       contentType: originalImageType,
-    //       path: path
+    //       data: originalImageData.buffer,
+    //       contentType: originalImageData.contentType,
+    //       key: originalImageKey,
     //     }),
     //     serverUploadFile({
-    //       data: images[0].base64,
-    //       fileName: generatedFileName,
-    //       contentType: generatedContentType,
-    //       path: path
+    //       data: generatedImageData.buffer,
+    //       contentType: generatedImageData.contentType,
+    //       key: generatedImageKey,
     //     })
     //   ]);
 

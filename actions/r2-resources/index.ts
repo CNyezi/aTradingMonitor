@@ -1,7 +1,7 @@
 "use server";
 
 import { actionResponse } from "@/lib/action-response";
-import { createR2Client, deleteFile as deleteR2Util, ListedObject, listR2Objects } from "@/lib/cloudflare/r2";
+import { createR2Client, deleteFile as deleteR2Util, generateR2Key, ListedObject, listR2Objects } from "@/lib/cloudflare/r2";
 import { getErrorMessage } from "@/lib/error-utils";
 import { isAdmin } from "@/lib/supabase/isAdmin";
 import { createClient } from "@/lib/supabase/server";
@@ -133,14 +133,12 @@ export async function generatePresignedUploadUrl(
     return actionResponse.error("Server configuration error: R2 settings are incomplete.");
   }
 
-  const originalFileExtension = fileName.split(".").pop();
-  const uniqueTimestampRandomPart = `${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2, 8)}${originalFileExtension ? `.${originalFileExtension}` : ""}`;
-
-  const finalFileName = prefix ? `${prefix}-${uniqueTimestampRandomPart}` : uniqueTimestampRandomPart;
   const cleanedPath = path.replace(/^\/+|\/+$/g, "");
-  const objectKey = cleanedPath ? `${cleanedPath}/${finalFileName}` : finalFileName;
+  const objectKey = await generateR2Key({
+    fileName,
+    path: cleanedPath,
+    prefix,
+  });
 
   const s3Client = createR2Client();
 

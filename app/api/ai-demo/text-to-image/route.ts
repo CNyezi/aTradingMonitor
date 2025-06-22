@@ -15,7 +15,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 import { apiResponse } from "@/lib/api-response";
-// import { serverUploadFile } from "@/lib/cloudflare/r2"; // Optional: Uncomment if you want to upload results to R2
+// import { generateR2Key, getDataFromDataUrl, serverUploadFile } from "@/lib/cloudflare/r2"; // Optional: Uncomment if you want to upload results to R2
 import { openai } from "@ai-sdk/openai";
 import { replicate } from "@ai-sdk/replicate";
 import { xai } from "@ai-sdk/xai";
@@ -94,12 +94,21 @@ export async function POST(req: Request) {
     // ---- Start R2 Upload ----
     // try {
     //   const path = `text-to-images/${provider}/${modelId}/`;
-    //   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.png`;
-    //   const { url: imageUrl, key } = await serverUploadFile({
-    //     data: images[0].base64,
-    //     fileName: fileName,
-    //     contentType: 'image/png',
-    //     path: path
+
+    //   const dataUri = `data:${images[0].mimeType};base64,${images[0].base64}`;
+    //   const imageData = await getDataFromDataUrl(dataUri);
+    //   if (!imageData) {
+    //     return apiResponse.serverError("Failed to get image data from data URL.");
+    //   }
+    //   const objectKey = await generateR2Key({
+    //     fileName: imageData.contentType.split("/")[1],
+    //     path: path,
+    //   });
+
+    //   await serverUploadFile({
+    //     data: imageData.buffer,
+    //     contentType: imageData.contentType,
+    //     key: objectKey,
     //   });
     // } catch (uploadError) {
     //   console.error("Failed to upload to R2:", uploadError);

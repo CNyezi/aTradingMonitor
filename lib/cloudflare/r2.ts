@@ -11,9 +11,9 @@ export const createR2Client = () => new S3Client({
 
 export interface UploadOptions {
   data: Buffer | string;
-  fileName?: string;
   contentType: string;
   path?: string;
+  key: string;
 }
 export interface UploadResult {
   url: string;
@@ -22,9 +22,9 @@ export interface UploadResult {
 
 export const serverUploadFile = async ({
   data,
-  fileName,
   contentType,
   path = '',
+  key,
 }: UploadOptions): Promise<UploadResult> => {
   if (!process.env.R2_BUCKET_NAME || !process.env.R2_PUBLIC_URL) {
     throw new Error('R2 configuration is missing');
@@ -35,16 +35,14 @@ export const serverUploadFile = async ({
     ? data
     : Buffer.from(data.replace(/^data:.*?;base64,/, ''), 'base64');
 
-  const finalFileName = fileName || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.png`;
-
-  const key = path
-    ? path.endsWith('/') ? `${path}${finalFileName}` : `${path}/${finalFileName}`
-    : finalFileName;
+  const finalKey = path
+    ? path.endsWith('/') ? `${path}${key}` : `${path}/${key}`
+    : key;
 
   try {
     await s3Client.send(new PutObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME,
-      Key: key,
+      Key: finalKey,
       Body: fileBuffer,
       ContentType: contentType,
     }));
@@ -150,3 +148,37 @@ export const listR2Objects = async (
     };
   }
 };
+
+export const generateR2Key = ({
+  fileName,
+  path = "",
+  prefix,
+}: {
+  fileName: string;
+  path?: string;
+  prefix?: string;
+}): string => {
+  const originalFileExtension = fileName.split(".").pop();
+  const randomPart = `${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 8)}${originalFileExtension ? `.${originalFileExtension}` : ""}`;
+
+  const finalFileName = prefix
+    ? `${prefix}-${randomPart}`
+    : randomPart;
+  const cleanedPath = path.replace(/^\/+|\/+$/g, "");
+  return cleanedPath ? `${cleanedPath}/${finalFileName}` : finalFileName;
+};
+
+export const getDataFromDataUrl = (dataUrl: string): { buffer: Buffer; contentType: string } | null => {
+  const match = dataUrl.match(/^data:(.*?);base64,(.*)$/);
+
+  if (!match) {
+    console.error("Invalid data URL format");
+    return null;
+  }
+  const contentType = match[1];
+  const base64Data = match[2];
+  const buffer = Buffer.from(base64Data, 'base64');
+  return { buffer, contentType };
+}

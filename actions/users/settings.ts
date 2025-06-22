@@ -2,7 +2,11 @@
 
 import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { actionResponse } from "@/lib/action-response";
-import { deleteFile, serverUploadFile } from "@/lib/cloudflare/r2";
+import {
+  deleteFile,
+  generateR2Key,
+  serverUploadFile,
+} from "@/lib/cloudflare/r2";
 import { getErrorMessage } from "@/lib/error-utils";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -65,18 +69,18 @@ export async function updateUserSettingsAction({
       }
 
       try {
-        const timestamp = Date.now();
-        const randomString = Math.random().toString(36).substring(2, 8);
-        const fileExtension = avatar.type.split("/")[1];
-        const fileName = `avatar-${timestamp}-${randomString}.${fileExtension}`;
-        const filePath = `avatars/${authUser.id}/`;
+        const filePath = `avatars/${authUser.id}`;
+        const key = generateR2Key({
+          fileName: avatar.name,
+          path: filePath,
+          prefix: "avatar",
+        });
 
         const buffer = Buffer.from(await avatar.arrayBuffer());
         const { url } = await serverUploadFile({
           data: buffer,
           contentType: avatar.type,
-          path: filePath,
-          fileName: fileName,
+          key: key,
         });
 
         if (authUser.user_metadata?.avatar_url) {
