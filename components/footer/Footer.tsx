@@ -15,7 +15,7 @@ type FooterLink = {
 
 type Link = {
   href: string;
-  label: string;
+  name: string;
   target?: string;
   rel?: string;
   useA?: boolean;
@@ -29,7 +29,7 @@ export default async function Footer() {
 
   const footerLinks: FooterLink[] = tFooter.raw("Links.groups");
   footerLinks.forEach((group) => {
-    const pricingLink = group.links.find((link) => link.label === "Pricing");
+    const pricingLink = group.links.find((link) => link.name === "Pricing");
     if (pricingLink) {
       pricingLink.href = process.env.NEXT_PUBLIC_PRICING_PATH!;
     }
@@ -120,24 +120,24 @@ export default async function Footer() {
                       {link.href.startsWith("/") && !link.useA ? (
                         <I18nLink
                           href={link.href}
-                          title={link.label}
+                          title={link.name}
                           prefetch={false}
                           className="hover:text-white transition-colors"
                           target={link.target || ""}
                           rel={link.rel || ""}
                         >
-                          {link.label}
+                          {link.name}
                         </I18nLink>
                       ) : (
                         <Link
                           href={link.href}
-                          title={link.label}
+                          title={link.name}
                           prefetch={false}
                           className="hover:text-white transition-colors"
                           target={link.target || ""}
                           rel={link.rel || ""}
                         >
-                          {link.label}
+                          {link.name}
                         </Link>
                       )}
                     </li>
