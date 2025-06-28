@@ -33,6 +33,17 @@ export async function constructMetadata({
     ? `${pageTitle} - ${t('tagLine')}`
     : `${pageTitle} | ${t('title')}`
 
+  canonicalUrl = canonicalUrl || path
+
+  const alternateLanguages = Object.keys(LOCALE_NAMES).reduce((acc, lang) => {
+    const path = canonicalUrl
+      ? `${lang === DEFAULT_LOCALE ? '' : `/${lang}`}${canonicalUrl === '/' ? '' : canonicalUrl}`
+      : `${lang === DEFAULT_LOCALE ? '' : `/${lang}`}`
+    acc[lang] = `${siteConfig.url}${path}`
+    return acc
+  }, {} as Record<string, string>)
+
+  // Open Graph
   const imageUrls = images.length > 0
     ? images.map(img => ({
       url: img.startsWith('http') ? img : `${siteConfig.url}/${img}`,
@@ -42,18 +53,7 @@ export async function constructMetadata({
       url: `${siteConfig.url}/og${locale === DEFAULT_LOCALE ? '' : '_' + locale}.png`,
       alt: pageTitle,
     }]
-
-  const pageURL = `${locale === DEFAULT_LOCALE ? '' : locale}${path}` || siteConfig.url
-
-  canonicalUrl = canonicalUrl || path
-  const alternateLanguages = Object.keys(LOCALE_NAMES).reduce((acc, lang) => {
-    const path = canonicalUrl
-      ? `${lang === DEFAULT_LOCALE ? '' : `/${lang}`}${canonicalUrl}`
-      : `${lang === DEFAULT_LOCALE ? '' : `/${lang}`}`
-    acc[lang] = `${siteConfig.url}${path}`
-
-    return acc
-  }, {} as Record<string, string>)
+  const pageURL = `${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${path}`
 
   return {
     title: finalTitle,
@@ -63,7 +63,7 @@ export async function constructMetadata({
     creator: siteConfig.creator,
     metadataBase: new URL(siteConfig.url),
     alternates: {
-      canonical: canonicalUrl ? `${siteConfig.url}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${canonicalUrl}` : undefined,
+      canonical: canonicalUrl ? `${siteConfig.url}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${canonicalUrl === '/' ? '' : canonicalUrl}` : undefined,
       languages: alternateLanguages,
     },
     // Create an OG image using https://ogimage.click
@@ -80,7 +80,7 @@ export async function constructMetadata({
       card: 'summary_large_image',
       title: finalTitle,
       description: pageDescription,
-      site: `${siteConfig.url}/${pageURL}`,
+      site: `${siteConfig.url}${pageURL === '/' ? '' : pageURL}`,
       images: imageUrls,
       creator: siteConfig.creator,
     },
