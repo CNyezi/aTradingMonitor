@@ -8,9 +8,17 @@ import dayjs from "dayjs";
 const formatLogType = (type: string, t: (key: string) => string) => {
   switch (type) {
     case "one_time_purchase":
-      return <Badge variant="default">{t("type_one_time_purchase")}</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+          {t("type_one_time_purchase")}
+        </Badge>
+      );
     case "subscription_grant":
-      return <Badge variant="default">{t("type_subscription_grant")}</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+          {t("type_subscription_grant")}
+        </Badge>
+      );
     case "feature_usage":
       return <Badge variant="secondary">{t("type_feature_usage")}</Badge>;
     case "refund_revoke":
