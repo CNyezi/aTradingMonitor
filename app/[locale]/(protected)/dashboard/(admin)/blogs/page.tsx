@@ -61,7 +61,7 @@ export default async function AdminBlogsPage() {
   const pageCount = Math.ceil(totalPosts / PAGE_SIZE);
 
   return (
-    <div className="space-y-4 p-4 md:p-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
         <div className="flex space-x-2">
