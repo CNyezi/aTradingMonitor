@@ -646,11 +646,10 @@ async function checkUserSubscription(userId: string): Promise<boolean> {
   );
 
   try {
-    const { data: latestSubscriptionOrder, error: queryError } = await supabaseAdmin
-      .from('orders')
-      .select('status, period_end')
+    const { data: latestSubscription, error: queryError } = await supabaseAdmin
+      .from('subscriptions')
+      .select('status, current_period_end')
       .eq('user_id', userId)
-      .in('order_type', ['subscription_initial', 'subscription_renewal'])
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -660,12 +659,12 @@ async function checkUserSubscription(userId: string): Promise<boolean> {
       return false;
     }
 
-    if (!latestSubscriptionOrder) {
+    if (!latestSubscription) {
       return false;
     }
 
-    const isActive = latestSubscriptionOrder.status === 'active';
-    const isWithinPeriod = latestSubscriptionOrder.period_end && new Date(latestSubscriptionOrder.period_end) > new Date();
+    const isActive = latestSubscription.status === 'active';
+    const isWithinPeriod = latestSubscription.current_period_end && new Date(latestSubscription.current_period_end) > new Date();
 
     return !!(isActive && isWithinPeriod);
 

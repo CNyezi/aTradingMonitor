@@ -69,8 +69,6 @@ export type Database = {
           id: string
           metadata: Json | null
           order_type: string
-          period_end: string | null
-          period_start: string | null
           plan_id: string | null
           price_id: string | null
           product_id: string | null
@@ -91,8 +89,6 @@ export type Database = {
           id?: string
           metadata?: Json | null
           order_type: string
-          period_end?: string | null
-          period_start?: string | null
           plan_id?: string | null
           price_id?: string | null
           product_id?: string | null
@@ -113,8 +109,6 @@ export type Database = {
           id?: string
           metadata?: Json | null
           order_type?: string
-          period_end?: string | null
-          period_start?: string | null
           plan_id?: string | null
           price_id?: string | null
           product_id?: string | null
