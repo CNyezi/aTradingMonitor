@@ -1,6 +1,10 @@
 {
   "Hero": {
-    "badge": "Next.js SaaS 全栈模板",
+    "badge": {
+      "label": "NEW",
+      "text": "Next.js SaaS 全栈模板",
+      "href": "https://nexty.dev/#pricing"
+    },
     "title": "多场景全栈 SaaS 开发模板",
     "description": "告别从零搭建基础架构。获得认证系统、支付集成、AI功能、CMS、文件存储等一切生产就绪的组件。专注你的独特创意，让我们处理繁重的技术工作。",
     "getStarted": "立即开始",

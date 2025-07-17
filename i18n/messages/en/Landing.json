@@ -1,6 +1,10 @@
 {
   "Hero": {
-    "badge": "Next.js SaaS Full-Stack Template",
+    "badge": {
+      "label": "NEW",
+      "text": "Next.js SaaS Full-Stack Template",
+      "href": "https://nexty.dev/#pricing"
+    },
     "title": "A Modern Next.js Full Stack SaaS Boilerplate",
     "description": "Say goodbye to building infrastructure from scratch. Get authentication systems, payment integration, AI features, CMS, file storage and all production-ready components. Focus on your unique creativity while we handle the heavy technical work.",
     "getStarted": "Get Started Now",

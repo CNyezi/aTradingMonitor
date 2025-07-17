@@ -3,7 +3,6 @@
 import FeatureBadge from "@/components/shared/FeatureBadge";
 import { Button } from "@/components/ui/button";
 import { RainbowButton } from "@/components/ui/rainbow-button";
-import { motion } from "framer-motion";
 import { BookOpen, MousePointerClick } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
@@ -29,14 +28,18 @@ export default function Hero() {
   return (
     <div className="w-full">
       <div className="container mx-auto">
-        <div className="flex gap-8 py-16 lg:py-24 2xl:py-36 items-center justify-center flex-col">
-          <FeatureBadge label="NEW" text={t("badge")} />
+        <div className="flex gap-8 py-16 lg:py-24 2xl:py-40 items-center justify-center flex-col">
+          <FeatureBadge
+            label={t("badge.label")}
+            text={t("badge.text")}
+            href={t("badge.href")}
+          />
           <div className="flex gap-4 flex-col max-w-3xl">
             <h1 className="text-center z-10 text-lg md:text-7xl font-sans font-bold">
               <span className="bg-clip-text bg-gradient-to-b from-foreground to-muted-foreground text-transparent">
                 {t("title")}
               </span>
-              <span className="relative w-full flex justify-center overflow-hidden text-center md:pb-4 md:pt-1">
+              {/* <span className="relative w-full flex justify-center overflow-hidden text-center md:pb-4 md:pt-1">
                 &nbsp;
                 {titles.map((title: string, index: number) => (
                   <motion.span
@@ -59,7 +62,7 @@ export default function Hero() {
                     {title}
                   </motion.span>
                 ))}
-              </span>
+              </span> */}
             </h1>
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground text-center">

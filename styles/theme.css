@@ -59,7 +59,7 @@
   }
 
   .gradient-button {
-    @apply text-white px-8 py-3 rounded-lg font-medium text-center shadow-lg transition-all duration-200;
+    @apply text-white dark:text-white px-8 py-3 rounded-lg font-medium text-center shadow-lg transition-all duration-200;
     background: linear-gradient(
       to right,
       var(--main-gradient-from),
@@ -68,7 +68,6 @@
   }
 
   .gradient-button:hover {
-    transform: translateY(-1px);
     box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
   }
 

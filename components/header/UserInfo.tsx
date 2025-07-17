@@ -41,7 +41,6 @@ export function UserInfo({ mobile = false, renderContainer }: UserInfoProps) {
     return (
       <Button
         onClick={() => router.push("/login")}
-        variant="outline"
         className={`gradient-button ${mobile ? "w-full" : ""}`}
       >
         {t("Button.signIn")}

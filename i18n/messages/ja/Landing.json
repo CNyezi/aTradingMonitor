@@ -1,6 +1,10 @@
 {
   "Hero": {
-    "badge": "Next.js SaaS フルスタックテンプレート",
+    "badge": {
+      "label": "NEW",
+      "text": "Next.js SaaS フルスタックテンプレート",
+      "href": "https://nexty.dev/#pricing"
+    },
     "title": "多用途フルスタックSaaS開発テンプレート",
     "description": "ゼロからのインフラ構築とお別れしましょう。認証システム、決済統合、AI機能、CMS、ファイルストレージなど、すべての本格運用可能なコンポーネントを取得。あなたは独自のアイデアに集中し、技術的な重労働は私たちにお任せください。",
     "getStarted": "今すぐ開始",
