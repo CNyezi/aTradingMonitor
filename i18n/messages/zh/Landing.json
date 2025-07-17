@@ -1,13 +1,25 @@
 {
   "Hero": {
-    "title": "多场景<highlight>全栈 SaaS</highlight>开发模板",
-    "description": "Nexty 是一个功能齐全的 Next.js SaaS 全栈模板，让你能够快速构建各种商业网站，无论是内容站、工具站还是集成 AI 能力的付费网站。",
+    "badge": "Next.js SaaS 全栈模板",
+    "title": "多场景全栈 SaaS 开发模板",
+    "description": "告别从零搭建基础架构。获得认证系统、支付集成、AI功能、CMS、文件存储等一切生产就绪的组件。专注你的独特创意，让我们处理繁重的技术工作。",
     "getStarted": "立即开始",
+    "getStartedLink": "https://nexty.dev/#pricing",
     "viewDocs": "查看文档",
-    "viewShowcase": "查看案例"
+    "viewDocsLink": "https://nexty.dev/docs",
+    "animatedTitles": [
+      "国际化",
+      "AI 能力",
+      "登录验证",
+      "支付系统",
+      "定价管理",
+      "高级CMS",
+      "文件存储"
+    ]
   },
   "Features": {
-    "title": "为<highlight>极速开发</highlight>打造的完整功能套件",
+    "badge": "功能特性",
+    "title": "为极速开发打造的完整功能套件",
     "description": "我们的模板涵盖了现代 SaaS 应用所需的所有核心功能，让你可以专注于业务逻辑的开发。",
     "items": [
       {
@@ -56,101 +68,6 @@
         "description": "做到 SEO 最佳实践，包括元标签、结构化数据、网站地图和 OpenGraph 标签，提升搜索引擎排名。"
       }
     ]
-  },
-  "TechStack": {
-    "badge": "技术生态",
-    "title": "由<highlight>流行技术栈</highlight>驱动",
-    "description": "精心选择的最新技术组合，确保你的产品稳定、可扩展且易于维护",
-    "groups": [
-      {
-        "title": "前端框架",
-        "icon": "Code",
-        "description": "基于 Next.js 与 React 构建的现代化响应式界面",
-        "color": "blue",
-        "items": [
-          {
-            "name": "Next.js",
-            "description": "React 全栈框架",
-            "logo": "/images/nextjs.svg"
-          },
-          {
-            "name": "TypeScript",
-            "description": "类型安全保障",
-            "logo": "/images/typescript.svg"
-          },
-          {
-            "name": "Tailwind CSS",
-            "description": "高效样式设计",
-            "logo": "/images/tailwindcss.svg"
-          },
-          {
-            "name": "Shadcn/ui",
-            "description": "可定制UI组件",
-            "logo": "/images/shadcn.svg"
-          }
-        ]
-      },
-      {
-        "title": "后端与数据库",
-        "icon": "Server",
-        "description": "安全可靠的数据存储和用户认证系统",
-        "color": "emerald",
-        "items": [
-          {
-            "name": "Supabase",
-            "description": "PostgreSQL + 认证",
-            "logo": "/images/supabase.svg"
-          },
-          {
-            "name": "Upstash Redis",
-            "description": "边缘缓存服务",
-            "logo": "/images/upstash.png"
-          },
-          {
-            "name": "Cloudflare",
-            "description": "CDN与网络服务",
-            "logo": "/images/cloudflare.svg"
-          },
-          {
-            "name": "Vercel",
-            "description": "一键部署",
-            "logo": "/images/vercel.svg"
-          }
-        ]
-      },
-      {
-        "title": "AI & 集成服务",
-        "icon": "Sparkles",
-        "description": "AI 功能和第三方服务集成",
-        "color": "violet",
-        "items": [
-          {
-            "name": "AI SDK",
-            "description": "AI 应用开发",
-            "logo": "/images/vercel.svg"
-          },
-          {
-            "name": "Replicate",
-            "description": "多模型 AI 接口",
-            "logo": "/images/replicate.svg"
-          },
-          {
-            "name": "Resend",
-            "description": "开发者邮件 API",
-            "logo": "/images/resend.svg"
-          },
-          {
-            "name": "Stripe",
-            "description": "安全支付处理",
-            "logo": "/images/stripe.svg"
-          }
-        ]
-      }
-    ],
-    "footer": {
-      "title": "一步到位的全栈解决方案",
-      "description": "精心选择的技术组合，为你的项目提供稳固的开发基础。从前端到后端，从数据库到部署，一步到位满足你的需求。"
-    }
   },
   "UseCases": {
     "title": "一套模板，<highlight>多场景</highlight>应用",

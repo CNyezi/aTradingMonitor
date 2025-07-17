@@ -1,13 +1,25 @@
 {
   "Hero": {
-    "title": "A Modern <highlight>Full-Stack SaaS</highlight> Template",
-    "description": "A production-ready Next.js and Supabase starter template for building modern SaaS applications. Launch your content, AI, or subscription service faster.",
-    "getStarted": "Get Started",
-    "viewDocs": "View Docs",
-    "viewShowcase": "View Showcase"
+    "badge": "Next.js SaaS Full-Stack Template",
+    "title": "A Modern Next.js Full Stack SaaS Boilerplate",
+    "description": "Say goodbye to building infrastructure from scratch. Get authentication systems, payment integration, AI features, CMS, file storage and all production-ready components. Focus on your unique creativity while we handle the heavy technical work.",
+    "getStarted": "Get Started Now",
+    "getStartedLink": "https://nexty.dev/#pricing",
+    "viewDocs": "View Documentation",
+    "viewDocsLink": "https://nexty.dev/docs",
+    "animatedTitles": [
+      "Internationalization",
+      "AI Capabilities",
+      "Authentication",
+      "Payment System",
+      "Pricing Management",
+      "Advanced CMS",
+      "File Storage"
+    ]
   },
   "Features": {
-    "title": "Complete Feature Suite for <highlight>Rapid Development</highlight>",
+    "badge": "Features",
+    "title": "Complete Feature Suite for Rapid Development",
     "description": "Our template includes all essential features for modern SaaS applications, allowing you to focus on building your business logic.",
     "items": [
       {
@@ -56,101 +68,6 @@
         "description": "Implement SEO best practices with meta tags, structured data, sitemaps, and OpenGraph tags to improve search engine rankings."
       }
     ]
-  },
-  "TechStack": {
-    "badge": "Tech Stack",
-    "title": "Powered by <highlight>Modern Technologies</highlight>",
-    "description": "A carefully curated stack of modern technologies ensuring your product is stable, scalable, and maintainable",
-    "groups": [
-      {
-        "title": "Frontend Framework",
-        "icon": "Code",
-        "description": "Modern responsive interfaces built with Next.js and React",
-        "color": "blue",
-        "items": [
-          {
-            "name": "Next.js",
-            "description": "React Framework",
-            "logo": "/images/nextjs.svg"
-          },
-          {
-            "name": "TypeScript",
-            "description": "Type Safety",
-            "logo": "/images/typescript.svg"
-          },
-          {
-            "name": "Tailwind CSS",
-            "description": "Utility-First CSS",
-            "logo": "/images/tailwindcss.svg"
-          },
-          {
-            "name": "Shadcn/ui",
-            "description": "Custom Components",
-            "logo": "/images/shadcn.svg"
-          }
-        ]
-      },
-      {
-        "title": "Backend & Database",
-        "icon": "Server",
-        "description": "Secure and reliable data storage with robust authentication",
-        "color": "emerald",
-        "items": [
-          {
-            "name": "Supabase",
-            "description": "PostgreSQL + Auth",
-            "logo": "/images/supabase.svg"
-          },
-          {
-            "name": "Upstash Redis",
-            "description": "Edge Caching",
-            "logo": "/images/upstash.png"
-          },
-          {
-            "name": "Cloudflare",
-            "description": "CDN & Network",
-            "logo": "/images/cloudflare.svg"
-          },
-          {
-            "name": "Vercel",
-            "description": "Deploy Instantly",
-            "logo": "/images/vercel.svg"
-          }
-        ]
-      },
-      {
-        "title": "AI & Integration",
-        "icon": "Sparkles",
-        "description": "AI capabilities and third-party service integration",
-        "color": "violet",
-        "items": [
-          {
-            "name": "AI SDK",
-            "description": "AI Development",
-            "logo": "/images/vercel.svg"
-          },
-          {
-            "name": "Replicate",
-            "description": "Multi-Model AI",
-            "logo": "/images/replicate.svg"
-          },
-          {
-            "name": "Resend",
-            "description": "Email API",
-            "logo": "/images/resend.svg"
-          },
-          {
-            "name": "Stripe",
-            "description": "Secure Payments",
-            "logo": "/images/stripe.svg"
-          }
-        ]
-      }
-    ],
-    "footer": {
-      "title": "All-in-One Full-Stack Solution",
-      "description": "A meticulously selected tech stack providing a solid foundation for your project. From frontend to backend, from database to deployment, everything you need in one place."
-    }
   },
   "UseCases": {
     "title": "One Template, <highlight>Multiple Solutions</highlight>",

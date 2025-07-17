@@ -63,7 +63,12 @@ const config = {
           '3': 'hsl(var(--chart-3))',
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))'
-        }
+        },
+        'color-1': 'hsl(var(--color-1))',
+        'color-2': 'hsl(var(--color-2))',
+        'color-3': 'hsl(var(--color-3))',
+        'color-4': 'hsl(var(--color-4))',
+        'color-5': 'hsl(var(--color-5))'
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -87,26 +92,29 @@ const config = {
             height: '0'
           }
         },
-        'float': {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-20px)' },
+        float: {
+          '0%, 100%': {
+            transform: 'translateY(0px)'
+          },
+          '50%': {
+            transform: 'translateY(-20px)'
+          }
+        },
+        rainbow: {
+          '0%': {
+            'background-position': '0%'
+          },
+          '100%': {
+            'background-position': '200%'
+          }
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'float': 'float 6s ease-in-out infinite',
+        float: 'float 6s ease-in-out infinite',
+        rainbow: 'rainbow var(--speed, 2s) infinite linear'
       },
-      backgroundImage: {
-        'gradient-primary': 'linear-gradient(90deg, var(--primary-gradient-from) 0%, var(--primary-gradient-to) 100%)',
-      },
-      backgroundColor: {
-        'code': 'var(--code-bg)',
-        'code-header': 'var(--code-header)',
-      },
-      textColor: {
-        'code': 'var(--code-text)',
-      }
     }
   },
   plugins: [

@@ -1,13 +1,25 @@
 {
   "Hero": {
-    "title": "最新の <highlight>フルスタック SaaS</highlight> テンプレート",
-    "description": "Next.js と Supabase を活用した本格的な SaaS 開発キット。コンテンツ配信、AI ツール、サブスクリプションサービスを迅速に構築できます。",
-    "getStarted": "今すぐ始める",
+    "badge": "Next.js SaaS フルスタックテンプレート",
+    "title": "多用途フルスタックSaaS開発テンプレート",
+    "description": "ゼロからのインフラ構築とお別れしましょう。認証システム、決済統合、AI機能、CMS、ファイルストレージなど、すべての本格運用可能なコンポーネントを取得。あなたは独自のアイデアに集中し、技術的な重労働は私たちにお任せください。",
+    "getStarted": "今すぐ開始",
+    "getStartedLink": "https://nexty.dev/#pricing",
     "viewDocs": "ドキュメントを見る",
-    "viewShowcase": "事例を見る"
+    "viewDocsLink": "https://nexty.dev/docs",
+    "animatedTitles": [
+      "国際化",
+      "AI機能",
+      "認証システム",
+      "決済システム",
+      "料金管理",
+      "高度なCMS",
+      "ファイルストレージ"
+    ]
   },
   "Features": {
-    "title": "<highlight>高速開発</highlight>のための完全機能スイート",
+    "badge": "機能",
+    "title": "高速開発のための完全機能スイート",
     "description": "最新のSaaSアプリケーションに必要な全ての機能を搭載し、ビジネスロジックの開発に専念できます。",
     "items": [
       {
@@ -56,101 +68,6 @@
         "description": "メタタグ、構造化データ、サイトマップ、OGPタグなど、SEOのベストプラクティスを実装し、検索エンジンでの表示順位を向上させます。"
       }
     ]
-  },
-  "TechStack": {
-    "badge": "テックスタック",
-    "title": "<highlight>最先端</highlight>の技術スタックを活用",
-    "description": "厳選された最新技術で、安定性、拡張性、保守性の高いプロダクトを実現",
-    "groups": [
-      {
-        "title": "フロントエンド",
-        "icon": "Code",
-        "description": "Next.jsとReactによる最新のレスポンシブUIを実現",
-        "color": "blue",
-        "items": [
-          {
-            "name": "Next.js",
-            "description": "Reactフレームワーク",
-            "logo": "/images/nextjs.svg"
-          },
-          {
-            "name": "TypeScript",
-            "description": "型安全性の確保",
-            "logo": "/images/typescript.svg"
-          },
-          {
-            "name": "Tailwind CSS",
-            "description": "効率的なスタイリング",
-            "logo": "/images/tailwindcss.svg"
-          },
-          {
-            "name": "Shadcn/ui",
-            "description": "カスタマイズ可能なUI",
-            "logo": "/images/shadcn.svg"
-          }
-        ]
-      },
-      {
-        "title": "バックエンド＆DB",
-        "icon": "Server",
-        "description": "安全で信頼性の高いデータストレージと認証システム",
-        "color": "emerald",
-        "items": [
-          {
-            "name": "Supabase",
-            "description": "PostgreSQL＋認証",
-            "logo": "/images/supabase.svg"
-          },
-          {
-            "name": "Upstash Redis",
-            "description": "エッジキャッシュ",
-            "logo": "/images/upstash.png"
-          },
-          {
-            "name": "Cloudflare",
-            "description": "CDN＆ネットワーク",
-            "logo": "/images/cloudflare.svg"
-          },
-          {
-            "name": "Vercel",
-            "description": "即時デプロイ",
-            "logo": "/images/vercel.svg"
-          }
-        ]
-      },
-      {
-        "title": "AI＆サービス連携",
-        "icon": "Sparkles",
-        "description": "AI機能とサードパーティーサービスの統合",
-        "color": "violet",
-        "items": [
-          {
-            "name": "AI SDK",
-            "description": "AI開発基盤",
-            "logo": "/images/vercel.svg"
-          },
-          {
-            "name": "Replicate",
-            "description": "マルチAIモデル",
-            "logo": "/images/replicate.svg"
-          },
-          {
-            "name": "Resend",
-            "description": "メールAPI",
-            "logo": "/images/resend.svg"
-          },
-          {
-            "name": "Stripe",
-            "description": "安全な決済処理",
-            "logo": "/images/stripe.svg"
-          }
-        ]
-      }
-    ],
-    "footer": {
-      "title": "オールインワンのフルスタックソリューション",
-      "description": "フロントエンドからバックエンド、データベースからデプロイメントまで、プロジェクトに必要な全ての機能を網羅。厳選された技術スタックで、確実な開発基盤を提供します。"
-    }
   },
   "UseCases": {
     "title": "1つのテンプレートで<highlight>多彩なサイト</highlight>構築",
