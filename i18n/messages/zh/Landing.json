@@ -10,16 +10,7 @@
     "getStarted": "立即开始",
     "getStartedLink": "https://nexty.dev/#pricing",
     "viewDocs": "查看文档",
-    "viewDocsLink": "https://nexty.dev/docs",
-    "animatedTitles": [
-      "国际化",
-      "AI 能力",
-      "登录验证",
-      "支付系统",
-      "定价管理",
-      "高级CMS",
-      "文件存储"
-    ]
+    "viewDocsLink": "https://nexty.dev/docs"
   },
   "Features": {
     "badge": "功能特性",

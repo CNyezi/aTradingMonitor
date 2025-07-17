@@ -10,16 +10,7 @@
     "getStarted": "Get Started Now",
     "getStartedLink": "https://nexty.dev/#pricing",
     "viewDocs": "View Documentation",
-    "viewDocsLink": "https://nexty.dev/docs",
-    "animatedTitles": [
-      "Internationalization",
-      "AI Capabilities",
-      "Authentication",
-      "Payment System",
-      "Pricing Management",
-      "Advanced CMS",
-      "File Storage"
-    ]
+    "viewDocsLink": "https://nexty.dev/docs"
   },
   "Features": {
     "badge": "Features",

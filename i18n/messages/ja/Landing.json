@@ -10,16 +10,7 @@
     "getStarted": "今すぐ開始",
     "getStartedLink": "https://nexty.dev/#pricing",
     "viewDocs": "ドキュメントを見る",
-    "viewDocsLink": "https://nexty.dev/docs",
-    "animatedTitles": [
-      "国際化",
-      "AI機能",
-      "認証システム",
-      "決済システム",
-      "料金管理",
-      "高度なCMS",
-      "ファイルストレージ"
-    ]
+    "viewDocsLink": "https://nexty.dev/docs"
   },
   "Features": {
     "badge": "機能",
