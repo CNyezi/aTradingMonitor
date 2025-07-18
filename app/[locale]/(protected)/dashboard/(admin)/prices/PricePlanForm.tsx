@@ -205,6 +205,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       const numericPrice = form.getValues("price");
       const currency = form.getValues("currency");
       const originalPrice = form.getValues("original_price");
+      const displayPrice = form.getValues("display_price");
 
       if (
         numericPrice === null ||
@@ -216,14 +217,18 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       }
 
       if (!watchStripeCouponId) {
-        form.setValue("display_price", originalPrice);
+        if (!displayPrice) {
+          form.setValue("display_price", originalPrice);
+        }
         form.setValue("enable_manual_input_coupon", false);
         return;
       }
 
       const coupon = coupons.find((c) => c.id === watchStripeCouponId);
       if (!coupon) {
-        form.setValue("display_price", originalPrice);
+        if (!displayPrice) {
+          form.setValue("display_price", originalPrice);
+        }
         return;
       }
 
@@ -234,7 +239,9 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       } else if (coupon.amount_off) {
         discountedPrice = numericPrice - coupon.amount_off / 100;
       } else {
-        form.setValue("display_price", originalPrice);
+        if (!displayPrice) {
+          form.setValue("display_price", originalPrice);
+        }
         return;
       }
 
@@ -244,9 +251,11 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
         discountedPrice,
         currency
       );
-      form.setValue("display_price", formattedDiscountedPrice, {
-        shouldValidate: true,
-      });
+      if (!displayPrice) {
+        form.setValue("display_price", formattedDiscountedPrice, {
+          shouldValidate: true,
+        });
+      }
     };
 
     calculateDisplayPrice();
