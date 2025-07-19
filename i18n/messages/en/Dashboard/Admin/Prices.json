@@ -31,7 +31,6 @@
     "verifyStripeError": "Failed to verify Price ID",
     "verifyStripeError2": "Failed to verify Price ID",
     "stripePriceIdVerified": "Stripe Price ID verified successfully!",
-    "multiLanguageTemplateGenerated": "Multi-language template generated. Edit the JSON below.",
     "translateError": "Failed to generate response",
     "createUpdateError": "Failed to {mode} plan (Status {status})",
     "createUpdateError2": "Failed to {mode} plan",
