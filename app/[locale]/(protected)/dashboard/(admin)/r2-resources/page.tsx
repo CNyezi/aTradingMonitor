@@ -21,7 +21,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "Images",
+    namespace: "R2Files",
   });
 
   return constructMetadata({
@@ -82,7 +82,7 @@ async function CategoryTable({ categoryPrefix }: { categoryPrefix: string }) {
 }
 
 export default function AdminImagesPage() {
-  const t = useTranslations("Images");
+  const t = useTranslations("R2Files");
   const defaultCategory = CATEGORIES[0].prefix;
 
   return (

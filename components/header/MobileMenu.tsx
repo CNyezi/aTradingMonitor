@@ -33,6 +33,7 @@ export default function MobileMenu() {
   return (
     <div className="flex items-center md:hidden">
       <LocaleSwitcher />
+      <ThemeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger className="p-2">
           <Menu className="h-5 w-5" />
@@ -89,14 +90,6 @@ export default function MobileMenu() {
                 </I18nLink>
               </DropdownMenuItem>
             ))}
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem className="p-2 focus:bg-transparent justify-end">
-              <div className="flex items-center gap-x-4">
-                <ThemeToggle />
-              </div>
-            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

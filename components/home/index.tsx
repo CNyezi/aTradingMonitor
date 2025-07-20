@@ -3,10 +3,9 @@ import FAQ from "@/components/home/FAQ";
 import Features from "@/components/home/Features";
 import Hero from "@/components/home/Hero";
 import Pricing from "@/components/home/Pricing";
-import TechStack from "@/components/home/TechStack";
 import Testimonials from "@/components/home/Testimonials";
 import UseCases from "@/components/home/UseCases";
-import WhyChoose from "@/components/home/WhyChoose";
+import { BG1 } from "@/components/shared/BGs";
 import { getMessages } from "next-intl/server";
 
 export default async function HomeComponent() {
@@ -14,15 +13,13 @@ export default async function HomeComponent() {
 
   return (
     <div className="w-full">
+      <BG1 />
+
       {messages.Landing.Hero && <Hero />}
 
       {messages.Landing.Features && <Features />}
 
-      {messages.Landing.TechStack && <TechStack />}
-
       {messages.Landing.UseCases && <UseCases />}
-
-      {messages.Landing.WhyChoose && <WhyChoose />}
 
       {messages.Landing.Pricing && <Pricing />}
 

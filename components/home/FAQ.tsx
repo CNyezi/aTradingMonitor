@@ -24,11 +24,17 @@ export default function FAQ() {
   const faqs: FAQItem[] = t.raw("items");
 
   return (
-    <section id="faq" className="py-20 bg-white dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="testimonials" className="py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{t("title")}</h2>
-          <p className="text-xl text-muted-foreground">{t("description")}</p>
+          <h2 className="text-center z-10 text-lg md:text-5xl font-sans font-semibold mb-4">
+            <span className="bg-clip-text bg-gradient-to-b from-foreground to-muted-foreground text-transparent">
+              {t("title")}
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            {t("description")}
+          </p>
         </div>
 
         <div className="space-y-6">

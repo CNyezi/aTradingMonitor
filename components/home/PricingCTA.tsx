@@ -14,16 +14,9 @@ import { toast } from "sonner";
 type Params = {
   plan: PricingPlan;
   localizedPlan: any;
-  defaultCtaStyle: string;
-  highlightedCtaStyle: string;
 };
 
-export default function PricingCTA({
-  plan,
-  localizedPlan,
-  defaultCtaStyle,
-  highlightedCtaStyle,
-}: Params) {
+export default function PricingCTA({ plan, localizedPlan }: Params) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const locale = useLocale();
@@ -107,7 +100,9 @@ export default function PricingCTA({
         asChild={!!plan.button_link}
         disabled={isLoading}
         className={`w-full flex items-center justify-center gap-2 text-white py-5 font-medium ${
-          plan.is_highlighted ? highlightedCtaStyle : defaultCtaStyle
+          plan.is_highlighted
+            ? "highlight-button"
+            : "bg-gray-800 hover:bg-gray-700"
         } ${
           plan.stripe_coupon_id && plan.enable_manual_input_coupon
             ? "mb-2"

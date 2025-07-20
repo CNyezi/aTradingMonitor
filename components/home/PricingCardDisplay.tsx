@@ -4,16 +4,18 @@ import { PricingPlan, PricingPlanTranslation } from "@/types/pricing";
 import { Check, X } from "lucide-react";
 
 const defaultBorderStyle = "border-gray-300 dark:border-gray-600";
-const highlightedBorderStyle = "border-indigo-600 dark:border-indigo-400";
-const defaultCtaStyle = "bg-gray-800 hover:bg-gray-700";
-const highlightedCtaStyle = "highlight-bg hover:opacity-90";
+const highlightedBorderStyle =
+  "border-indigo-500 dark:border-indigo-500 hover:border-indigo-500 dark:hover:border-indigo-500";
+const highlightedBgStyle = "bg-indigo-500";
 
 interface PricingCardDisplayProps {
+  id?: string;
   plan: PricingPlan;
   localizedPlan: PricingPlanTranslation;
 }
 
 export function PricingCardDisplay({
+  id,
   plan,
   localizedPlan,
 }: PricingCardDisplayProps) {
@@ -31,6 +33,7 @@ export function PricingCardDisplay({
 
   return (
     <div
+      id={id}
       className={`card rounded-xl p-8 shadow-sm border-t-4 ${
         plan.is_highlighted ? highlightedBorderStyle : defaultBorderStyle
       } ${
@@ -38,21 +41,21 @@ export function PricingCardDisplay({
       }`}
     >
       {plan.is_highlighted && highlightText && (
-        <div className="absolute top-[-1px] right-0 bg-indigo-600 text-white text-xs px-3 py-1 rounded-bl-lg rounded-tr-lg font-medium">
+        <div
+          className={cn(
+            "absolute top-[-1px] right-0 text-white text-xs px-3 py-1 rounded-bl-lg rounded-tr-lg font-medium",
+            highlightedBgStyle
+          )}
+        >
           {highlightText}
         </div>
       )}
-      <h3 className="text-2xl font-bold mb-2">{cardTitle}</h3>
+      <h3 className="text-2xl font-semibold mb-2">{cardTitle}</h3>
       {cardDescription && (
         <p className="text-muted-foreground mb-6 h-[3rem]">{cardDescription}</p>
       )}
 
-      <PricingCTA
-        plan={plan}
-        localizedPlan={localizedPlan}
-        defaultCtaStyle={defaultCtaStyle}
-        highlightedCtaStyle={highlightedCtaStyle}
-      />
+      <PricingCTA plan={plan} localizedPlan={localizedPlan} />
 
       <div className="text-4xl mb-6">
         {originalPrice ? (

@@ -31,7 +31,6 @@
     "verifyStripeError": "验证价格ID失败",
     "verifyStripeError2": "验证价格ID失败",
     "stripePriceIdVerified": "Stripe价格ID验证成功！",
-    "multiLanguageTemplateGenerated": "多语言模板已生成，请在下方编辑JSON数据。",
     "translateError": "生成翻译内容失败",
     "createUpdateError": "{mode}失败（状态码：{status}）",
     "createUpdateError2": "{mode}定价卡片失败",

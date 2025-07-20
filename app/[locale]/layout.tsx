@@ -1,3 +1,4 @@
+import { getUserBenefits, UserBenefits } from "@/actions/usage/benefits";
 import BaiDuAnalytics from "@/app/BaiDuAnalytics";
 import GoogleAdsense from "@/app/GoogleAdsense";
 import GoogleAnalytics from "@/app/GoogleAnalytics";
@@ -9,13 +10,11 @@ import Header from "@/components/header/Header";
 import { LanguageDetectionAlert } from "@/components/LanguageDetectionAlert";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { BenefitsProvider } from "@/components/providers/BenefitsProvider";
-import DiscordInviteWidget from "@/components/shared/DiscordInviteWidget";
 import { TailwindIndicator } from "@/components/TailwindIndicator";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import { DEFAULT_LOCALE, Locale, routing } from "@/i18n/routing";
 import { constructMetadata } from "@/lib/metadata";
-import { getUserBenefits, UserBenefits } from "@/lib/stripe/actions";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
@@ -136,7 +135,6 @@ export default async function LocaleLayout({
         <GoogleOneTap />
         <Toaster />
         <TailwindIndicator />
-        <DiscordInviteWidget />
         {process.env.NODE_ENV === "development" ? (
           <></>
         ) : (

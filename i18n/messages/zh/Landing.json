@@ -1,262 +1,305 @@
 {
   "Hero": {
-    "title": "多场景<highlight>全栈 SaaS</highlight>开发模板",
+    "badge": {
+      "label": "NEW",
+      "text": "Next.js SaaS 全栈模板",
+      "href": "https://nexty.dev/#pricing"
+    },
+    "title": "多场景全栈 SaaS 开发模板",
     "description": "Nexty 是一个功能齐全的 Next.js SaaS 全栈模板，让你能够快速构建各种商业网站，无论是内容站、工具站还是集成 AI 能力的付费网站。",
     "getStarted": "立即开始",
+    "getStartedLink": "https://nexty.dev/#pricing",
     "viewDocs": "查看文档",
-    "viewShowcase": "查看案例"
+    "viewDocsLink": "https://nexty.dev/docs"
   },
   "Features": {
-    "title": "为<highlight>极速开发</highlight>打造的完整功能套件",
-    "description": "我们的模板涵盖了现代 SaaS 应用所需的所有核心功能，让你可以专注于业务逻辑的开发。",
+    "badge": {
+      "label": "核心功能",
+      "text": "生产级 SaaS 开发套件"
+    },
+    "title": "覆盖完整 SaaS 开发场景的功能套件",
+    "description": "Nexty 提供现代 SaaS 应用所需的全部核心功能，让你专注于核心业务逻辑，快速实现从 0 到 1 的突破。",
+    "moreFeatures": {
+      "title": "探索更多功能特性",
+      "description": "查看完整功能路线图，详细技术文档，以及即将推出的新功能，助力你的 SaaS 开发之旅。",
+      "button": "查看功能路线图"
+    },
     "items": [
       {
-        "icon": "KeyRound",
-        "title": "登录认证系统",
-        "description": "集成 Supabase 的认证系统，支持 Google 登录、Github 登录和邮箱验证等多种登录方式。"
+        "title": "用户认证系统",
+        "description": "基于 Supabase 的企业级认证方案，支持社交登录、邮箱验证和机器人防护，让用户注册登录更安全便捷。",
+        "details": [
+          {
+            "title": "社交账号登录",
+            "description": "支持 Google、GitHub 等主流平台一键登录。"
+          },
+          {
+            "title": "邮箱魔法链接",
+            "description": "免密码登录验证，提升用户体验。"
+          },
+          {
+            "title": "机器人防护",
+            "description": "集成 Cloudflare Turnstile 防止恶意注册。"
+          }
+        ],
+        "images": [
+          "/images/features/login.png"
+        ]
       },
       {
-        "icon": "CreditCard",
-        "title": "支付系统",
-        "description": "集成 Stripe 支付，支持一次性支付和订阅模式，轻松应对 SaaS 产品不同定价策略。"
+        "title": "支付收费系统",
+        "description": "完整的 Stripe 支付解决方案，支持订阅制、一次性付费和用量计费，轻松实现商业变现。",
+        "details": [
+          {
+            "title": "全支付场景支持",
+            "description": "Nexty 支持月付、年付订阅和一次性购买等多种收费模式。"
+          },
+          {
+            "title": "用量计费系统",
+            "description": "Nexty 支持基于使用量的灵活计费，适合 AI 工具等按量付费场景。"
+          },
+          {
+            "title": "可视化定价管理",
+            "description": "Nexty 通过管理后台可视化管理定价方案，绑定 Stripe 价格 ID，安全便捷且支持实时预览。"
+          }
+        ],
+        "images": [
+          "/images/features/payment-1.png",
+          "/images/features/payment-2.png"
+        ]
       },
       {
-        "icon": "Bot",
-        "title": "AI 能力",
-        "description": "整合 AI SDK，快速实现 AI 对话和图像生成功能，0基础开发 AI 工具不是梦。"
+        "title": "AI 集成能力",
+        "description": "全栈 AI 开发工具包，提供交互式演示、多厂商支持，还赠送完整的 AI 生图网站模板。",
+        "details": [
+          {
+            "title": "AI 功能演示中心",
+            "description": "Nexty 内置对话、文生图、图生图、视频生成等演示，帮助开发者快速学习 AI 调用流程和测试模型。"
+          },
+          {
+            "title": "全平台 AI 接入",
+            "description": "Nexty 支持 GPT、Claude、Gemini、DeepSeek、Grok、OpenRouter、Replicate 等主流 AI 平台。"
+          },
+          {
+            "title": "额外赠送：AI 绘图网站模板",
+            "description": "Nexty 付费用户可获得完整的 Flux Kontext AI 绘图网站模板，快速部署 AI 艺术创作平台。"
+          }
+        ],
+        "images": [
+          "/images/features/ai-1.png",
+          "/images/features/ai-2.png"
+        ]
       },
       {
-        "icon": "FileText",
-        "title": "内容管理（CMS）",
-        "description": "内置 CMS 系统，轻松管理博客和文档，支持 Markdown 格式，还有精美的 Markdown 主题为你的网站加分。"
+        "title": "内容管理系统",
+        "description": "进阶版 CMS 超越基础内容管理，支持付费墙保护、AI 翻译和多场景发布能力。",
+        "details": [
+          {
+            "title": "内容访问控制",
+            "description": "Nexty CMS 支持公开、登录用户、付费订阅等多层级内容访问控制，实现内容变现。"
+          },
+          {
+            "title": "AI 智能翻译",
+            "description": "Nexty CMS 内置 AI 翻译功能支持多语言内容创作，还有复制功能提高内容生产效率。"
+          },
+          {
+            "title": "多场景内容发布",
+            "description": "Nexty CMS 既能做免费博客站，也能做付费内容平台，支持草稿、发布、归档等状态管理。"
+          }
+        ],
+        "images": [
+          "/images/features/cms-1.png",
+          "/images/features/admin-3.png",
+          "/images/features/cms-3.png",
+          "/images/features/cms-4.png",
+          "/images/features/cms-5.png"
+        ]
       },
       {
-        "icon": "Save",
-        "title": "文件存储",
-        "description": "支持文件存储功能，快速完成图片、视频、音频等文件的上传、管理等操作。"
+        "title": "文件存储管理",
+        "description": "基于 Cloudflare R2 的企业级文件管理，管理后台可视化操作，全球 CDN 加速，优化上传体验。",
+        "details": [
+          {
+            "title": "后台文件管理",
+            "description": "Nexty 提供专门的管理后台，支持文件上传、删除、整理等全方位文件管理功能。"
+          },
+          {
+            "title": "Cloudflare R2 集成",
+            "description": "Nexty 采用 Cloudflare R2 存储方案，成本低廉、性能卓越，全球 CDN 自动分发。"
+          },
+          {
+            "title": "优化上传体验",
+            "description": "Nexty 支持拖拽上传、预览功能和自动文件处理，提供无缝的用户体验。"
+          }
+        ],
+        "images": [
+          "/images/features/admin-4.png"
+        ]
       },
       {
-        "icon": "Globe",
-        "title": "多语言支持",
-        "description": "内置 i18n 国际化支持，轻松添加多种语言，扩展全球市场，提高产品的国际可访问性。"
+        "title": "可视化定价管理",
+        "description": "Nexty 首创后台定价管理模式，安全便捷，更新定价无需修改代码。",
+        "details": [
+          {
+            "title": "实时预览功能",
+            "description": "Nexty 定价卡片编辑器支持实时预览，让你在保存前就能看到定价卡片的显示效果。"
+          },
+          {
+            "title": "Stripe 数据同步",
+            "description": "Nexty 一键验证并获取 Stripe 定价数据，确保计费设置准确无误。"
+          },
+          {
+            "title": "多语言智能翻译",
+            "description": "Nexty 支持 AI 驱动的定价卡片翻译，轻松管理多语言定价内容。"
+          }
+        ],
+        "images": [
+          "/images/features/admin-2.png",
+          "/images/features/prices-1.png",
+          "/images/features/prices-2.png",
+          "/images/features/prices-3.png",
+          "/images/features/prices-4.png",
+          "/images/features/prices-5.png"
+        ]
       },
       {
-        "icon": "Mail",
-        "title": "邮件订阅",
-        "description": "集成 Resend 邮箱功能，轻松实现邮件订阅和邮件发送功能。"
+        "title": "邮件营销系统",
+        "description": "完整邮件解决方案，Cloudflare 域名邮箱 + Resend 营销集成，专业沟通和订阅管理一步到位。",
+        "details": [
+          {
+            "title": "专业域名邮箱",
+            "description": "Nexty 通过 Cloudflare 实现域名邮箱，让你的品牌更专业，提升用户信任度。"
+          },
+          {
+            "title": "高级邮件营销",
+            "description": "Nexty 集成 Resend 订阅管理和邮件营销功能，页脚内置订阅模块。"
+          },
+          {
+            "title": "内置邮件自动化",
+            "description": "Nexty 包含订阅欢迎邮件、支付失败通知等预构建模板，覆盖核心用户沟通场景。"
+          }
+        ],
+        "images": [
+          "/images/features/email-2.png",
+          "/images/features/email-1.png"
+        ]
       },
       {
-        "icon": "ChartNoAxesCombined",
-        "title": "分析与广告",
-        "description": "支持 Google Analytics、Plausible 等多种分析工具，以及 AdSense 广告系统，轻松实现网站变现。"
+        "title": "用户管理中心",
+        "description": "完整的用户管理中心，为用户提供流畅的使用体验。",
+        "details": [
+          {
+            "title": "个人资料管理",
+            "description": "Nexty 提供完善的个人设置功能。"
+          },
+          {
+            "title": "订阅管理",
+            "description": "Nexty 通过 Stripe 集成提供订阅管理和计费历史查询功能。"
+          },
+          {
+            "title": "积分历史记录",
+            "description": "Nexty 跟踪积分发放和使用情况，支持一次性积分和订阅制积分双重模式。"
+          }
+        ],
+        "images": [
+          "/images/features/user-1.png",
+          "/images/features/user-2.png",
+          "/images/features/user-3.png"
+        ]
       },
       {
-        "icon": "Search",
-        "title": "SEO优化",
-        "description": "做到 SEO 最佳实践，包括元标签、结构化数据、网站地图和 OpenGraph 标签，提升搜索引擎排名。"
+        "title": "管理员后台",
+        "description": "全方位管理后台，提供用户、定价、内容、文件等完整 SaaS 管理能力。",
+        "details": [
+          {
+            "title": "用户管理",
+            "description": "Nexty 提供完整用户管理功能，包括角色控制、Stripe 客户集成和账户管理。"
+          },
+          {
+            "title": "定价管理",
+            "description": "Nexty 提供可视化定价方案管理，环境隔离、Stripe 集成、实时预览。"
+          },
+          {
+            "title": "内容文件管理",
+            "description": "Nexty 包含博客管理（多语言支持、访问控制）和 R2 文件管理（预览功能）。"
+          }
+        ],
+        "images": [
+          "/images/features/admin-1.png",
+          "/images/features/admin-2.png",
+          "/images/features/admin-3.png",
+          "/images/features/admin-4.png"
+        ]
+      },
+      {
+        "title": "营销增长工具",
+        "description": "完整营销增长工具包，国际化、数据分析、广告投放、SEO 优化，助力全球化业务成功。",
+        "details": [
+          {
+            "title": "国际化多语言",
+            "description": "Nexty 开箱即用多语言支持，轻松扩展全球市场覆盖。"
+          },
+          {
+            "title": "数据分析变现",
+            "description": "Nexty 集成 Google Analytics、Plausible 数据分析和 AdSense 广告变现。"
+          },
+          {
+            "title": "SEO 搜索优化",
+            "description": "Nexty 提供全面 SEO 优化，meta 标签、站点地图等提升搜索排名。"
+          }
+        ],
+        "images": [
+          "/images/features/other-1.png",
+          "/images/features/other-2.png",
+          "/images/features/other-3.png"
+        ]
       }
     ]
   },
-  "TechStack": {
-    "badge": "技术生态",
-    "title": "由<highlight>流行技术栈</highlight>驱动",
-    "description": "精心选择的最新技术组合，确保你的产品稳定、可扩展且易于维护",
-    "groups": [
-      {
-        "title": "前端框架",
-        "icon": "Code",
-        "description": "基于 Next.js 与 React 构建的现代化响应式界面",
-        "color": "blue",
-        "items": [
-          {
-            "name": "Next.js",
-            "description": "React 全栈框架",
-            "logo": "/images/nextjs.svg"
-          },
-          {
-            "name": "TypeScript",
-            "description": "类型安全保障",
-            "logo": "/images/typescript.svg"
-          },
-          {
-            "name": "Tailwind CSS",
-            "description": "高效样式设计",
-            "logo": "/images/tailwindcss.svg"
-          },
-          {
-            "name": "Shadcn/ui",
-            "description": "可定制UI组件",
-            "logo": "/images/shadcn.svg"
-          }
-        ]
-      },
-      {
-        "title": "后端与数据库",
-        "icon": "Server",
-        "description": "安全可靠的数据存储和用户认证系统",
-        "color": "emerald",
-        "items": [
-          {
-            "name": "Supabase",
-            "description": "PostgreSQL + 认证",
-            "logo": "/images/supabase.svg"
-          },
-          {
-            "name": "Upstash Redis",
-            "description": "边缘缓存服务",
-            "logo": "/images/upstash.png"
-          },
-          {
-            "name": "Cloudflare",
-            "description": "CDN与网络服务",
-            "logo": "/images/cloudflare.svg"
-          },
-          {
-            "name": "Vercel",
-            "description": "一键部署",
-            "logo": "/images/vercel.svg"
-          }
-        ]
-      },
-      {
-        "title": "AI & 集成服务",
-        "icon": "Sparkles",
-        "description": "AI 功能和第三方服务集成",
-        "color": "violet",
-        "items": [
-          {
-            "name": "AI SDK",
-            "description": "AI 应用开发",
-            "logo": "/images/vercel.svg"
-          },
-          {
-            "name": "Replicate",
-            "description": "多模型 AI 接口",
-            "logo": "/images/replicate.svg"
-          },
-          {
-            "name": "Resend",
-            "description": "开发者邮件 API",
-            "logo": "/images/resend.svg"
-          },
-          {
-            "name": "Stripe",
-            "description": "安全支付处理",
-            "logo": "/images/stripe.svg"
-          }
-        ]
-      }
-    ],
-    "footer": {
-      "title": "一步到位的全栈解决方案",
-      "description": "精心选择的技术组合，为你的项目提供稳固的开发基础。从前端到后端，从数据库到部署，一步到位满足你的需求。"
-    }
-  },
   "UseCases": {
-    "title": "一套模板，<highlight>多场景</highlight>应用",
+    "badge": {
+      "label": "应用场景",
+      "text": "多场景解决方案"
+    },
+    "title": "一套模板，多场景应用",
     "description": "Nexty 适用于开发不同场景的网站，从内容站到 AI 工具，从免费服务到付费订阅，都可快速开发上线。",
     "cases": [
       {
-        "title": "品牌落地页",
-        "description": "轻松创建引人注目的品牌页面，展示产品和服务，提升品牌形象。利用我们的模板，快速构建响应式和优化的落地页，吸引访客并转化为潜在客户，助力品牌成功推广。",
-        "tags": [
-          "响应式设计",
-          "高转化",
-          "动画效果"
-        ],
+        "title": "AI 付费工具站",
+        "description": "几天内上线生产级 AI 应用，不再需要数月开发。内置 OpenRouter、Replicate 等主流 AI 平台接入，智能用量跟踪、自动计费扣费，专为 AI 变现而生。",
         "image": "/placeholder.webp",
-        "icon": "GalleryVertical",
-        "color": "green"
+        "icon": "Bot"
       },
       {
-        "title": "AdSense 内容站",
-        "description": "快速搭建 SEO 友好的内容网站，集成 AdSense 实现被动收入。内置 CMS 系统和多语言支持，轻松管理大量内容。",
-        "tags": [
-          "CMS",
-          "SEO",
-          "多语言",
-          "AdSense"
-        ],
+        "title": "内容博客平台",
+        "description": "快速搭建 SEO 优化的内容网站，高级 CMS 功能完备。支持 Markdown 编辑、多语言、付费墙保护、AI 翻译、AdSense 集成。适合做付费内容平台、newsletter 或内容驱动的 SaaS。",
         "image": "/placeholder.webp",
-        "icon": "FileText",
-        "color": "indigo"
+        "icon": "FileText"
       },
       {
-        "title": "免费工具站",
-        "description": "轻松构建用户友好的工具平台，提供高效的使用体验。借助我们的模板，你可以快速上线兼顾页面体验和 SEO 的工具站，吸引用户并提升流量。",
-        "tags": [
-          "高性能",
-          "Analytics",
-          "广告变现"
-        ],
+        "title": "订阅会员平台",
+        "description": "构建稳定的订阅收入业务，自动化计费、客户管理、支付处理一应俱全。包含订阅管理、用量计费、客户门户、数据分析。适合 SaaS 市场、订阅服务或付费工具平台。",
         "image": "/placeholder.webp",
-        "icon": "Wrench",
-        "color": "cyan"
+        "icon": "CreditCard"
       },
       {
-        "title": "付费AI工具站",
-        "description": "快速构建高效、功能强大的 AI 应用，提供优质的用户体验和流畅的支付流程。利用我们的模板，轻松实现订阅模式，吸引用户并提升收益，助力你的 AI 项目成功上线。",
-        "tags": [
-          "AI SDK",
-          "订阅系统",
-          "使用配额",
-          "付费墙"
-        ],
+        "title": "免费工具引流站",
+        "description": "创建快速传播的免费工具，带来大量自然流量。极速性能和 SEO 优化，助你快速打造下一个爆款工具，获取潜在客户。",
         "image": "/placeholder.webp",
-        "icon": "Bot",
-        "color": "purple"
-      }
-    ]
-  },
-  "WhyChoose": {
-    "title": "为什么选择 Nexty？",
-    "description": "无论你是开发者还是产品经理，Nexty 都能为你节省大量时间和资源。",
-    "groups": [
-      {
-        "title": "开发者的最佳选择",
-        "icon": "Code",
-        "items": [
-          {
-            "text": "大幅节省基础架构开发时间，让你专注于核心功能开发"
-          },
-          {
-            "text": "结构清晰的代码，遵循行业最佳实践，便于后续扩展"
-          },
-          {
-            "text": "完整的 TypeScript 类型定义，降低出错率，提升开发效率"
-          },
-          {
-            "text": "详尽的文档与示例，助你快速上手，避免常见问题"
-          }
-        ]
-      },
-      {
-        "title": "产品经理的得力助手",
-        "icon": "ChartPie",
-        "items": [
-          {
-            "text": "缩短产品上市周期，迅速验证你的创意"
-          },
-          {
-            "text": "集成数据分析工具，深入了解用户行为，优化产品策略"
-          },
-          {
-            "text": "优秀的代码结构，即使没有编程经验，也能借助AI轻松添加新功能。"
-          },
-          {
-            "text": "良好的 SEO 和性能优化，提高用户获取效率"
-          }
-        ]
+        "icon": "Wrench"
       }
     ]
   },
   "Testimonials": {
-    "title": "我们的客户快速上线了 <highlight>AI 工具、SaaS 产品</highlight>",
-    "description": "了解开发者和产品经理的真实反馈，看他们如何使用 Nexty 加速项目开发进程。"
+    "badge": {
+      "label": "客户评价"
+    },
+    "title": "用户真实评价",
+    "description": "不要只听我们说，看看用户怎么说"
   },
   "FAQ": {
     "title": "常见问题解答",
-    "description": "以下是开发者和产品经理最常问的问题",
+    "description": "关于我们的 Next.js SaaS 模板的常见问题，以及它如何帮助你更快地构建更好的应用",
     "items": [
       {
         "question": "我需要具备什么技术知识才能使用这个模板？",
@@ -291,10 +334,25 @@
   "CTA": {
     "title": "快速上线，抢占先机",
     "description": "无需从零开始！使用 Nexty 模板，让你专注于核心创意，快速构建、验证并开始赚钱。",
-    "button": "立即获取模板"
+    "button": "立即获取模板",
+    "trustText": "受到全球开发者信赖",
+    "features": {
+      "deploy": "🚀 快速部署",
+      "production": "🔧 生产就绪",
+      "updates": "💎 终身更新",
+      "i18n": "🌍 国际化"
+    }
   },
   "Pricing": {
-    "title": "一次付费，<highlight>永久更新</highlight>",
-    "description": "我们数月打磨，让你能够快速发布"
+    "badge": {
+      "label": "定价",
+      "text": "一次付费，永久更新"
+    },
+    "title": "我们数月打磨，让你能够快速发布",
+    "description": "使用我们经过验证的 SaaS 模板，你将专注于用户真正需要的功能",
+    "annual": "年付",
+    "monthly": "月付",
+    "onetime": "一次性",
+    "saveTip": "节省 20%"
   }
 }

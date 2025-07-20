@@ -43,7 +43,7 @@ export function UserInfo({ mobile = false, renderContainer }: UserInfoProps) {
       <Button
         onClick={() => handleLogin(router, showLoginDialog)}
         variant="outline"
-        className={`highlight-bg text-white hover:text-white rounded-lg font-medium text-center hover:opacity-90 shadow-lg ${
+        className={`highlight-button text-white hover:text-white shadow-lg ${
           mobile ? "w-full" : ""
         }`}
       >

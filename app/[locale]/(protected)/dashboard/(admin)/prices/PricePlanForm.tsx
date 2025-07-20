@@ -421,7 +421,6 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
     form.setValue("lang_jsonb", JSON.stringify(template, null, 2), {
       shouldValidate: true,
     });
-    toast.info(t("multiLanguageTemplateGenerated"));
   };
 
   const translateLangTemplate = async (
@@ -992,7 +991,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                           control={form.control}
                           name={`features.${index}.included`}
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2">
+                            <FormItem className="flex items-center space-x-2 space-y-0">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value ?? false}
@@ -1010,7 +1009,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                           control={form.control}
                           name={`features.${index}.bold`}
                           render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2">
+                            <FormItem className="flex items-center space-x-2 space-y-0">
                               <FormControl>
                                 <Checkbox
                                   checked={field.value ?? false}

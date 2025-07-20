@@ -197,11 +197,7 @@ export default function Settings() {
           </div>
         </div>
 
-        <Button
-          className="bg-black/90 dark:bg-white/90 text-white dark:text-black hover:bg-black/80 dark:hover:bg-white/80"
-          type="submit"
-          disabled={isLoading || !!fullNameError}
-        >
+        <Button type="submit" disabled={isLoading || !!fullNameError}>
           {isLoading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin mr-2" />{" "}

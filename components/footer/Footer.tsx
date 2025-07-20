@@ -7,7 +7,7 @@ import { FooterLink } from "@/types/common";
 import { GithubIcon, MailIcon } from "lucide-react";
 import { getMessages, getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { SiBluesky } from "react-icons/si";
+import { SiBluesky, SiDiscord } from "react-icons/si";
 
 export default async function Footer() {
   const messages = await getMessages();
@@ -76,6 +76,19 @@ export default async function Footer() {
                       className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
                     >
                       <TwitterX className="w-4 h-4" aria-hidden="true" />
+                    </Link>
+                  )}
+                  {siteConfig.socialLinks?.discord && (
+                    <Link
+                      href={siteConfig.socialLinks.discord}
+                      prefetch={false}
+                      target="_blank"
+                      rel="noreferrer nofollow noopener"
+                      aria-label="Discord"
+                      title="Join Discord"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <SiDiscord className="w-4 h-4" aria-hidden="true" />
                     </Link>
                   )}
                   {siteConfig.socialLinks?.email && (

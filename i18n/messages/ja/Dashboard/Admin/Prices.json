@@ -31,7 +31,6 @@
     "verifyStripeError": "価格IDの検証に失敗しました",
     "verifyStripeError2": "価格IDの検証に失敗しました",
     "stripePriceIdVerified": "Stripe価格IDの検証が完了しました！",
-    "multiLanguageTemplateGenerated": "多言語テンプレートが生成されました。以下のJSONを編集してください。",
     "translateError": "翻訳の生成に失敗しました",
     "createUpdateError": "プランの{mode}に失敗しました（ステータス: {status}）",
     "createUpdateError2": "料金プランの{mode}に失敗しました",

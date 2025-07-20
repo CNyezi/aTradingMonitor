@@ -1,3 +1,5 @@
+import FeatureBadge from "@/components/shared/FeatureBadge";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { Star, StarHalf } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -65,51 +67,61 @@ export default function Testimonials() {
   const t = useTranslations("Landing.Testimonials");
 
   return (
-    <section id="testimonials" className="py-20 bg-indigo-50 dark:bg-gray-900">
+    <section id="testimonials" className="py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {t.rich("title", {
-              highlight: (chunks) => (
-                <span className="highlight-text">{chunks}</span>
-              ),
-            })}
+          <FeatureBadge label={t("badge.label")} className="mb-8" />
+          <h2 className="text-center z-10 text-lg md:text-5xl font-sans font-semibold mb-4">
+            <span className="bg-clip-text bg-gradient-to-b from-foreground to-muted-foreground text-transparent">
+              {t("title")}
+            </span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             {t("description")}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <ul className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:gap-8">
           {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.content}
-              className="bg-white dark:bg-gray-950 rounded-xl p-6 shadow-sm"
-            >
-              <div className="mb-4">
-                <RatingStars rating={testimonial.rating} />
-              </div>
-              <p className="text-foreground mb-6">{testimonial.content}</p>
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center">
-                  <img
-                    src={testimonial.author.avatar}
-                    alt={testimonial.author.name}
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
+            <li key={testimonial.content} className="min-h-[16rem] list-none">
+              <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
+                <GlowingEffect
+                  spread={40}
+                  glow={true}
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                  borderWidth={3}
+                />
+                <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)] md:p-6">
+                  <div className="relative flex flex-1 flex-col justify-between gap-3">
+                    <RatingStars rating={testimonial.rating} />
+                    <p className="text-foreground">{testimonial.content}</p>
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center">
+                        <img
+                          src={testimonial.author.avatar}
+                          alt={testimonial.author.name}
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                      </div>
+                      <div className="ml-3">
+                        <p className="font-medium">
+                          {testimonial.author.name},{" "}
+                          <span className="">
+                            {testimonial.author.position}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <p className="font-medium">
-                    {testimonial.author.name},{" "}
-                    <span className="">{testimonial.author.position}</span>
-                  </p>
-                </div>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
