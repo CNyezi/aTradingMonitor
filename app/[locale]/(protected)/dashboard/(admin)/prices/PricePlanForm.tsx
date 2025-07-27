@@ -555,7 +555,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                   name="environment"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Environment *</FormLabel>
+                      <FormLabel>Stripe Environment *</FormLabel>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
