@@ -63,7 +63,7 @@ export function LanguageDetectionAlert() {
   const alertMessages = messages.LanguageDetection;
 
   return (
-    <Alert className="mb-4 relative">
+    <Alert className="relative">
       <Button
         variant="ghost"
         size="icon"
