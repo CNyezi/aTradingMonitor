@@ -544,13 +544,11 @@ export type Database = {
         Returns: undefined
       }
       update_my_profile: {
-        Args:
-          | { new_full_name: string; new_avatar_url: string }
-          | {
-              new_full_name: string
-              new_avatar_url: string
-              new_invite_code: string
-            }
+        Args: {
+          new_full_name: string
+          new_avatar_url: string
+          new_referral?: string
+        }
         Returns: undefined
       }
     }

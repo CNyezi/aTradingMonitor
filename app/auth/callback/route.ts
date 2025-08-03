@@ -45,21 +45,23 @@ const handleReferral = async (supabase: SupabaseClient<any, "public", any>, refe
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user && !user.user_metadata?.referral) {
-    console.log('handleReferral', referral)
+
     await supabase.auth.updateUser({
       data: {
         referral,
       }
     });
 
-    await supabase
-      .from('users')
-      .update({ referral: referral })
-      .eq('id', user.id)
-      .is('referral', null);
+    await supabase.rpc(
+      'update_my_profile',
+      {
+        new_full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+        new_avatar_url: user.user_metadata?.avatar_url || '',
+        new_referral: referral
+      }
+    );
 
     // send a welcome email to the user here
-    console.log('process.env.NEXT_PUBLIC_USER_WELCOME', process.env.NEXT_PUBLIC_USER_WELCOME)
     if (process.env.NEXT_PUBLIC_USER_WELCOME === 'true') {
       await sendWelcomeEmail(user)
     }
