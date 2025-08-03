@@ -1,27 +1,9 @@
+import { sendEmail } from '@/actions/resend';
 import { isValidRedirectUrl } from '@/app/auth/utils';
+import { UserWelcomeEmail } from '@/emails/user-welcome';
 import { createClient } from '@/lib/supabase/server';
-import { type SupabaseClient } from '@supabase/supabase-js';
-import { type NextRequest, NextResponse } from 'next/server';
-
-const handleReferral = async (supabase: SupabaseClient<any, "public", any>, referral: string) => {
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (user && !user.user_metadata?.referral) {
-    await supabase.auth.updateUser({
-      data: {
-        referral,
-      }
-    });
-
-    await supabase
-      .from('users')
-      .update({ referral: referral })
-      .eq('id', user.id)
-      .is('referral', null);
-
-    // you can send a welcome email to the user here
-  }
-}
+import { User, type SupabaseClient } from '@supabase/supabase-js';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -56,4 +38,47 @@ export async function GET(request: NextRequest) {
     response.cookies.delete('referral_source');
   }
   return response;
+}
+
+
+const handleReferral = async (supabase: SupabaseClient<any, "public", any>, referral: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user && !user.user_metadata?.referral) {
+    console.log('handleReferral', referral)
+    await supabase.auth.updateUser({
+      data: {
+        referral,
+      }
+    });
+
+    await supabase
+      .from('users')
+      .update({ referral: referral })
+      .eq('id', user.id)
+      .is('referral', null);
+
+    // send a welcome email to the user here
+    console.log('process.env.NEXT_PUBLIC_USER_WELCOME', process.env.NEXT_PUBLIC_USER_WELCOME)
+    if (process.env.NEXT_PUBLIC_USER_WELCOME === 'true') {
+      await sendWelcomeEmail(user)
+    }
+  }
+}
+
+async function sendWelcomeEmail(user: User) {
+  const subject = 'Welcome to Nexty.dev'
+  const email = user.email as string
+  const unsubscribeToken = Buffer.from(user.email as string).toString('base64');
+  const unsubscribeLinkEN = `${process.env.NEXT_PUBLIC_SITE_URL}/unsubscribe/newsletter?token=${unsubscribeToken}`;
+
+  await sendEmail({
+    email,
+    subject,
+    react: await UserWelcomeEmail({
+      name: user.user_metadata?.name,
+      email,
+      unsubscribeLink: unsubscribeLinkEN
+    })
+  })
 }
