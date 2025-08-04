@@ -34,6 +34,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DEFAULT_LOCALE, LOCALES, useRouter } from "@/i18n/routing";
+import { extractJsonFromText, isValidJsonString } from "@/lib/safeJson";
 import { formatCurrency } from "@/lib/utils";
 import { PricingPlan } from "@/types/pricing";
 import { useCompletion } from "@ai-sdk/react";
@@ -61,17 +62,8 @@ const featureSchema = z.object({
   description: z.string().min(1, "Feature description cannot be empty."),
   included: z.boolean().default(true).optional(),
   bold: z.boolean().default(false).optional(),
+  href: z.string().optional().nullable(),
 });
-
-const isValidJsonString = (str: string): boolean => {
-  if (!str.trim()) return true;
-  try {
-    JSON.parse(str);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
 
 const pricingPlanFormSchema = z.object({
   environment: z.enum(["test", "live"], {
@@ -119,16 +111,16 @@ interface PricePlanFormProps {
 }
 
 export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
-  const t = useTranslations("Prices.PricePlanForm");
+  const t = useTranslations("Dashboard.Admin.Prices.PricePlanForm");
 
   const router = useRouter();
   const locale = useLocale();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifyingStripe, setIsVerifyingStripe] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [isFetchingCoupons, setIsFetchingCoupons] = useState(false);
   const [coupons, setCoupons] = useState<any[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     setIsEditMode(!!planId);
@@ -158,6 +150,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               description: f?.description ?? "",
               included: typeof f?.included === "boolean" ? f.included : true,
               bold: typeof f?.bold === "boolean" ? f.bold : false,
+              href: f?.href ?? "",
             }))
           : [],
       is_highlighted: initialData?.is_highlighted ?? false,
@@ -205,7 +198,6 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       const numericPrice = form.getValues("price");
       const currency = form.getValues("currency");
       const originalPrice = form.getValues("original_price");
-      const displayPrice = form.getValues("display_price");
 
       if (
         numericPrice === null ||
@@ -217,18 +209,14 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       }
 
       if (!watchStripeCouponId) {
-        if (!displayPrice) {
-          form.setValue("display_price", originalPrice);
-        }
+        form.setValue("display_price", originalPrice);
         form.setValue("enable_manual_input_coupon", false);
         return;
       }
 
       const coupon = coupons.find((c) => c.id === watchStripeCouponId);
       if (!coupon) {
-        if (!displayPrice) {
-          form.setValue("display_price", originalPrice);
-        }
+        form.setValue("display_price", originalPrice);
         return;
       }
 
@@ -239,9 +227,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       } else if (coupon.amount_off) {
         discountedPrice = numericPrice - coupon.amount_off / 100;
       } else {
-        if (!displayPrice) {
-          form.setValue("display_price", originalPrice);
-        }
+        form.setValue("display_price", originalPrice);
         return;
       }
 
@@ -251,11 +237,9 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
         discountedPrice,
         currency
       );
-      if (!displayPrice) {
-        form.setValue("display_price", formattedDiscountedPrice, {
-          shouldValidate: true,
-        });
-      }
+      form.setValue("display_price", formattedDiscountedPrice, {
+        shouldValidate: true,
+      });
     };
 
     calculateDisplayPrice();
@@ -377,6 +361,8 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       card_description: currentValues.card_description || "",
       display_price: currentValues.display_price || "",
       original_price: currentValues.original_price || "",
+      currency:
+        currentValues.currency || process.env.NEXT_PUBLIC_DEFAULT_CURRENCY,
       price_suffix: currentValues.price_suffix || "",
       features:
         currentValues.features && currentValues.features.length > 0
@@ -384,6 +370,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               description: f?.description ?? "",
               included: typeof f?.included === "boolean" ? f.included : true,
               bold: typeof f?.bold === "boolean" ? f.bold : false,
+              href: f?.href ?? "",
             }))
           : [],
       highlight_text: currentValues.highlight_text || "",
@@ -395,6 +382,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       card_description: "",
       display_price: "",
       original_price: "",
+      currency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY,
       price_suffix: "",
       features: [],
       highlight_text: "",
@@ -421,6 +409,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
     form.setValue("lang_jsonb", JSON.stringify(template, null, 2), {
       shouldValidate: true,
     });
+    toast.info(t("multiLanguageTemplateGenerated"));
   };
 
   const translateLangTemplate = async (
@@ -434,7 +423,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       template,
       null,
       2
-    )}. Important: Return ONLY the completed JSON, without any explanations or surrounding text, Don't provide JSON markers, only the curly braces and their contents.`;
+    )}. Important: Return ONLY the completed JSON, without any explanations or surrounding text. Don't provide JSON markers, only the curly braces and their contents.`;
 
     await complete(prompt);
   };
@@ -452,10 +441,19 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       provider: process.env.NEXT_PUBLIC_AI_PROVIDER || "",
     },
     onResponse: (response) => {
-      form.setValue("lang_jsonb", completion, { shouldValidate: true });
+      // form.setValue("lang_jsonb", completion, { shouldValidate: true });
     },
     onFinish: (prompt: string, completion: string) => {
-      form.setValue("lang_jsonb", completion, { shouldValidate: true });
+      const extractedJson = extractJsonFromText(completion);
+      if (extractedJson) {
+        form.setValue("lang_jsonb", extractedJson, { shouldValidate: true });
+      } else {
+        console.warn("AI response does not contain valid JSON:", completion);
+        toast.error(
+          "Translation completed but the response is not valid JSON. Please check and correct manually."
+        );
+        form.setValue("lang_jsonb", completion, { shouldValidate: false });
+      }
     },
     onError: (error: any) => {
       let errorMessage: string;
@@ -471,10 +469,18 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
 
   useEffect(() => {
     if (completion) {
-      form.setValue("lang_jsonb", completion, {
-        shouldValidate: false,
-        shouldDirty: true,
-      });
+      const extractedJson = extractJsonFromText(completion);
+      if (extractedJson) {
+        form.setValue("lang_jsonb", extractedJson, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      } else {
+        form.setValue("lang_jsonb", completion, {
+          shouldValidate: false,
+          shouldDirty: true,
+        });
+      }
     }
   }, [completion]);
 
@@ -488,18 +494,36 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       return;
     }
 
-    try {
-      const parsedJson = JSON.parse(currentValue);
-      const formattedJson = JSON.stringify(parsedJson, null, 2);
-      form.setValue(fieldName, formattedJson, { shouldValidate: true });
-    } catch (error) {
-      console.error(`Invalid JSON in ${fieldName}:`, error);
-      toast.error(t("invalidJsonError"));
+    const extractedJson = extractJsonFromText(currentValue);
+    if (extractedJson) {
+      try {
+        const parsedJson = JSON.parse(extractedJson);
+        const formattedJson = JSON.stringify(parsedJson, null, 2);
+        form.setValue(fieldName, formattedJson, { shouldValidate: true });
+      } catch (error) {
+        console.error(
+          `Failed to format extracted JSON in ${fieldName}:`,
+          error
+        );
+        toast.error(`Failed to format extracted JSON in ${fieldName}`);
+        form.trigger(fieldName);
+      }
+    } else {
+      console.error(`No valid JSON found in ${fieldName}:`, currentValue);
+      toast.error(`No valid JSON found in ${fieldName}`);
       form.trigger(fieldName);
     }
   };
 
   const onSubmit = async (values: PricingPlanFormValues) => {
+    const langJsonError = form.getFieldState("lang_jsonb").error;
+    const benefitsJsonError = form.getFieldState("benefits_jsonb").error;
+
+    if (langJsonError || benefitsJsonError) {
+      toast.error("Please fix JSON format errors before submitting.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const payload = {
@@ -555,7 +579,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                   name="environment"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stripe Environment *</FormLabel>
+                      <FormLabel>Environment *</FormLabel>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -803,6 +827,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            {/* <SelectItem value="">No Coupon</SelectItem> */}
                             {coupons.map((coupon) => (
                               <SelectItem key={coupon.id} value={coupon.id}>
                                 {coupon.name || coupon.id} (
@@ -969,69 +994,89 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                     {fields.map((item, index) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-2 p-2 border rounded"
+                        className="flex flex-col gap-2 p-2 border rounded"
                       >
-                        <FormField
-                          control={form.control}
-                          name={`features.${index}.description`}
-                          render={({ field }) => (
-                            <FormItem className="flex-1">
-                              <FormControl>
-                                <Input
-                                  placeholder="Feature description"
-                                  {...field}
-                                  disabled={isLoading}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`features.${index}.included`}
-                          render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value ?? false}
-                                  onCheckedChange={field.onChange}
-                                  disabled={isLoading}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal whitespace-nowrap mt-0">
-                                {t("included")}
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`features.${index}.bold`}
-                          render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value ?? false}
-                                  onCheckedChange={field.onChange}
-                                  disabled={isLoading}
-                                />
-                              </FormControl>
-                              <FormLabel className="text-sm font-normal whitespace-nowrap mt-0">
-                                {t("bold")}
-                              </FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => remove(index)}
-                          disabled={isLoading}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`features.${index}.description`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    placeholder="Feature description"
+                                    {...field}
+                                    disabled={isLoading}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <FormField
+                            control={form.control}
+                            name={`features.${index}.href`}
+                            render={({ field }) => (
+                              <FormItem className="flex-1">
+                                <FormControl>
+                                  <Input
+                                    placeholder="Feature href"
+                                    {...field}
+                                    value={field.value ?? ""}
+                                    disabled={isLoading}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`features.${index}.included`}
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value ?? false}
+                                    onCheckedChange={field.onChange}
+                                    disabled={isLoading}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal whitespace-nowrap mt-0">
+                                  {t("included")}
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name={`features.${index}.bold`}
+                            render={({ field }) => (
+                              <FormItem className="flex items-center space-x-2 space-y-0">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value ?? false}
+                                    onCheckedChange={field.onChange}
+                                    disabled={isLoading}
+                                  />
+                                </FormControl>
+                                <FormLabel className="text-sm font-normal whitespace-nowrap mt-0">
+                                  {t("bold")}
+                                </FormLabel>
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                            disabled={isLoading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button
@@ -1039,7 +1084,12 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        append({ description: "", included: true, bold: false })
+                        append({
+                          description: "",
+                          included: true,
+                          bold: false,
+                          href: "",
+                        })
                       }
                       disabled={isLoading}
                       className="mt-2"
