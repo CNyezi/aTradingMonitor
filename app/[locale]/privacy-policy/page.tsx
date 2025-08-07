@@ -55,7 +55,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function AboutPage({ params }: { params: Params }) {
+export default async function Page({ params }: { params: Params }) {
   const { locale } = await params;
   const content = await getMDXContent(locale);
 
