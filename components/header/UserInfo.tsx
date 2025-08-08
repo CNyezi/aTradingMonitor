@@ -1,6 +1,5 @@
 "use client";
 
-import { BenefitsErrorBoundary } from "@/components/layout/BenefitsErrorBoundary";
 import CurrentUserBenefitsDisplay from "@/components/layout/CurrentUserBenefitsDisplay";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,11 +10,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserBenefits } from "@/hooks/useUserBenefits";
 import { useRouter } from "@/i18n/routing";
 import { handleLogin } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Suspense } from "react";
 
 type Menu = {
   name: string;
@@ -31,6 +30,7 @@ interface UserInfoProps {
 export function UserInfo({ mobile = false, renderContainer }: UserInfoProps) {
   const { user, signOut, showLoginDialog } = useAuth();
   const router = useRouter();
+  const { isLoading: isBenefitsLoading } = useUserBenefits();
 
   const t = useTranslations("Login");
 
@@ -57,9 +57,6 @@ export function UserInfo({ mobile = false, renderContainer }: UserInfoProps) {
   const BenefitsLoadingFallback = () => (
     <Skeleton className="h-6 w-20 rounded-md" />
   );
-  const BenefitsErrorFallback = () => (
-    <div className="text-xs text-destructive">Error loading info</div>
-  );
 
   const fallbackLetter = (user.email || "N")[0].toUpperCase();
   const userInfoContent = (
@@ -82,11 +79,11 @@ export function UserInfo({ mobile = false, renderContainer }: UserInfoProps) {
 
         {isStripeEnabled && (
           <div className="pt-1 pb-2">
-            <BenefitsErrorBoundary fallback={<BenefitsErrorFallback />}>
-              <Suspense fallback={<BenefitsLoadingFallback />}>
-                <CurrentUserBenefitsDisplay />
-              </Suspense>
-            </BenefitsErrorBoundary>
+            {isBenefitsLoading ? (
+              <BenefitsLoadingFallback />
+            ) : (
+              <CurrentUserBenefitsDisplay />
+            )}
           </div>
         )}
       </div>

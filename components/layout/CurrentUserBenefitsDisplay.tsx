@@ -1,26 +1,32 @@
 "use client";
 
-import { UserBenefits } from "@/actions/usage/benefits";
-import { BenefitsContext } from "@/components/providers/BenefitsProvider";
+import { useUserBenefits } from "@/hooks/useUserBenefits";
 import dayjs from "dayjs";
 import { Calendar, Coins } from "lucide-react";
-import { use, useContext } from "react";
+import { BiCoinStack } from "react-icons/bi";
 
 export default function CurrentUserBenefitsDisplay() {
-  const benefitsPromise = useContext(BenefitsContext);
-
-  if (!benefitsPromise) {
-    console.error("BenefitsContext not found!");
-    return null;
-  }
-
-  const benefits: UserBenefits | null = use(benefitsPromise);
-
-  if (!benefits) {
-    return null;
-  }
+  const { benefits, isLoading } = useUserBenefits();
 
   // --- TODO: [custom] Render based on the resolved benefits ---
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <BiCoinStack className="w-4 h-4 text-muted-foreground animate-pulse" />
+        <span className="text-muted-foreground">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!benefits) {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <BiCoinStack className="w-4 h-4 text-muted-foreground" />
+        <span className="text-muted-foreground">-- Credits</span>
+      </div>
+    );
+  }
+
   if (
     benefits.totalAvailableCredits > 0 ||
     benefits.subscriptionStatus === "trialing" ||

@@ -1,5 +1,6 @@
 'use server';
 
+import { actionResponse, ActionResult } from '@/lib/action-response';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 
@@ -197,5 +198,27 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
   } catch (error) {
     console.error(`Unexpected error in getUserBenefits for user ${userId}:`, error);
     return defaultUserBenefits;
+  }
+}
+
+export async function getClientUserBenefits(): Promise<ActionResult<UserBenefits>> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return actionResponse.unauthorized();
+  }
+
+  try {
+    const benefits = await getUserBenefits(user.id);
+    return actionResponse.success(benefits);
+  } catch (error: any) {
+    console.error("Error fetching user benefits for client:", error);
+    return actionResponse.error(
+      error.message || "Failed to fetch user benefits."
+    );
   }
 }

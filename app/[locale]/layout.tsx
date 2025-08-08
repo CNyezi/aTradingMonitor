@@ -1,4 +1,3 @@
-import { getUserBenefits, UserBenefits } from "@/actions/usage/benefits";
 import BaiDuAnalytics from "@/app/BaiDuAnalytics";
 import GoogleAdsense from "@/app/GoogleAdsense";
 import GoogleAnalytics from "@/app/GoogleAnalytics";
@@ -9,13 +8,11 @@ import Footer from "@/components/footer/Footer";
 import Header from "@/components/header/Header";
 import { LanguageDetectionAlert } from "@/components/LanguageDetectionAlert";
 import { AuthProvider } from "@/components/providers/AuthProvider";
-import { BenefitsProvider } from "@/components/providers/BenefitsProvider";
 import { TailwindIndicator } from "@/components/TailwindIndicator";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import { DEFAULT_LOCALE, Locale, routing } from "@/i18n/routing";
 import { constructMetadata } from "@/lib/metadata";
-import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import "@/styles/loading.css";
@@ -71,29 +68,6 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
 
-  // --- Check if Stripe is configured ---
-  let supabase = null;
-  let user = null;
-  let benefitsPromise: Promise<UserBenefits | null>;
-
-  const isSupabaseEnabled = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const isStripeEnabled = process.env.NEXT_PUBLIC_ENABLE_STRIPE === "true";
-
-  if (isSupabaseEnabled) {
-    supabase = await createClient();
-
-    const { data } = await supabase.auth.getUser();
-
-    user = data.user;
-  }
-
-  if (isSupabaseEnabled && isStripeEnabled && user?.id) {
-    benefitsPromise = getUserBenefits(user.id);
-  } else {
-    benefitsPromise = Promise.resolve(null);
-  }
-  // --- End ---
-
   return (
     <html lang={locale || DEFAULT_LOCALE} suppressHydrationWarning>
       <head>
@@ -118,17 +92,15 @@ export default async function LocaleLayout({
               defaultTheme={siteConfig.defaultNextTheme}
               enableSystem
             >
-              <BenefitsProvider value={benefitsPromise}>
-                {messages.LanguageDetection && <LanguageDetectionAlert />}
+              {messages.LanguageDetection && <LanguageDetectionAlert />}
 
-                {messages.Header && <Header />}
+              {messages.Header && <Header />}
 
-                <main className="flex-1 flex flex-col items-center">
-                  {children}
-                </main>
+              <main className="flex-1 flex flex-col items-center">
+                {children}
+              </main>
 
-                {messages.Footer && <Footer />}
-              </BenefitsProvider>
+              {messages.Footer && <Footer />}
             </ThemeProvider>
           </AuthProvider>
         </NextIntlClientProvider>
