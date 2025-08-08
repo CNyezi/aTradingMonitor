@@ -10,6 +10,9 @@ interface CredentialResponse {
 }
 
 const GoogleOneTap = () => {
+  if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
+    return null;
+  }
   const supabase = createClient();
   const router = useRouter();
 
