@@ -26,6 +26,7 @@ export default function LoginForm({
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | undefined>();
+  const [showTurnstile, setShowTurnstile] = useState(false);
 
   const t = useTranslations("Login");
   const searchParams = useSearchParams();
@@ -127,8 +128,10 @@ export default function LoginForm({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
+              onMouseEnter={() => setShowTurnstile(true)}
             />
-            {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && (
+
+            {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && showTurnstile && (
               <Turnstile
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
                 onSuccess={(token) => {
