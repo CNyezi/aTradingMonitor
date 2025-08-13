@@ -186,6 +186,11 @@
     ],
     "AdminMenus": [
       {
+        "name": "Overview",
+        "href": "/dashboard/overview",
+        "icon": "LayoutDashboard"
+      },
+      {
         "name": "Users",
         "href": "/dashboard/users",
         "icon": "Users"

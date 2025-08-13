@@ -84,3 +84,13 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+export function formatValue(value: number | string, unit: "count" | "revenue") {
+  if (unit === "revenue") {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(Number(value));
+  }
+  return value.toLocaleString();
+}

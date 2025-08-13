@@ -497,6 +497,18 @@ export type Database = {
         Args: { p_user_id: string; p_deduct_amount: number; p_notes: string }
         Returns: boolean
       }
+      get_daily_growth_stats: {
+        Args: { start_date_param: string }
+        Returns: {
+          report_date: string
+          new_users_count: number
+          new_orders_count: number
+        }[]
+      }
+      get_order_stats_for_period: {
+        Args: { start_date_param: string; end_date_param: string }
+        Returns: Json
+      }
       grant_one_time_credits_and_log: {
         Args: {
           p_user_id: string

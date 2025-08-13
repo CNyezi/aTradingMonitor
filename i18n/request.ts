@@ -21,6 +21,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       CreditHistory: (await import(`./messages/${locale}/Dashboard/User/CreditHistory.json`)).default,
 
       // Dashboard - Admin
+      Overview: (await import(`./messages/${locale}/Dashboard/Admin/Overview.json`)).default,
       Users: (await import(`./messages/${locale}/Dashboard/Admin/Users.json`)).default,
       DashboardBlogs: (await import(`./messages/${locale}/Dashboard/Admin/Blogs.json`)).default,
       R2Files: (await import(`./messages/${locale}/Dashboard/Admin/R2Files.json`)).default,

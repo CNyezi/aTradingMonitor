@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // TODO:only admin
 const ROLE_PROTECTED_ROUTES: Record<string, string[]> = {
+  'dashboard/overview': ['admin'],
   'dashboard/users': ['admin'],
   'dashboard/blogs': ['admin'],
   'dashboard/r2-resources': ['admin'],
