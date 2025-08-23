@@ -15,26 +15,28 @@ export async function GET(request: NextRequest) {
   let next = searchParams.get('next') || '/'
   next = next == 'null' ? '/' : next
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || origin
+
   if (!isValidRedirectUrl(next)) {
-    return NextResponse.redirect(new URL(`/redirect-error?code=invalid_redirect`, origin))
+    return NextResponse.redirect(new URL(`/redirect-error?code=invalid_redirect`, siteUrl))
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL(`/redirect-error?code=server_error&message=No_code`, origin))
+    return NextResponse.redirect(new URL(`/redirect-error?code=server_error&message=No_code`, siteUrl))
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
-    return NextResponse.redirect(new URL(`/redirect-error?code=server_error&message=${error.message}`, origin))
+    return NextResponse.redirect(new URL(`/redirect-error?code=server_error&message=${error.message}`, siteUrl))
   }
 
   if (referral) {
     await handleReferral(supabase, referral)
   }
 
-  const response = NextResponse.redirect(`${origin}${next}`)
+  const response = NextResponse.redirect(`${siteUrl}${next}`)
   if (request.cookies.get('referral_source')) {
     response.cookies.delete('referral_source');
   }
