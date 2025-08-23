@@ -114,14 +114,16 @@ const EnglishVersion: React.FC<InvoicePaymentFailedEmailProps> = ({
         your subscription remains active.
       </p>
     )}
-    <p style={commonStyles.supportText}>
-      If you have already updated your payment details or believe this is an
-      error, please disregard this message. If you need assistance, please{" "}
-      <a href={supportLink} style={commonStyles.link}>
-        contact our support team
-      </a>
-      .
-    </p>
+    {supportLink && (
+      <p style={commonStyles.supportText}>
+        If you have already updated your payment details or believe this is an
+        error, please disregard this message. If you need assistance, please{" "}
+        <a href={supportLink} style={commonStyles.link}>
+          contact our support team
+        </a>
+        .
+      </p>
+    )}
   </div>
 );
 
