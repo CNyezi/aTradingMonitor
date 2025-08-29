@@ -77,9 +77,11 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
       }
     };
 
-    const { error: insertOrderError } = await supabaseAdmin
+    const { data: insertedOrder, error: insertOrderError } = await supabaseAdmin
       .from('orders')
-      .insert(orderData);
+      .insert(orderData)
+      .select('id')
+      .single();
 
     if (insertOrderError) {
       console.error('Error inserting one-time purchase order:', insertOrderError);
@@ -87,12 +89,13 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
     }
 
     // --- [custom] Upgrade the user's benefits ---
-    upgradeOneTimeCredits(userId, planId, paymentIntentId);
+    const orderId = insertedOrder?.id;
+    upgradeOneTimeCredits(userId, planId, orderId);
     // --- End: [custom] Upgrade the user's benefits ---
   }
 }
 
-export async function upgradeOneTimeCredits(userId: string, planId: string, paymentIntentId?: string) {
+export async function upgradeOneTimeCredits(userId: string, planId: string, orderId?: string) {
   // --- TODO: [custom] Upgrade the user's benefits ---
   /**
    * Complete the user's benefit upgrade based on your business logic.
@@ -119,14 +122,6 @@ export async function upgradeOneTimeCredits(userId: string, planId: string, paym
   }
 
   const creditsToGrant = (planData.benefits_jsonb as any)?.one_time_credits || 0;
-
-  const { data: order } = await supabaseAdmin
-    .from('orders')
-    .select('id')
-    .eq('provider_order_id', paymentIntentId)
-    .single();
-
-  const orderId = order?.id;
 
   if (creditsToGrant && creditsToGrant > 0) {
     const { error: usageError } = await supabaseAdmin.rpc('grant_one_time_credits_and_log', {
@@ -262,9 +257,11 @@ export async function handleInvoicePaid(invoice: Stripe.Invoice) {
       }
     };
 
-    const { error: insertOrderError } = await supabaseAdmin
+    const { data: insertedOrder, error: insertOrderError } = await supabaseAdmin
       .from('orders')
-      .insert(orderData);
+      .insert(orderData)
+      .select('id')
+      .single();
 
     if (insertOrderError) {
       console.error(`Error inserting order for invoice ${invoiceId}:`, insertOrderError);
@@ -273,7 +270,8 @@ export async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
     if (planId && userId && subscription) {
       // --- [custom] Upgrade the user's benefits ---
-      upgradeSubscriptionCredits(userId, planId, invoiceId, subscription);
+      const orderId = insertedOrder?.id;
+      upgradeSubscriptionCredits(userId, planId, orderId, subscription);
       // --- End: [custom] Upgrade the user's benefits ---
     } else {
       console.warn(`Cannot grant subscription credits for invoice ${invoiceId} because planId (${planId}) or userId (${userId}) is unknown.`);
@@ -287,7 +285,7 @@ export async function handleInvoicePaid(invoice: Stripe.Invoice) {
   }
 }
 
-export async function upgradeSubscriptionCredits(userId: string, planId: string, invoiceId: string, subscription: Stripe.Subscription) {
+export async function upgradeSubscriptionCredits(userId: string, planId: string, orderId: string, subscription: Stripe.Subscription) {
   // --- TODO: [custom] Upgrade the user's benefits ---
   /**
    * Complete the user's benefit upgrade based on your business logic.
@@ -310,20 +308,12 @@ export async function upgradeSubscriptionCredits(userId: string, planId: string,
       .single();
 
     if (planError || !planData) {
-      console.error(`Error fetching plan benefits for planId ${planId} during invoice ${invoiceId} processing:`, planError);
+      console.error(`Error fetching plan benefits for planId ${planId} during order ${orderId} processing:`, planError);
     } else {
       const benefits = planData.benefits_jsonb as any;
       const recurringInterval = planData.recurring_interval;
 
       const creditsToGrant = benefits?.monthly_credits || 0;
-
-      const { data: order } = await supabaseAdmin
-        .from('orders')
-        .select('id')
-        .eq('provider_order_id', invoiceId)
-        .single();
-
-      const orderId = order?.id;
 
       if (recurringInterval === 'month' && creditsToGrant) {
         const { error: usageError } = await supabaseAdmin.rpc('grant_subscription_credits_and_log', {
@@ -333,7 +323,7 @@ export async function upgradeSubscriptionCredits(userId: string, planId: string,
         });
 
         if (usageError) {
-          console.error(`Error setting subscription credits for user ${userId} (invoice ${invoiceId}):`, usageError);
+          console.error(`Error setting subscription credits for user ${userId} (order ${orderId}):`, usageError);
         }
         return
       }
@@ -351,7 +341,7 @@ export async function upgradeSubscriptionCredits(userId: string, planId: string,
 
     }
   } catch (creditError) {
-    console.error(`Error processing credits for user ${userId} (invoice ${invoiceId}):`, creditError);
+    console.error(`Error processing credits for user ${userId} (order ${orderId}):`, creditError);
   }
   // --- End: [custom] Upgrade the user's benefits ---
 }
