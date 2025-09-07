@@ -1,8 +1,9 @@
 import { listPublishedPostsAction } from "@/actions/blogs/posts";
-import { listTagsAction, Tag } from "@/actions/blogs/tags";
+import { listTagsAction } from "@/actions/blogs/tags";
 import { Locale } from "@/i18n/routing";
 import { getPosts } from "@/lib/getBlogs";
 import { constructMetadata } from "@/lib/metadata";
+import { Tag } from "@/types/blog";
 import { TextSearch } from "lucide-react";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";

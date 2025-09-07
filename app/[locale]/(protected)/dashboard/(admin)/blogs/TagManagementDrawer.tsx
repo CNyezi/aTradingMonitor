@@ -2,7 +2,6 @@
 
 import {
   createTagAction,
-  Tag as DbTag,
   deleteTagAction,
   listTagsAction,
   updateTagAction,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { type Tag as DbTag } from "@/types/blog";
 import {
   Check,
   Edit3,

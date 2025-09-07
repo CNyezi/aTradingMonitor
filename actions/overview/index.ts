@@ -1,9 +1,10 @@
 'use server';
 
+import { db } from '@/db';
+import { orders, pricingPlans, users } from '@/db/schema';
 import { actionResponse, ActionResult } from '@/lib/action-response';
 import { getErrorMessage } from '@/lib/error-utils';
-import { Database } from '@/lib/supabase/types';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { and, count, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 
 interface IStats {
   today: number;
@@ -36,11 +37,6 @@ export interface IDailyGrowthStats {
   new_orders_count: number;
 }
 
-const supabaseAdmin = createAdminClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 function calculateGrowthRate(today: number, yesterday: number): number {
   if (yesterday === 0) {
     return today > 0 ? Infinity : 0;
@@ -54,46 +50,102 @@ export const getOverviewStats = async (): Promise<ActionResult<IOverviewStats>> 
   // }
   try {
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
     const yesterdayStart = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate() - 1
-    ).toISOString();
+    );
 
     // User stats
-    const { count: totalUsers } = await supabaseAdmin
-      .from('users')
-      .select('id', { count: 'exact' });
-    const todayUsers =
-      (await supabaseAdmin.from('users').select('id', { count: 'exact' }).gte('created_at', todayStart))
-        .count ?? 0;
-    const yesterdayUsers =
-      (
-        await supabaseAdmin
-          .from('users')
-          .select('id', { count: 'exact' })
-          .gte('created_at', yesterdayStart)
-          .lt('created_at', todayStart)
-      ).count ?? 0;
+    const totalUsersResult = await db.select({ value: count() }).from(users);
+    const totalUsers = totalUsersResult[0].value;
+
+    const todayUsersResult = await db
+      .select({ value: count() })
+      .from(users)
+      .where(gte(users.created_at, todayStart));
+    const todayUsers = todayUsersResult[0].value;
+
+    const yesterdayUsersResult = await db
+      .select({ value: count() })
+      .from(users)
+      .where(
+        and(
+          gte(users.created_at, yesterdayStart),
+          lt(users.created_at, todayStart)
+        )
+      );
+    const yesterdayUsers = yesterdayUsersResult[0].value;
 
     // Order stats
-    const getOrderStatsForPeriod = async (startDate: string, endDate: string) => {
-      const { data, error } = await supabaseAdmin.rpc('get_order_stats_for_period', {
-        start_date_param: startDate,
-        end_date_param: endDate,
-      });
+    const getOrderStatsForPeriod = async (
+      startDate: Date,
+      endDate: Date
+    ): Promise<IOrderStatsResult> => {
+      const result = await db
+        .select({
+          oneTimeCount:
+            sql`COUNT(*) FILTER (WHERE ${orders.order_type} = 'one_time_purchase')`.mapWith(
+              Number
+            ),
+          oneTimeRevenue:
+            sql`COALESCE(SUM(${orders.amount_total}) FILTER (WHERE ${orders.order_type} = 'one_time_purchase'), 0)`.mapWith(
+              Number
+            ),
+          monthlyCount:
+            sql`COUNT(*) FILTER (WHERE ${orders.order_type} IN ('subscription_initial', 'subscription_renewal') AND ${pricingPlans.recurring_interval} = 'month')`.mapWith(
+              Number
+            ),
+          monthlyRevenue:
+            sql`COALESCE(SUM(${orders.amount_total}) FILTER (WHERE ${orders.order_type} IN ('subscription_initial', 'subscription_renewal') AND ${pricingPlans.recurring_interval} = 'month'), 0)`.mapWith(
+              Number
+            ),
+          yearlyCount:
+            sql`COUNT(*) FILTER (WHERE ${orders.order_type} IN ('subscription_initial', 'subscription_renewal') AND ${pricingPlans.recurring_interval} = 'year')`.mapWith(
+              Number
+            ),
+          yearlyRevenue:
+            sql`COALESCE(SUM(${orders.amount_total}) FILTER (WHERE ${orders.order_type} IN ('subscription_initial', 'subscription_renewal') AND ${pricingPlans.recurring_interval} = 'year'), 0)`.mapWith(
+              Number
+            ),
+        })
+        .from(orders)
+        .leftJoin(pricingPlans, eq(orders.plan_id, pricingPlans.id))
+        .where(
+          and(
+            gte(orders.created_at, startDate),
+            lt(orders.created_at, endDate),
+            inArray(orders.status, ['succeeded', 'active'])
+          )
+        )
 
-      if (error) {
-        console.error('Error fetching order stats via RPC:', error);
-        throw new Error('An error occurred while fetching order statistics.');
-      }
-
-      return data as unknown as IOrderStatsResult;
+      const stats = result[0];
+      return {
+        oneTime: {
+          count: stats.oneTimeCount,
+          revenue: stats.oneTimeRevenue,
+        },
+        monthly: {
+          count: stats.monthlyCount,
+          revenue: stats.monthlyRevenue,
+        },
+        yearly: {
+          count: stats.yearlyCount,
+          revenue: stats.yearlyRevenue,
+        },
+      };
     };
 
-    const todayOrderStats = await getOrderStatsForPeriod(todayStart, new Date().toISOString());
-    const yesterdayOrderStats = await getOrderStatsForPeriod(yesterdayStart, todayStart);
+    const todayOrderStats = await getOrderStatsForPeriod(todayStart, now);
+    const yesterdayOrderStats = await getOrderStatsForPeriod(
+      yesterdayStart,
+      todayStart
+    );
 
     const stats: IOverviewStats = {
       users: {
@@ -184,22 +236,72 @@ export const getDailyGrowthStats = async (
         startDate = new Date(new Date().setMonth(now.getMonth() - 3));
         break;
       default:
-        // This should not happen due to TypeScript types, but it's good practice
-        // to handle it.
         throw new Error('Invalid period specified.');
     }
 
-    const { data, error } = await supabaseAdmin.rpc('get_daily_growth_stats', {
-      start_date_param: startDate.toISOString(),
-    });
+    const userDateTrunc = sql`date_trunc('day', ${users.created_at})`
 
-    if (error) {
-      throw new Error(
-        'Failed to fetch daily growth stats: ' +
-        (error instanceof Error ? error.message : String(error))
-      );
+    const dailyUsers = await db
+      .select({
+        date: userDateTrunc,
+        count: count(users.id),
+      })
+      .from(users)
+      .where(gte(users.created_at, startDate))
+      .groupBy(userDateTrunc)
+
+    const orderDateTrunc = sql`date_trunc('day', ${orders.created_at})`
+
+    const dailyOrders = await db
+      .select({
+        date: orderDateTrunc,
+        count: count(orders.id),
+      })
+      .from(orders)
+      .where(
+        and(
+          gte(orders.created_at, startDate),
+          inArray(orders.status, ['succeeded', 'active'])
+        )
+      )
+      .groupBy(orderDateTrunc)
+
+    const dailyUsersMap = new Map(
+      dailyUsers.map((r) => {
+        let dateStr: string;
+        if (r.date instanceof Date) {
+          dateStr = r.date.toISOString().split('T')[0];
+        } else {
+          dateStr = new Date(r.date as string).toISOString().split('T')[0];
+        }
+        return [dateStr, r.count];
+      })
+    );
+    const dailyOrdersMap = new Map(
+      dailyOrders.map((r) => {
+        let dateStr: string;
+        if (r.date instanceof Date) {
+          dateStr = r.date.toISOString().split('T')[0];
+        } else {
+          dateStr = new Date(r.date as string).toISOString().split('T')[0];
+        }
+        return [dateStr, r.count];
+      })
+    );
+
+    const result: IDailyGrowthStats[] = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= now) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      result.push({
+        report_date: dateStr,
+        new_users_count: dailyUsersMap.get(dateStr) || 0,
+        new_orders_count: dailyOrdersMap.get(dateStr) || 0,
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-    return actionResponse.success(data ?? []);
+
+    return actionResponse.success(result);
   } catch (error) {
     return actionResponse.error(getErrorMessage(error));
   }

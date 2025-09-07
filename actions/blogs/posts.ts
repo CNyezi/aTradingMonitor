@@ -1,37 +1,39 @@
-"use server";
+'use server'
 
-import { postActionSchema } from "@/app/[locale]/(protected)/dashboard/(admin)/blogs/schema";
-import { actionResponse } from "@/lib/action-response";
-import { getErrorMessage } from "@/lib/error-utils";
-import { isAdmin } from "@/lib/supabase/isAdmin";
-import { createClient } from "@/lib/supabase/server";
-import type { Database } from "@/lib/supabase/types";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
-import { getTranslations } from "next-intl/server";
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import type { Tag } from "./tags";
+import { postActionSchema } from '@/app/[locale]/(protected)/dashboard/(admin)/blogs/schema'
+import { db } from '@/db'
+import { posts as postsSchema, postTags as postTagsSchema, subscriptions as subscriptionsSchema, tags as tagsSchema } from '@/db/schema'
+import { actionResponse } from '@/lib/action-response'
+import { getErrorMessage } from '@/lib/error-utils'
+import { isAdmin } from '@/lib/supabase/isAdmin'
+import { createClient } from '@/lib/supabase/server'
+import type { Database } from '@/lib/supabase/types'
+import { Tag } from '@/types/blog'
+import { and, count, desc, eq, getTableColumns, ilike, inArray, or, sql } from 'drizzle-orm'
+import { getTranslations } from 'next-intl/server'
+import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 
 export type PostWithTags = Database['public']['Tables']['posts']['Row'] & {
-  tags: Pick<Tag, 'id' | 'name' | 'created_at'>[];
-};
+  tags: Pick<Tag, 'id' | 'name' | 'created_at'>[]
+}
 
 interface ListPostsParams {
-  pageIndex?: number;
-  pageSize?: number;
-  status?: Database["public"]["Enums"]["post_status"];
-  filter?: string;
-  language?: string;
-  locale?: string;
+  pageIndex?: number
+  pageSize?: number
+  status?: Database['public']['Enums']['post_status']
+  filter?: string
+  language?: string
+  locale?: string
 }
 
 interface ListPostsResult {
-  success: boolean;
+  success: boolean
   data?: {
-    posts?: PostWithTags[];
-    count?: number;
-  };
-  error?: string;
+    posts?: PostWithTags[]
+    count?: number
+  }
+  error?: string
 }
 
 export async function listPostsAction({
@@ -39,170 +41,218 @@ export async function listPostsAction({
   pageSize = 20,
   status,
   language,
-  filter = "",
-  locale = 'en'
+  filter = '',
+  locale = 'en',
 }: ListPostsParams = {}): Promise<ListPostsResult> {
   if (!(await isAdmin())) {
-    return actionResponse.forbidden('Admin privileges required.');
+    return actionResponse.forbidden('Admin privileges required.')
   }
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
   try {
-    let query = supabaseAdmin
-      .from("posts")
-      .select(`
-        id, language, title, slug, description, featured_image_url, is_pinned, status, visibility, published_at, created_at, updated_at,
-        tags (*)
-      `, { count: 'exact' });
-
-    if (filter) {
-      const filterValue = `%${filter}%`;
-      query = query.or(
-        `title.ilike.${filterValue},slug.ilike.${filterValue},description.ilike.${filterValue}`
-      );
-    }
-
+    const conditions = []
     if (status) {
-      query = query.eq('status', status);
+      conditions.push(eq(postsSchema.status, status))
     }
-
     if (language) {
-      query = query.eq('language', language);
+      conditions.push(eq(postsSchema.language, language))
+    }
+    if (filter) {
+      const filterValue = `%${filter}%`
+      conditions.push(
+        or(
+          ilike(postsSchema.title, filterValue),
+          ilike(postsSchema.slug, filterValue),
+          ilike(postsSchema.description, filterValue)
+        )
+      )
     }
 
-    const from = pageIndex * pageSize;
-    const to = from + pageSize - 1;
+    const whereCondition = conditions.length > 0 ? and(...conditions) : undefined
 
-    query = query
-      .order('is_pinned', { ascending: false })
-      .order('created_at', { ascending: false })
-      .range(from, to);
+    const postsQuery = db
+      .select({
+        id: postsSchema.id,
+        language: postsSchema.language,
+        title: postsSchema.title,
+        slug: postsSchema.slug,
+        description: postsSchema.description,
+        featured_image_url: postsSchema.featured_image_url,
+        is_pinned: postsSchema.is_pinned,
+        status: postsSchema.status,
+        visibility: postsSchema.visibility,
+        published_at: postsSchema.published_at,
+        created_at: postsSchema.created_at,
+        updated_at: postsSchema.updated_at,
+      })
+      .from(postsSchema)
+      .where(whereCondition)
+      .orderBy(desc(postsSchema.is_pinned), desc(postsSchema.created_at))
+      .limit(pageSize)
+      .offset(pageIndex * pageSize)
 
-    const { data, error, count } = await query;
+    const countQuery = db
+      .select({ value: count() })
+      .from(postsSchema)
+      .where(whereCondition)
 
-    if (error) throw error;
+    const [postsData, countData] = await Promise.all([postsQuery, countQuery])
 
-    const postsWithTags = (data || []).map(post => ({
-      ...post,
-      tags: post.tags || []
-    })) as PostWithTags[];
+    const postIds = postsData.map((p) => p.id)
+    let tagsData: any[] = []
+    if (postIds.length > 0) {
+      tagsData = await db
+        .select({
+          postId: postTagsSchema.post_id,
+          tagId: tagsSchema.id,
+          tagName: tagsSchema.name,
+          tagCreatedAt: tagsSchema.created_at,
+        })
+        .from(postTagsSchema)
+        .innerJoin(tagsSchema, eq(postTagsSchema.tag_id, tagsSchema.id))
+        .where(inArray(postTagsSchema.post_id, postIds))
+    }
 
-    return actionResponse.success({ posts: postsWithTags, count: count ?? 0 });
+    const tagsByPostId = tagsData.reduce((acc, row) => {
+      if (!acc[row.postId]) {
+        acc[row.postId] = []
+      }
+      acc[row.postId].push({
+        id: row.tagId,
+        name: row.tagName,
+        created_at: row.tagCreatedAt,
+      })
+      return acc
+    }, {} as Record<string, any[]>)
 
+    const postsWithTags: PostWithTags[] = postsData.map((post) => ({
+      ...(post as any),
+      tags: tagsByPostId[post.id] || [],
+    }))
+
+    return actionResponse.success({
+      posts: postsWithTags,
+      count: countData[0].value,
+    })
   } catch (error) {
-    console.error("List Posts Action Failed:", error);
-    const errorMessage = getErrorMessage(error);
+    console.error('List Posts Action Failed:', error)
+    const errorMessage = getErrorMessage(error)
     if (errorMessage.includes('permission denied')) {
-      return actionResponse.forbidden("Permission denied to list posts.");
+      return actionResponse.forbidden('Permission denied to list posts.')
     }
-    return actionResponse.error(errorMessage);
+    return actionResponse.error(errorMessage)
   }
 }
 
 interface GetPostByIdParams {
-  postId: string;
-  locale?: string;
+  postId: string
+  locale?: string
 }
 
 interface GetPostResult {
-  success: boolean;
+  success: boolean
   data?: {
-    post?: PostWithTags;
+    post?: PostWithTags
   }
-  error?: string;
+  error?: string
 }
 
-export async function getPostByIdAction({ postId }: GetPostByIdParams): Promise<GetPostResult> {
+export async function getPostByIdAction({
+  postId,
+}: GetPostByIdParams): Promise<GetPostResult> {
   if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
+    return actionResponse.forbidden('Admin privileges required.')
   }
 
   if (!postId || !z.string().uuid().safeParse(postId).success) {
-    return actionResponse.badRequest("Invalid Post ID provided.");
+    return actionResponse.badRequest('Invalid Post ID provided.')
   }
-
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
 
   try {
-    const { data, error } = await supabaseAdmin
-      .from('posts')
-      .select(`
-          *,
-          tags (*)
-      `)
-      .eq('id', postId)
-      .maybeSingle();
+    const postData = await db
+      .select()
+      .from(postsSchema)
+      .where(eq(postsSchema.id, postId))
+      .limit(1)
 
-    if (error) throw error;
-    if (!data) return actionResponse.notFound("Post not found.");
-
-    const postWithTags = data as PostWithTags;
-
-    postWithTags.tags = postWithTags.tags || [];
-
-    return actionResponse.success({ post: postWithTags });
-
-  } catch (error) {
-    console.error(`Get Post By ID Action Failed for ${postId}:`, error);
-    const errorMessage = getErrorMessage(error);
-    if (errorMessage.includes('permission denied')) {
-      return actionResponse.forbidden("Permission denied to view this post.");
+    if (!postData || postData.length === 0) {
+      return actionResponse.notFound('Post not found.')
     }
-    return actionResponse.error(errorMessage);
+    const post = postData[0]
+
+    const tagsData = await db
+      .select({
+        id: tagsSchema.id,
+        name: tagsSchema.name,
+        created_at: tagsSchema.created_at,
+      })
+      .from(postTagsSchema)
+      .innerJoin(tagsSchema, eq(postTagsSchema.tag_id, tagsSchema.id))
+      .where(eq(postTagsSchema.post_id, postId))
+
+    const postWithTags: PostWithTags = {
+      ...(post as any),
+      tags: tagsData || []
+    }
+
+    return actionResponse.success({ post: postWithTags })
+  } catch (error) {
+    console.error(`Get Post By ID Action Failed for ${postId}:`, error)
+    const errorMessage = getErrorMessage(error)
+    if (errorMessage.includes('permission denied')) {
+      return actionResponse.forbidden('Permission denied to view this post.')
+    }
+    return actionResponse.error(errorMessage)
   }
 }
 
-type PostActionInput = z.infer<typeof postActionSchema>;
+type PostActionInput = z.infer<typeof postActionSchema>
 
 interface CreatePostParams {
-  data: PostActionInput;
-  locale?: string;
+  data: PostActionInput
+  locale?: string
 }
 interface ActionResult {
-  success: boolean;
+  success: boolean
   data?: {
-    postId?: string;
-  };
-  error?: string;
+    postId?: string
+  }
+  error?: string
 }
 
-export async function createPostAction({ data }: CreatePostParams): Promise<ActionResult> {
-  const validatedFields = postActionSchema.safeParse(data);
+export async function createPostAction({
+  data,
+}: CreatePostParams): Promise<ActionResult> {
+  const validatedFields = postActionSchema.safeParse(data)
   if (!validatedFields.success) {
-    console.error("Validation Error:", validatedFields.error.flatten().fieldErrors);
-    return actionResponse.badRequest("Invalid input data.");
+    console.error(
+      'Validation Error:',
+      validatedFields.error.flatten().fieldErrors
+    )
+    return actionResponse.badRequest('Invalid input data.')
   }
 
   if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
+    return actionResponse.forbidden('Admin privileges required.')
   }
 
-  const supabase = await createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
   if (userError || !user) {
-    return actionResponse.unauthorized();
+    return actionResponse.unauthorized()
   }
-  const authorId = user.id;
+  const authorId = user.id
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  const { tags: inputTags, ...postData } = validatedFields.data;
-  const finalFeaturedImageUrl = postData.featured_image_url === "" ? null : postData.featured_image_url;
+  const { tags: inputTags, ...postData } = validatedFields.data
+  const finalFeaturedImageUrl =
+    postData.featured_image_url === '' ? null : postData.featured_image_url
 
   try {
-    const { data: newPost, error: postInsertError } = await supabaseAdmin
-      .from("posts")
-      .insert({
+    const newPost = await db
+      .insert(postsSchema)
+      .values({
         ...postData,
         author_id: authorId,
         featured_image_url: finalFeaturedImageUrl,
@@ -210,208 +260,191 @@ export async function createPostAction({ data }: CreatePostParams): Promise<Acti
         description: postData.description || null,
         is_pinned: postData.is_pinned || false,
       })
-      .select("id")
-      .single();
+      .returning({ id: postsSchema.id })
 
-    if (postInsertError) throw postInsertError;
-    if (!newPost || !newPost.id) throw new Error("Failed to create post: No ID returned.");
-
-    const postId = newPost.id;
+    if (!newPost || newPost.length === 0 || !newPost[0].id) {
+      throw new Error('Failed to create post: No ID returned.')
+    }
+    const postId = newPost[0].id
 
     if (inputTags && inputTags.length > 0) {
       const tagAssociations = inputTags.map((tag) => ({
         post_id: postId,
         tag_id: tag.id,
-      }));
-
-      const { error: tagInsertError } = await supabaseAdmin
-        .from("post_tags")
-        .insert(tagAssociations);
-
-      if (tagInsertError) {
-        console.error(`Failed to associate tags for post ${postId}:`, tagInsertError);
-      }
+      }))
+      await db.insert(postTagsSchema).values(tagAssociations)
     }
 
-    revalidatePath(`/${postData.language}/blogs`, "page");
-    revalidatePath(`/${postData.language}/dashboard/blogs`, "page");
     if (postData.status === 'published') {
-      revalidatePath(`/${postData.language}/blogs/${postData.slug}`, "page");
+      revalidatePath(`/${postData.language || ''}/blogs`)
+      revalidatePath(`/${postData.language || ''}/blogs/${postData.slug}`)
     }
 
-    return actionResponse.success({ postId: postId });
-
+    return actionResponse.success({ postId: postId })
   } catch (error) {
-    console.error("Create Post Action Failed:", error);
-    const errorMessage = getErrorMessage(error);
-    if (errorMessage.includes('duplicate key value violates unique constraint "posts_language_slug_unique"')) {
-      return actionResponse.conflict(`Slug '${validatedFields.data.slug}' already exists for language '${validatedFields.data.language}'.`);
+    console.error('Create Post Action Failed:', error)
+    const errorMessage = getErrorMessage(error)
+    if (
+      errorMessage.includes(
+        'duplicate key value violates unique constraint "posts_language_slug_unique"'
+      )
+    ) {
+      return actionResponse.conflict(
+        `Slug '${validatedFields.data.slug}' already exists for language '${validatedFields.data.language}'.`
+      )
     }
-    return actionResponse.error(errorMessage);
+    return actionResponse.error(errorMessage)
   }
 }
 
 interface UpdatePostParams {
-  data: PostActionInput;
-  locale?: string;
+  data: PostActionInput
+  locale?: string
 }
 
-export async function updatePostAction({ data }: UpdatePostParams): Promise<ActionResult> {
+export async function updatePostAction({
+  data,
+}: UpdatePostParams): Promise<ActionResult> {
   if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
+    return actionResponse.forbidden('Admin privileges required.')
   }
 
-  const validatedFields = postActionSchema.extend({
-    id: z.string().uuid({ message: "Valid Post ID is required for update." }),
-  }).safeParse(data);
+  const validatedFields = postActionSchema
+    .extend({
+      id: z.string().uuid({ message: 'Valid Post ID is required for update.' }),
+    })
+    .safeParse(data)
 
   if (!validatedFields.success) {
-    console.error("Validation Error:", validatedFields.error.flatten().fieldErrors);
-    return actionResponse.badRequest("Invalid input data for update.");
+    console.error(
+      'Validation Error:',
+      validatedFields.error.flatten().fieldErrors
+    )
+    return actionResponse.badRequest('Invalid input data for update.')
   }
 
-  const { id: postId, tags: inputTags, ...postUpdateData } = validatedFields.data;
+  const { id: postId, tags: inputTags, ...postUpdateData } =
+    validatedFields.data
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  const finalFeaturedImageUrl = postUpdateData.featured_image_url === "" ? null : postUpdateData.featured_image_url;
+  const finalFeaturedImageUrl =
+    postUpdateData.featured_image_url === ''
+      ? null
+      : postUpdateData.featured_image_url
 
   try {
-    const { data: currentPost, error: fetchError } = await supabaseAdmin
-      .from('posts')
-      .select('slug, language, status')
-      .eq('id', postId)
-      .single();
+    const currentPostData = await db
+      .select({
+        slug: postsSchema.slug,
+        language: postsSchema.language,
+        status: postsSchema.status,
+      })
+      .from(postsSchema)
+      .where(eq(postsSchema.id, postId))
+      .limit(1)
 
-    if (fetchError) {
-      console.error(`Error fetching post details for update ${postId}:`, fetchError);
-      return actionResponse.notFound("Failed to fetch existing post details for update.");
+    if (!currentPostData || currentPostData.length === 0) {
+      return actionResponse.notFound(`Post with ID ${postId} not found.`)
     }
-    if (!currentPost) {
-      return actionResponse.notFound(`Post with ID ${postId} not found.`);
-    }
+    const currentPost = currentPostData[0]
 
-    const { error: postUpdateError } = await supabaseAdmin
-      .from("posts")
-      .update({
+    await db
+      .update(postsSchema)
+      .set({
         ...postUpdateData,
         featured_image_url: finalFeaturedImageUrl,
         content: postUpdateData.content || null,
         description: postUpdateData.description || null,
         is_pinned: postUpdateData.is_pinned || false,
       })
-      .eq("id", postId);
+      .where(eq(postsSchema.id, postId))
 
-    if (postUpdateError) throw postUpdateError;
-
-    const { error: deleteTagsError } = await supabaseAdmin
-      .from('post_tags')
-      .delete()
-      .eq('post_id', postId);
-
-    if (deleteTagsError) {
-      console.error(`Failed to clear old tags for post ${postId}:`, deleteTagsError);
-    }
+    await db.delete(postTagsSchema).where(eq(postTagsSchema.post_id, postId))
 
     if (inputTags && inputTags.length > 0) {
       const newTagAssociations = inputTags.map((tag) => ({
         post_id: postId,
         tag_id: tag.id,
-      }));
-
-      const { error: insertTagsError } = await supabaseAdmin
-        .from("post_tags")
-        .insert(newTagAssociations);
-
-      if (insertTagsError) {
-        console.error(`Failed to insert new tags for post ${postId}:`, insertTagsError);
-      }
+      }))
+      await db.insert(postTagsSchema).values(newTagAssociations)
     }
 
+    revalidatePath(`/${currentPost.language || ''}/blogs`)
+    revalidatePath(`/${currentPost.language || ''}/blogs/${currentPost.slug}`)
 
-    revalidatePath(`/${currentPost.language}/blogs`, "page");
-    revalidatePath(`/${currentPost.language}/dashboard/blogs`, "page");
 
-    if (currentPost.slug && currentPost.language &&
-      (currentPost.slug !== postUpdateData.slug || currentPost.language !== postUpdateData.language || currentPost.status !== postUpdateData.status)) {
-      revalidatePath(`/${currentPost.language}/blogs/${currentPost.slug}`, "page");
-    }
 
     if (postUpdateData.status === 'published') {
-      revalidatePath(`/${postUpdateData.language}/blogs/${postUpdateData.slug}`, "page");
+      revalidatePath(
+        `/${postUpdateData.language || ''}/blogs/${postUpdateData.slug}`
+      )
     }
 
-    return actionResponse.success({ postId: postId });
-
+    return actionResponse.success({ postId: postId })
   } catch (error) {
-    console.error("Update Post Action Failed:", error);
-    const errorMessage = getErrorMessage(error);
-    if (errorMessage.includes('duplicate key value violates unique constraint "posts_language_slug_unique"')) {
-      return actionResponse.conflict(`Slug '${validatedFields.data.slug}' already exists for language '${validatedFields.data.language}'.`);
+    console.error('Update Post Action Failed:', error)
+    const errorMessage = getErrorMessage(error)
+    if (
+      errorMessage.includes(
+        'duplicate key value violates unique constraint "posts_language_slug_unique"'
+      )
+    ) {
+      return actionResponse.conflict(
+        `Slug '${validatedFields.data.slug}' already exists for language '${validatedFields.data.language}'.`
+      )
     }
-    return actionResponse.error(errorMessage);
+    return actionResponse.error(errorMessage)
   }
 }
 
 interface DeletePostParams {
-  postId: string;
-  locale: string;
+  postId: string
+  locale: string
 }
 
-export async function deletePostAction({ postId, locale }: DeletePostParams): Promise<ActionResult> {
-
-  const t = await getTranslations({ locale, namespace: 'DashboardBlogs.Delete' });
+export async function deletePostAction({
+  postId,
+  locale,
+}: DeletePostParams): Promise<ActionResult> {
+  const t = await getTranslations({ locale, namespace: 'DashboardBlogs.Delete' })
 
   if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
+    return actionResponse.forbidden('Admin privileges required.')
   }
 
   if (!postId || !z.string().uuid().safeParse(postId).success) {
-    return actionResponse.badRequest("Invalid Post ID provided.");
+    return actionResponse.badRequest('Invalid Post ID provided.')
   }
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
   try {
-    const { data: postDetails, error: fetchError } = await supabaseAdmin
-      .from('posts')
-      .select('slug, language')
-      .eq('id', postId)
-      .maybeSingle();
+    const postDetailsData = await db
+      .select({
+        slug: postsSchema.slug,
+        language: postsSchema.language,
+      })
+      .from(postsSchema)
+      .where(eq(postsSchema.id, postId))
+      .limit(1)
 
-    if (fetchError) {
-      console.error(`Error fetching post details before delete ${postId}:`, fetchError);
-      return actionResponse.notFound(t("errorFetching"));
+    if (!postDetailsData || postDetailsData.length === 0) {
+      return actionResponse.notFound(t('errorFetching'))
     }
+    const postDetails = postDetailsData[0]
 
-    const { error: deleteError } = await supabaseAdmin
-      .from("posts")
-      .delete()
-      .eq("id", postId);
-
-    if (deleteError) throw deleteError;
+    await db.delete(postsSchema).where(eq(postsSchema.id, postId))
 
     if (postDetails?.slug && postDetails?.language) {
-      revalidatePath(`/${postDetails?.language}/blogs`, "page");
-      revalidatePath(`/${postDetails?.language}/dashboard/blogs`, "page");
-      revalidatePath(`/${postDetails.language}/blogs/${postDetails.slug}`, "page");
+      revalidatePath(`/${postDetails?.language || ''}/blogs`)
+      revalidatePath(`/${postDetails?.language || ''}/blogs/${postDetails.slug}`)
     }
 
-    return actionResponse.success({ postId: postId });
-
+    return actionResponse.success({ postId: postId })
   } catch (error) {
-    console.error(`Delete Post Action Failed for ${postId}:`, error);
-    const errorMessage = getErrorMessage(error);
+    console.error(`Delete Post Action Failed for ${postId}:`, error)
+    const errorMessage = getErrorMessage(error)
     if (errorMessage.includes('permission denied')) {
-      return actionResponse.forbidden("Permission denied to delete this post.");
+      return actionResponse.forbidden('Permission denied to delete this post.')
     }
-    return actionResponse.error(errorMessage);
+    return actionResponse.error(errorMessage)
   }
 }
 
@@ -432,24 +465,24 @@ export type PublicPost = Pick<
   | 'published_at'
   | 'created_at'
 > & {
-  tags: string | null;
-};
+  tags: string | null
+}
 
 interface ListPublishedPostsParams {
-  pageIndex?: number;
-  pageSize?: number;
-  tagId?: string | null;
-  locale?: string;
-  visibility?: 'public'; // only public posts, for generateStaticParams
+  pageIndex?: number
+  pageSize?: number
+  tagId?: string | null
+  locale?: string
+  visibility?: 'public' // only public posts, for generateStaticParams
 }
 
 interface ListPublishedPostsResult {
-  success: boolean;
+  success: boolean
   data?: {
-    posts?: PublicPost[];
-    count?: number;
-  };
-  error?: string;
+    posts?: PublicPost[]
+    count?: number
+  }
+  error?: string
 }
 
 export async function listPublishedPostsAction({
@@ -459,65 +492,70 @@ export async function listPublishedPostsAction({
   locale = 'en',
   visibility,
 }: ListPublishedPostsParams = {}): Promise<ListPublishedPostsResult> {
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
   try {
-    const tagsSelectPart = tagId ? "tags!inner (id, name)" : "tags (id, name)";
-    const selectQuery = `
-        id, language, title, slug, description, featured_image_url, is_pinned, status, visibility, published_at, created_at,
-        ${tagsSelectPart}
-    `;
-
-    let query = supabaseAdmin
-      .from("posts")
-      .select(selectQuery, { count: 'exact' })
-      .eq('status', 'published');
-
+    const conditions = [eq(postsSchema.status, 'published')]
     if (locale) {
-      query = query.eq('language', locale);
+      conditions.push(eq(postsSchema.language, locale))
     }
+    if (visibility && visibility === 'public') {
+      conditions.push(eq(postsSchema.visibility, 'public'))
+    }
+
+    const postsSubquery = db
+      .$with('posts_with_tags')
+      .as(
+        db
+          .select({
+            ...getTableColumns(postsSchema),
+            tag_ids: sql<string[]>`array_agg(${postTagsSchema.tag_id})`.as('tag_ids'),
+            tag_names: sql<string[]>`array_agg(${tagsSchema.name})`.as('tag_names'),
+          })
+          .from(postsSchema)
+          .leftJoin(
+            postTagsSchema,
+            eq(postsSchema.id, postTagsSchema.post_id)
+          )
+          .leftJoin(tagsSchema, eq(postTagsSchema.tag_id, tagsSchema.id))
+          .where(and(...conditions))
+          .groupBy(postsSchema.id)
+      )
+
+    let query = db.with(postsSubquery).select().from(postsSubquery)
+    let countQuery = db.with(postsSubquery).select({ value: count() }).from(postsSubquery)
 
     if (tagId) {
-      query = query.eq('tags.id', tagId);
+      query.where(sql`${tagId} = ANY(tag_ids)`)
+      countQuery.where(sql`${tagId} = ANY(tag_ids)`)
     }
 
-    if (visibility && visibility === 'public') {
-      query = query.eq('visibility', 'public');
-    }
+    const paginatedQuery = query
+      .orderBy(
+        desc(postsSubquery.is_pinned),
+        desc(postsSubquery.published_at),
+        desc(postsSubquery.created_at)
+      )
+      .limit(pageSize)
+      .offset(pageIndex * pageSize)
 
-    const from = pageIndex * pageSize;
-    const to = from + pageSize - 1;
-
-    query = query
-      .order('is_pinned', { ascending: false })
-      .order('published_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
-      .range(from, to);
-
-    const { data, error, count } = await query;
-
-    if (error) throw error;
+    const [data, countResult] = await Promise.all([paginatedQuery, countQuery])
 
     const postsWithProcessedTags = (data || []).map((post) => {
-      const { tags, ...restOfPost } = post as unknown as PostWithTags;
-      const tagNames = (tags && Array.isArray(tags) && tags.length > 0)
-        ? tags.map(t => t.name).join(', ')
-        : null;
+      const tagNames = post.tag_names?.filter(Boolean).join(', ') || null
+      const { tag_ids, tag_names, ...restOfPost } = post
       return {
         ...restOfPost,
-        tags: tagNames
-      };
-    }) as PublicPost[];
+        tags: tagNames,
+      }
+    })
 
-    return actionResponse.success({ posts: postsWithProcessedTags, count: count ?? 0 });
-
+    return actionResponse.success({
+      posts: postsWithProcessedTags as unknown as PublicPost[],
+      count: countResult[0].value,
+    })
   } catch (error) {
-    console.error("List Published Posts Action Failed:", error);
-    const errorMessage = getErrorMessage(error);
-    return actionResponse.error(errorMessage);
+    console.error('List Published Posts Action Failed:', error)
+    const errorMessage = getErrorMessage(error)
+    return actionResponse.error(errorMessage)
   }
 }
 
@@ -536,78 +574,79 @@ export type PublicPostWithContent = Pick<
   | 'published_at'
   | 'created_at'
 > & {
-  tags: string | null;
-};
-
+  tags: string | null
+}
 
 interface GetPublishedPostBySlugParams {
-  slug: string;
-  locale?: string;
+  slug: string
+  locale?: string
 }
 
 interface GetPublishedPostBySlugResult {
-  success: boolean;
+  success: boolean
   data?: {
-    post?: PublicPostWithContent;
+    post?: PublicPostWithContent
   }
-  error?: string;
+  error?: string
   customCode?: string
 }
 
-
 export async function getPublishedPostBySlugAction({
   slug,
-  locale = 'en'
+  locale = 'en',
 }: GetPublishedPostBySlugParams): Promise<GetPublishedPostBySlugResult> {
   if (!slug) {
-    return actionResponse.badRequest("Slug is required.");
+    return actionResponse.badRequest('Slug is required.')
   }
 
-  const t = await getTranslations({ locale, namespace: 'Blogs' });
-
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const t = await getTranslations({ locale, namespace: 'Blogs' })
 
   try {
-    const { data: post, error: fetchError } = await supabaseAdmin
-      .from('posts')
-      .select(`
-        id, language, title, slug, description, content, featured_image_url, is_pinned, status, visibility, published_at, created_at,
-        tags (id, name)
-      `)
-      .eq('slug', slug)
-      .eq('language', locale)
-      .eq('status', 'published')
-      .maybeSingle();
+    const postData = await db
+      .select()
+      .from(postsSchema)
+      .where(
+        and(
+          eq(postsSchema.slug, slug),
+          eq(postsSchema.language, locale),
+          eq(postsSchema.status, 'published')
+        )
+      )
+      .limit(1)
 
-    if (fetchError) throw fetchError;
-    if (!post) return actionResponse.notFound(t("BlogDetail.notFound"));
+    if (!postData || postData.length === 0) {
+      return actionResponse.notFound(t('BlogDetail.notFound'))
+    }
+    const post = postData[0]
 
-    const { tags, ...restOfPostBase } = post;
-    const tagNames = (tags && Array.isArray(tags) && tags.length > 0)
-      ? tags.map(tag => tag.name).join(', ')
-      : null;
+    const tagsData = await db
+      .select({ name: tagsSchema.name })
+      .from(postTagsSchema)
+      .innerJoin(tagsSchema, eq(postTagsSchema.tag_id, tagsSchema.id))
+      .where(eq(postTagsSchema.post_id, post.id))
 
-    let finalContent = restOfPostBase.content ?? '';
-    let restrictionCustomCode: string | undefined = undefined;
+    const tagNames = tagsData.map((t) => t.name).join(', ') || null
+
+    let finalContent = post.content ?? ''
+    let restrictionCustomCode: string | undefined = undefined
 
     if (post.visibility === 'logged_in' || post.visibility === 'subscribers') {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const supabase = await createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
       if (!user) {
-        finalContent = "";
-        restrictionCustomCode = 'unauthorized';
+        finalContent = ''
+        restrictionCustomCode = 'unauthorized'
       } else {
-        const userIsAdmin = await isAdmin();
+        const userIsAdmin = await isAdmin()
         if (!userIsAdmin && post.visibility === 'subscribers') {
           // --- TODO: [custom] check user subscription or custom logic --- 
-          const isSubscriber = await checkUserSubscription(user.id);
+          const isSubscriber = await checkUserSubscription(user.id)
           if (!isSubscriber) {
-            finalContent = "";
-            restrictionCustomCode = 'notSubscriber';
+            finalContent = ''
+            restrictionCustomCode = 'notSubscriber'
           }
           // --- End: [custom] check user subscription or custom logic
         }
@@ -615,58 +654,57 @@ export async function getPublishedPostBySlugAction({
     }
 
     const postResultData: PublicPostWithContent = {
-      ...restOfPostBase,
+      ...(post as any),
       content: finalContent,
-      tags: tagNames
-    };
-
-    if (restrictionCustomCode) {
-      return actionResponse.success({ post: postResultData }, restrictionCustomCode);
+      tags: tagNames,
     }
 
-    return actionResponse.success({ post: postResultData });
+    if (restrictionCustomCode) {
+      return actionResponse.success({ post: postResultData }, restrictionCustomCode)
+    }
 
+    return actionResponse.success({ post: postResultData })
   } catch (error) {
-    console.error(`Get Published Post By Slug Action Failed for slug ${slug}, locale ${locale}:`, error);
-    const errorMessage = getErrorMessage(error);
-    return actionResponse.error(errorMessage);
+    console.error(
+      `Get Published Post By Slug Action Failed for slug ${slug}, locale ${locale}:`,
+      error
+    )
+    const errorMessage = getErrorMessage(error)
+    return actionResponse.error(errorMessage)
   }
 }
 
 // --- TODO: [custom] check user subscription or custom logic ---
 async function checkUserSubscription(userId: string): Promise<boolean> {
   if (!userId) {
-    console.warn("checkUserSubscription called with no userId");
-    return false;
+    console.warn('checkUserSubscription called with no userId')
+    return false
   }
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
   try {
-    const { data: latestSubscription, error: queryError } = await supabaseAdmin
-      .from('subscriptions')
-      .select('status, current_period_end')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    const data = await db
+      .select({
+        status: subscriptionsSchema.status,
+        current_period_end: subscriptionsSchema.current_period_end,
+      })
+      .from(subscriptionsSchema)
+      .where(eq(subscriptionsSchema.user_id, userId))
+      .orderBy(desc(subscriptionsSchema.created_at))
       .limit(1)
-      .maybeSingle();
 
-    if (queryError) {
-      console.error(`Error fetching user subscription status for ${userId}:`, queryError.message);
-      return false;
+    if (!data || data.length === 0) {
+      return false
     }
+    const latestSubscription = data[0]
 
-    if (!latestSubscription) {
-      return false;
-    }
+    const isActive =
+      latestSubscription.status === 'active' ||
+      latestSubscription.status === 'trialing'
+    const isWithinPeriod =
+      latestSubscription.current_period_end &&
+      new Date(latestSubscription.current_period_end) > new Date()
 
-    const isActive = latestSubscription.status === 'active' || latestSubscription.status === 'trialing';
-    const isWithinPeriod = latestSubscription.current_period_end && new Date(latestSubscription.current_period_end) > new Date();
-
-    return !!(isActive && isWithinPeriod);
+    return !!(isActive && isWithinPeriod)
 
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);

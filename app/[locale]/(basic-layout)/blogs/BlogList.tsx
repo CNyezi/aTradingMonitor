@@ -1,8 +1,7 @@
 "use client";
 
 import { listPublishedPostsAction, PublicPost } from "@/actions/blogs/posts";
-import { Tag } from "@/actions/blogs/tags";
-import { BlogPost } from "@/types/blog";
+import { BlogPost, Tag } from "@/types/blog";
 import dayjs from "dayjs";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";

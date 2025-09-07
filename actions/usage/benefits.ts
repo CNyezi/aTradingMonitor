@@ -1,8 +1,11 @@
 'use server';
 
+import { db } from '@/db';
+import { subscriptions, usage } from '@/db/schema';
 import { actionResponse, ActionResult } from '@/lib/action-response';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { desc, eq } from 'drizzle-orm';
 
 const supabaseAdmin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -70,24 +73,37 @@ function createUserBenefitsFromData(
   };
 }
 
-async function fetchSubscriptionData(supabase: any, userId: string): Promise<SubscriptionData | null> {
+async function fetchSubscriptionData(
+  userId: string
+): Promise<SubscriptionData | null> {
   try {
-    const { data: subscription, error: subscriptionError } = await supabase
-      .from('subscriptions')
-      .select('plan_id, status, current_period_end, cancel_at_period_end')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const result = await db
+      .select({
+        plan_id: subscriptions.plan_id,
+        status: subscriptions.status,
+        current_period_end: subscriptions.current_period_end,
+      })
+      .from(subscriptions)
+      .where(eq(subscriptions.user_id, userId))
+      .orderBy(desc(subscriptions.created_at))
+      .limit(1);
 
-    if (subscriptionError) {
-      console.error(`Error fetching subscription data for user ${userId}:`, subscriptionError);
-      return null;
+    if (result.length > 0) {
+      const sub = result[0];
+      return {
+        ...sub,
+        current_period_end: sub.current_period_end
+          ? new Date(sub.current_period_end).toISOString()
+          : null,
+      };
     }
 
-    return subscription;
+    return null;
   } catch (error) {
-    console.error(`Unexpected error in fetchSubscriptionData for user ${userId}:`, error);
+    console.error(
+      `Unexpected error in fetchSubscriptionData for user ${userId}:`,
+      error
+    );
     return null;
   }
 }
@@ -103,21 +119,19 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
     return defaultUserBenefits;
   }
 
-  const supabase = await createClient();
-
   try {
-    const { data: usageData, error: usageError } = await supabase
-      .from('usage')
-      .select('subscription_credits_balance, one_time_credits_balance, balance_jsonb')
-      .eq('user_id', userId)
-      .maybeSingle();
+    const result = await db
+      .select({
+        subscription_credits_balance: usage.subscription_credits_balance,
+        one_time_credits_balance: usage.one_time_credits_balance,
+        balance_jsonb: usage.balance_jsonb,
+      })
+      .from(usage)
+      .where(eq(usage.user_id, userId));
 
-    if (usageError) {
-      console.error(`Error fetching usage data for user ${userId}:`, usageError);
-      // return defaultUserBenefits;
-    }
+    const usageData = result.length > 0 ? result[0] : null;
 
-    let finalUsageData: UsageData | null = usageData;
+    let finalUsageData: UsageData | null = usageData as UsageData | null;
 
     // ------------------------------------------
     // User with no usage data, it means he/she is a new user
@@ -144,54 +158,79 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
         new Date() >= new Date(currentYearlyDetails.next_credit_date)
       ) {
         const creditsToAllocate = currentYearlyDetails.monthly_credits;
-        const yearMonthToAllocate = new Date(currentYearlyDetails.next_credit_date).toISOString().slice(0, 7);
+        const yearMonthToAllocate = new Date(
+          currentYearlyDetails.next_credit_date
+        )
+          .toISOString()
+          .slice(0, 7);
 
-        console.log(`Attempting to allocate credits for user ${userId}, month ${yearMonthToAllocate}, remaining: ${currentYearlyDetails.remaining_months}`);
+        console.log(
+          `Attempting to allocate credits for user ${userId}, month ${yearMonthToAllocate}, remaining: ${currentYearlyDetails.remaining_months}`
+        );
 
-        const { error: rpcError } = await supabaseAdmin.rpc('allocate_specific_monthly_credit_for_year_plan', {
-          p_user_id: userId,
-          p_monthly_credits: creditsToAllocate,
-          p_current_yyyy_mm: yearMonthToAllocate
-        });
+        const { error: rpcError } = await supabaseAdmin.rpc(
+          'allocate_specific_monthly_credit_for_year_plan',
+          {
+            p_user_id: userId,
+            p_monthly_credits: creditsToAllocate,
+            p_current_yyyy_mm: yearMonthToAllocate,
+          }
+        );
 
         if (rpcError) {
-          console.error(`Catch-up: Error calling allocate_specific_monthly_credit_for_year_plan for user ${userId}, month ${yearMonthToAllocate}:`, rpcError);
+          console.error(
+            `Catch-up: Error calling allocate_specific_monthly_credit_for_year_plan for user ${userId}, month ${yearMonthToAllocate}:`,
+            rpcError
+          );
           break;
         } else {
-          console.log(`Catch-up: Successfully allocated or skipped for user ${userId}, month ${yearMonthToAllocate}. Re-fetching usage data.`);
-          const { data: updatedUsageData, error: refetchError } = await supabase
-            .from('usage')
-            .select('subscription_credits_balance, one_time_credits_balance, balance_jsonb')
-            .eq('user_id', userId)
-            .maybeSingle();
+          console.log(
+            `Catch-up: Successfully allocated or skipped for user ${userId}, month ${yearMonthToAllocate}. Re-fetching usage data.`
+          );
+          const updatedResult = await db
+            .select({
+              subscription_credits_balance: usage.subscription_credits_balance,
+              one_time_credits_balance: usage.one_time_credits_balance,
+              balance_jsonb: usage.balance_jsonb,
+            })
+            .from(usage)
+            .where(eq(usage.user_id, userId));
 
-          if (refetchError) {
-            console.error(`Catch-up: Error re-fetching usage data for user ${userId} after allocation:`, refetchError);
-            break;
-          }
+          const updatedUsageData =
+            updatedResult.length > 0 ? updatedResult[0] : null;
+
           if (!updatedUsageData) {
-            console.warn(`Catch-up: Usage data disappeared for user ${userId} after allocation. Stopping.`);
+            console.warn(
+              `Catch-up: Usage data disappeared for user ${userId} after allocation. Stopping.`
+            );
             finalUsageData = null;
             break;
           }
 
-          finalUsageData = updatedUsageData;
+          finalUsageData = updatedUsageData as UsageData;
           currentBalanceJsonb = finalUsageData.balance_jsonb as any;
-          currentYearlyDetails = currentBalanceJsonb?.yearly_allocation_details;
+          currentYearlyDetails =
+            currentBalanceJsonb?.yearly_allocation_details;
 
           if (!currentYearlyDetails) {
-            console.log(`Catch-up: yearly_allocation_details no longer present for user ${userId} after allocation. Stopping loop.`);
+            console.log(
+              `Catch-up: yearly_allocation_details no longer present for user ${userId} after allocation. Stopping loop.`
+            );
             break;
           }
         }
       }
       // End of Yearly Subscription Catch-up Logic
 
-      const subscription = await fetchSubscriptionData(supabase, userId);
+      const subscription = await fetchSubscriptionData(userId);
 
-      return createUserBenefitsFromData(finalUsageData, subscription, currentYearlyDetails);
+      return createUserBenefitsFromData(
+        finalUsageData,
+        subscription,
+        currentYearlyDetails
+      );
     } else {
-      const subscription = await fetchSubscriptionData(supabase, userId);
+      const subscription = await fetchSubscriptionData(userId);
 
       return createUserBenefitsFromData(null, subscription);
     }

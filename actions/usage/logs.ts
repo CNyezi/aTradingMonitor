@@ -1,11 +1,13 @@
 'use server';
 
+import { db } from '@/db';
+import { creditLogs } from '@/db/schema';
 import { actionResponse } from '@/lib/action-response';
 import { getErrorMessage } from '@/lib/error-utils';
 import { createClient } from '@/lib/supabase/server';
-import { Database } from '@/lib/supabase/types';
+import { count, desc, eq } from 'drizzle-orm';
 
-export type CreditLog = Database['public']['Tables']['credit_logs']['Row'];
+export type CreditLog = typeof creditLogs.$inferSelect;
 
 interface ListCreditLogsParams {
   pageIndex?: number;
@@ -41,24 +43,32 @@ export async function getCreditLogs({
   }
 
   try {
-    const from = pageIndex * pageSize;
-    const to = from + pageSize - 1;
+    const whereClause = eq(creditLogs.user_id, user.id);
 
-    const { data, error, count } = await supabase
-      .from('credit_logs')
-      .select('*', { count: 'exact' })
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .range(from, to);
+    const logsQuery = db
+      .select()
+      .from(creditLogs)
+      .where(whereClause)
+      .orderBy(desc(creditLogs.created_at))
+      .offset(pageIndex * pageSize)
+      .limit(pageSize);
 
-    if (error) {
-      console.error('Error fetching credit logs:', error);
-      return actionResponse.error(`Failed to fetch credit logs: ${error.message}`);
-    }
+    const totalCountQuery = db
+      .select({ value: count() })
+      .from(creditLogs)
+      .where(whereClause);
 
-    return actionResponse.success({ logs: data || [], count: count ?? 0 });
+    const [data, totalCountResult] = await Promise.all([
+      logsQuery,
+      totalCountQuery,
+    ]);
+    const totalCount = totalCountResult[0].value;
+
+    return actionResponse.success({ logs: data || [], count: totalCount ?? 0 });
   } catch (err: any) {
     console.error('Unexpected error fetching credit logs:', err);
-    return actionResponse.error(getErrorMessage(err) || 'An unexpected server error occurred.');
+    return actionResponse.error(
+      getErrorMessage(err) || 'An unexpected server error occurred.'
+    );
   }
 } 

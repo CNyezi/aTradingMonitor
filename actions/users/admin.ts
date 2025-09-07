@@ -1,10 +1,12 @@
 "use server";
 
+import { db } from '@/db';
+import { users } from '@/db/schema';
 import { actionResponse } from '@/lib/action-response';
+import { getErrorMessage } from '@/lib/error-utils';
 import { isAdmin } from '@/lib/supabase/isAdmin';
-import { Database } from '@/lib/supabase/types';
-import { UserType } from "@/types/admin/users";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { UserType } from '@/types/admin/users';
+import { count, desc, ilike, or } from 'drizzle-orm';
 
 export interface GetUsersResult {
   success: boolean;
@@ -26,41 +28,47 @@ export async function getUsers({
   pageSize?: number;
   filter?: string;
 }): Promise<GetUsersResult> {
-
   if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
+    return actionResponse.forbidden('Admin privileges required.');
   }
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  try {
+    const conditions = [];
+    if (filter) {
+      conditions.push(
+        or(
+          ilike(users.email, `%${filter}%`),
+          ilike(users.full_name, `%${filter}%`)
+        )
+      );
+    }
 
-  const from = pageIndex * pageSize;
-  const to = from + pageSize - 1;
+    const usersQuery = db
+      .select()
+      .from(users)
+      .where(conditions.length > 0 ? or(...conditions) : undefined)
+      .orderBy(desc(users.created_at))
+      .offset(pageIndex * pageSize)
+      .limit(pageSize);
 
-  let query = supabaseAdmin
-    .from("users")
-    .select("*", { count: 'exact' });
+    const totalCountQuery = db
+      .select({ value: count() })
+      .from(users)
+      .where(conditions.length > 0 ? or(...conditions) : undefined);
 
-  if (filter) {
-    const filterValue = `%${filter}%`;
-    query = query.or(
-      `email.ilike.${filterValue},full_name.ilike.${filterValue}`
-    );
+    const [results, totalCountResult] = await Promise.all([
+      usersQuery,
+      totalCountQuery,
+    ]);
+
+    const totalCount = totalCountResult[0].value;
+
+    return actionResponse.success({
+      users: results as unknown as UserType[] || [],
+      totalCount: totalCount,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return actionResponse.error(getErrorMessage(error));
   }
-
-  query = query.range(from, to).order("created_at", { ascending: false });
-
-  const { data: users, error, count } = await query;
-
-  if (error) {
-    console.error("Error fetching users:", error);
-    return actionResponse.notFound("Failed to fetch users");
-  }
-
-  return actionResponse.success({
-    users: users || [],
-    totalCount: count || 0,
-  });
 } 
