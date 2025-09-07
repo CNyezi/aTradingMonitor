@@ -1,5 +1,7 @@
 "use server";
 
+import { db } from "@/db";
+import { users as usersSchema } from "@/db/schema";
 import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { actionResponse } from "@/lib/action-response";
 import {
@@ -15,6 +17,7 @@ import {
   FULL_NAME_MAX_LENGTH,
   isValidFullName,
 } from "@/lib/validations";
+import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 
 const MAX_FILE_SIZE = AVATAR_MAX_FILE_SIZE;
@@ -101,34 +104,16 @@ export async function updateUserSettingsAction({
       }
     }
 
-    const updateData: { full_name: string; avatar_url?: string } = {
-      full_name: fullName.trim(),
-    };
-
-    if (avatarUrl) {
-      updateData.avatar_url = avatarUrl;
-    }
-
-
-    const { error: updateAuthError } = await supabase.auth.updateUser({
-      data: updateData,
-    });
-
-    if (updateAuthError) {
-      console.error("Update auth user error:", updateAuthError);
-      return actionResponse.error(t("toast.errorUpdateAuthUser"));
-    }
-
-    const { error: updateUserError } = await supabase.rpc(
-      "update_my_profile",
-      {
-        new_full_name: fullName.trim(),
-        new_avatar_url: avatarUrl || authUser.user_metadata?.avatar_url || ''
-      }
-    );
-
-    if (updateUserError) {
-      console.error("Update user profile RPC error:", updateUserError);
+    try {
+      await db
+        .update(usersSchema)
+        .set({
+          full_name: fullName.trim(),
+          avatar_url: avatarUrl || authUser.user_metadata?.avatar_url || null,
+        })
+        .where(eq(usersSchema.id, authUser.id));
+    } catch (updateUserError) {
+      console.error("Update user profile error:", updateUserError);
       return actionResponse.error(t("toast.errorUpdateUserProfile"));
     }
 
