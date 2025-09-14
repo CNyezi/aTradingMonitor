@@ -1,6 +1,6 @@
 {
   "name": "nexty",
-  "version": "2.4.4",
+  "version": "3.0.0",
   "author": {
     "name": "WeNext",
     "repository": "https://github.com/wenextdev/nexty.dev"
@@ -16,7 +16,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx db/seed.ts"
+    "db:seed": "tsx drizzle/db/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.6",
