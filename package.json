@@ -6,12 +6,17 @@
     "repository": "https://github.com/wenextdev/nexty.dev"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true next build",
-    "db:gen": "npx drizzle-kit generate"
+    "db:generate": "npx drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "tsx db/seed.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.6",

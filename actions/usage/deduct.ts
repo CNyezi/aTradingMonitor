@@ -1,12 +1,12 @@
 'use server';
 
-import { db } from '@/db';
+import { db } from '@/drizzle/db';
 import {
   creditLogs as creditLogsSchema,
   usage as usageSchema,
-} from '@/db/schema';
+} from '@/drizzle/db/schema';
 import { actionResponse, ActionResult } from '@/lib/action-response';
-import { createClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth/server';
 import { eq } from 'drizzle-orm';
 import { getUserBenefits as fetchUserBenefitsInternal, UserBenefits } from './benefits';
 
@@ -25,12 +25,9 @@ export async function deductCredits(
   amountToDeduct: number,
   notes: string,
 ): Promise<ActionResult<DeductCreditsData | null>> {
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
 
   if (amountToDeduct <= 0) {
     return actionResponse.badRequest('Amount to deduct must be positive.');
@@ -103,11 +100,9 @@ export async function deductCredits(
 }
 
 export async function getClientUserBenefits(): Promise<ActionResult<UserBenefits | null>> {
-  const supabase = await createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
   try {
     const benefits = await fetchUserBenefitsInternal(user.id);
     if (benefits) {

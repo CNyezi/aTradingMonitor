@@ -1,11 +1,12 @@
 "use client";
 
 import { updateUserSettingsAction } from "@/actions/users/settings";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { user as userSchema } from "@/drizzle/db/schema";
+import { authClient } from "@/lib/auth/auth-client";
 import {
   AVATAR_ACCEPT_ATTRIBUTE,
   AVATAR_ALLOWED_EXTENSIONS,
@@ -16,11 +17,17 @@ import {
 } from "@/lib/validations";
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+type User = typeof userSchema.$inferSelect;
+
 export default function Settings() {
-  const { user, refreshUser } = useAuth();
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const user = session?.user as User | undefined;
+
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [fullNameError, setFullNameError] = useState<string>("");
@@ -31,7 +38,7 @@ export default function Settings() {
   const locale = useLocale();
 
   useEffect(() => {
-    setFullName(user?.user_metadata?.name || "");
+    setFullName(user?.name || "");
   }, [user]);
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,11 +119,17 @@ export default function Settings() {
         description: t("toast.updateSuccessDescription"),
       });
 
-      await refreshUser();
+      await authClient.getSession({
+        query: {
+          disableCookieCache: true,
+        },
+      });
+      router.refresh();
+
       setAvatarFile(null);
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
+        // setPreviewUrl(null);
       }
       const fileInput = document.querySelector(
         'input[type="file"]'
@@ -140,6 +153,7 @@ export default function Settings() {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
       }
     };
   }, [previewUrl]);
@@ -171,12 +185,10 @@ export default function Settings() {
           <div className="flex items-center gap-4">
             <Avatar className="w-20 h-20">
               <AvatarImage
-                src={previewUrl || user?.user_metadata?.avatar_url || undefined}
-                alt={user?.user_metadata?.name || "User avatar"}
+                src={previewUrl || user?.image || undefined}
+                alt={user?.name || "User avatar"}
               />
-              <AvatarFallback>
-                {user?.user_metadata?.name?.[0] || "U"}
-              </AvatarFallback>
+              <AvatarFallback>{user?.email[0] || "U"}</AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">
               <Input

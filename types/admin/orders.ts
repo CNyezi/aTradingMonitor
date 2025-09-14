@@ -1,4 +1,4 @@
-import { orders as ordersSchema } from '@/db/schema';
+import { orders as ordersSchema } from '@/drizzle/db/schema';
 
 export type OrderWithUser = typeof ordersSchema.$inferSelect & {
   users: {

@@ -1,10 +1,10 @@
-import { db } from '@/db';
-import { pricingPlans as pricingPlansSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { pricingPlans as pricingPlansSchema } from '@/drizzle/db/schema';
 import { apiResponse } from '@/lib/api-response';
+import { getSession } from '@/lib/auth/server';
 import { getErrorMessage } from '@/lib/error-utils';
 import { getOrCreateStripeCustomer } from '@/lib/stripe/actions';
 import stripe from '@/lib/stripe/stripe';
-import { createClient } from '@/lib/supabase/server';
 import { getURL } from '@/lib/utils';
 import { eq } from 'drizzle-orm';
 import type { Stripe } from 'stripe';
@@ -16,13 +16,11 @@ type RequestData = {
 };
 
 export async function POST(req: Request) {
-  const supabase = await createClient();
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !user) {
+  const session = await getSession();
+  const user = session?.user;
+  if (!user) {
     console.error('User not authenticated.');
-    return apiResponse.unauthorized()
+    return apiResponse.unauthorized();
   }
   const userId = user.id;
 

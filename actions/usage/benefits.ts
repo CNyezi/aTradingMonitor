@@ -1,9 +1,9 @@
 'use server';
 
-import { db } from '@/db';
-import { subscriptions as subscriptionsSchema, usage as usageSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { subscriptions as subscriptionsSchema, usage as usageSchema } from '@/drizzle/db/schema';
 import { actionResponse, ActionResult } from '@/lib/action-response';
-import { createClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth/server';
 import { desc, eq } from 'drizzle-orm';
 
 export interface UserBenefits {
@@ -219,15 +219,9 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
 }
 
 export async function getClientUserBenefits(): Promise<ActionResult<UserBenefits>> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
 
   try {
     const benefits = await getUserBenefits(user.id);

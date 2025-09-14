@@ -1,7 +1,7 @@
 "use client";
 
 import { R2File } from "@/actions/r2-resources";
-import { ImagePreview } from "@/components/ImagePreview";
+import { ImagePreview } from "@/components/shared/ImagePreview";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

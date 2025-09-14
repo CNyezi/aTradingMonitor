@@ -1,7 +1,7 @@
-import { db } from "@/db";
-import { pricingPlans as pricingPlansSchema } from "@/db/schema";
+import { db } from "@/drizzle/db";
+import { pricingPlans as pricingPlansSchema } from "@/drizzle/db/schema";
+import { isAdmin } from "@/lib/auth/server";
 import { constructMetadata } from "@/lib/metadata";
-import { isAdmin } from "@/lib/supabase/isAdmin";
 import { eq } from "drizzle-orm";
 import { Metadata } from "next";
 import { Locale } from "next-intl";

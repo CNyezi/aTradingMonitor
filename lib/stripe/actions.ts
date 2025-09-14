@@ -2,17 +2,17 @@
 
 import { sendEmail } from '@/actions/resend';
 import { siteConfig } from '@/config/site';
-import { db } from '@/db';
+import { db } from '@/drizzle/db';
 import {
   pricingPlans as pricingPlansSchema,
   subscriptions as subscriptionsSchema,
   user as userSchema,
-} from '@/db/schema';
+} from '@/drizzle/db/schema';
 import { CreditUpgradeFailedEmail } from '@/emails/credit-upgrade-failed';
 import { InvoicePaymentFailedEmail } from '@/emails/invoice-payment-failed';
+import { getSession } from '@/lib/auth/server';
 import { getErrorMessage } from '@/lib/error-utils';
 import stripe from '@/lib/stripe/stripe';
-import { createClient } from '@/lib/supabase/server';
 import { eq, InferInsertModel } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -21,7 +21,6 @@ import Stripe from 'stripe';
 export async function getOrCreateStripeCustomer(
   userId: string
 ): Promise<string> {
-  const supabase = await createClient();
 
   const userProfileResults = await db
     .select({
@@ -74,21 +73,17 @@ export async function getOrCreateStripeCustomer(
       throw new Error(`Failed to update user ${userId} with Stripe customer ID ${customer.id}`);
     }
 
-
     return customer.id;
-
   } catch (error) {
-    console.error('Error creating Stripe customer or updating Supabase:', error);
+    console.error('Error creating Stripe customer or updating database:', error);
     const errorMessage = getErrorMessage(error);
     throw new Error(`Stripe customer creation/update failed: ${errorMessage}`);
   }
 }
 
 export async function createStripePortalSession(): Promise<void> {
-  const supabase = await createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const session = await getSession()
+  const user = session?.user;
 
   if (!user) {
     redirect('/login');
@@ -208,7 +203,7 @@ export async function syncSubscriptionData(
 
       if (!userProfile) {
         console.error(`DB lookup failed for customer ${customerId}:`);
-        throw new Error(`Cannot determine Supabase userId for subscription ${subscriptionId}. Critical metadata missing and DB lookup failed.`);
+        throw new Error(`Cannot determine userId for subscription ${subscriptionId}. Critical metadata missing and DB lookup failed.`);
       }
       userId = userProfile.id;
     }

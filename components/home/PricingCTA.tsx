@@ -1,10 +1,8 @@
 "use client";
 
-import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { pricingPlans as pricingPlansSchema } from "@/db/schema";
-import { DEFAULT_LOCALE, usePathname, useRouter } from "@/i18n/routing";
-import { handleLogin } from "@/lib/utils";
+import { pricingPlans as pricingPlansSchema } from "@/drizzle/db/schema";
+import { DEFAULT_LOCALE, useRouter } from "@/i18n/routing";
 import { Loader2, MousePointerClick } from "lucide-react";
 import { useLocale } from "next-intl";
 import Link from "next/link";
@@ -21,9 +19,7 @@ type Params = {
 export default function PricingCTA({ plan, localizedPlan }: Params) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
   const locale = useLocale();
-  const { showLoginDialog } = useAuth();
 
   const handleCheckout = async (applyCoupon = true) => {
     const stripePriceId = plan.stripePriceId ?? null;
@@ -67,7 +63,7 @@ export default function PricingCTA({ plan, localizedPlan }: Params) {
 
       if (!response.ok) {
         if (response.status === 401) {
-          handleLogin(router, showLoginDialog, pathname);
+          router.push("/login");
           toast.error("You must be logged in to purchase a plan.");
           return;
         }

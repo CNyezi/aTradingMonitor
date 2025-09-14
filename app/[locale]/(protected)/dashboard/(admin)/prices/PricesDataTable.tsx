@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { pricingPlans as pricingPlansSchema } from "@/db/schema";
+import { pricingPlans as pricingPlansSchema } from "@/drizzle/db/schema";
 import {
   ColumnDef,
   ColumnFiltersState,

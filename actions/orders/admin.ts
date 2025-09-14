@@ -1,10 +1,10 @@
 'use server';
 
-import { db } from '@/db';
-import { orders as ordersSchema, user as userSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { orders as ordersSchema, user as userSchema } from '@/drizzle/db/schema';
 import { ActionResult, actionResponse } from '@/lib/action-response';
+import { isAdmin } from '@/lib/auth/server';
 import { getErrorMessage } from '@/lib/error-utils';
-import { isAdmin } from '@/lib/supabase/isAdmin';
 import { OrderWithUser } from '@/types/admin/orders';
 import { and, count, desc, eq, ilike, or } from 'drizzle-orm';
 import { z } from 'zod';

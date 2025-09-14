@@ -1,11 +1,11 @@
 'use server'
 
-import { db } from '@/db'
-import { tags as tagsSchema } from '@/db/schema'
+import { db } from '@/drizzle/db'
+import { tags as tagsSchema } from '@/drizzle/db/schema'
 import { Locale } from '@/i18n/routing'
 import { actionResponse } from '@/lib/action-response'
+import { isAdmin } from '@/lib/auth/server'
 import { getErrorMessage } from '@/lib/error-utils'
-import { isAdmin } from '@/lib/supabase/isAdmin'
 import { and, asc, eq, ilike, not } from 'drizzle-orm'
 
 export type Tag = typeof tagsSchema.$inferSelect

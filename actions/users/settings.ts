@@ -1,16 +1,16 @@
 "use server";
 
-import { db } from "@/db";
-import { user as userSchema } from "@/db/schema";
+import { db } from "@/drizzle/db";
+import { user as userSchema } from "@/drizzle/db/schema";
 import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { actionResponse } from "@/lib/action-response";
+import { getSession } from "@/lib/auth/server";
 import {
   deleteFile,
   generateR2Key,
   serverUploadFile,
 } from "@/lib/cloudflare/r2";
 import { getErrorMessage } from "@/lib/error-utils";
-import { createClient } from "@/lib/supabase/server";
 import {
   AVATAR_ALLOWED_FILE_TYPES,
   AVATAR_MAX_FILE_SIZE,
@@ -33,15 +33,10 @@ export async function updateUserSettingsAction({
   locale = DEFAULT_LOCALE,
 }: UpdateUserSettingsParams) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const session = await getSession()
+    const authUser = session?.user;
 
-    if (authError || !authUser) {
-      return actionResponse.unauthorized();
-    }
+    if (!authUser) return actionResponse.unauthorized();
 
     const t = await getTranslations({
       locale,
@@ -85,9 +80,9 @@ export async function updateUserSettingsAction({
           key: key,
         });
 
-        if (authUser.user_metadata?.avatar_url) {
+        if (authUser.image) {
           try {
-            const oldAvatarUrl = authUser.user_metadata.avatar_url as string;
+            const oldAvatarUrl = authUser.image as string;
             const oldPath = new URL(oldAvatarUrl).pathname.split('/').slice(-3).join('/');
 
             if (oldPath.startsWith(`avatars/${authUser.id}/`)) {
@@ -109,7 +104,7 @@ export async function updateUserSettingsAction({
         .update(userSchema)
         .set({
           name: fullName.trim(),
-          image: avatarUrl || authUser.user_metadata?.avatar_url || null,
+          image: avatarUrl || authUser.image || null,
         })
         .where(eq(userSchema.id, authUser.id));
     } catch (updateUserError) {

@@ -1,12 +1,11 @@
 'use server'
 
-import { db } from '@/db'
-import { pricingPlans as pricingPlansSchema } from '@/db/schema'
+import { db } from '@/drizzle/db'
+import { pricingPlans as pricingPlansSchema } from '@/drizzle/db/schema'
 import { DEFAULT_LOCALE } from '@/i18n/routing'
 import { actionResponse, ActionResult } from '@/lib/action-response'
+import { isAdmin } from '@/lib/auth/server'
 import { getErrorMessage } from '@/lib/error-utils'
-import { isAdmin } from '@/lib/supabase/isAdmin'
-import { Json } from '@/lib/supabase/types'
 import { asc, eq } from 'drizzle-orm'
 import { getTranslations } from 'next-intl/server'
 import 'server-only'
@@ -146,9 +145,9 @@ export async function createPricingPlanAction({
         buttonLink: planData.buttonLink,
         displayOrder: planData.displayOrder ?? 0,
         isActive: planData.isActive ?? true,
-        features: (planData.features || []) as unknown as Json,
-        langJsonb: (planData.langJsonb || {}) as unknown as Json,
-        benefitsJsonb: (planData.benefitsJsonb || {}) as unknown as Json,
+        features: (planData.features || []),
+        langJsonb: (planData.langJsonb || {}),
+        benefitsJsonb: (planData.benefitsJsonb || {}),
       })
       .returning()
 
@@ -231,14 +230,14 @@ export async function updatePricingPlanAction({
     }
 
     if (planData.features !== undefined) {
-      dataToUpdate.features = (planData.features || []) as unknown as Json
+      dataToUpdate.features = (planData.features || [])
     }
     if (planData.langJsonb !== undefined) {
-      dataToUpdate.langJsonb = (planData.langJsonb || {}) as unknown as Json
+      dataToUpdate.langJsonb = (planData.langJsonb || {})
     }
     if (planData.benefitsJsonb !== undefined) {
       dataToUpdate.benefitsJsonb =
-        (planData.benefitsJsonb || {}) as unknown as Json
+        (planData.benefitsJsonb || {})
     }
 
     const [updatedPlan] = await db

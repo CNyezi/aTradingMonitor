@@ -1,5 +1,5 @@
-import { ImagePreview } from "@/components/ImagePreview";
 import FeatureBadge from "@/components/shared/FeatureBadge";
+import { ImagePreview } from "@/components/shared/ImagePreview";
 import {
   Carousel,
   CarouselContent,

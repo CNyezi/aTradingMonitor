@@ -23,6 +23,7 @@ export const user = pgTable('user', {
   name: text("name"), // better-auth
   image: text("image"), // better-auth
   role: userRoleEnum('role').default('user').notNull(),
+  isAnonymous: boolean('is_anonymous').default(false).notNull(),
   referral: text('referral'),
   stripeCustomerId: text("stripe_customer_id").unique(),
   banned: boolean('banned'),

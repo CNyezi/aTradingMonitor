@@ -7,7 +7,7 @@ const TOLT_ID = process.env.NEXT_PUBLIC_TOLT_ID;
 const ToltScript = () => {
   return (
     <>
-      {TOLT_ID ? (
+      {TOLT_ID && process.env.NODE_ENV === "production" ? (
         <Script
           id="tolt-script"
           strategy="afterInteractive"

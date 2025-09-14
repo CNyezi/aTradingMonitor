@@ -12,7 +12,7 @@
 import { getPublicPricingPlans } from "@/actions/prices/public";
 import { PricingCardDisplay } from "@/components/home/PricingCardDisplay";
 import FeatureBadge from "@/components/shared/FeatureBadge";
-import { pricingPlans as pricingPlansSchema } from "@/db/schema";
+import { pricingPlans as pricingPlansSchema } from "@/drizzle/db/schema";
 import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { PricingPlanLangJsonb } from "@/types/pricing";
 import { getLocale, getTranslations } from "next-intl/server";

@@ -15,7 +15,7 @@
 export const runtime = "edge"; // if deploy to vercel/netlify/cloudflare, use edge runtime
 
 import { apiResponse } from "@/lib/api-response";
-import { isAdmin } from "@/lib/supabase/isAdmin";
+import { isAdmin } from "@/lib/auth/server";
 import { anthropic } from "@ai-sdk/anthropic";
 import { deepseek } from "@ai-sdk/deepseek";
 import { google } from "@ai-sdk/google";

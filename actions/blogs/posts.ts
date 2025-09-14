@@ -1,12 +1,11 @@
 'use server'
 
 import { postActionSchema } from '@/app/[locale]/(protected)/dashboard/(admin)/blogs/schema'
-import { db } from '@/db'
-import { posts as postsSchema, postTags as postTagsSchema, subscriptions as subscriptionsSchema, tags as tagsSchema } from '@/db/schema'
+import { db } from '@/drizzle/db'
+import { posts as postsSchema, postTags as postTagsSchema, subscriptions as subscriptionsSchema, tags as tagsSchema } from '@/drizzle/db/schema'
 import { actionResponse } from '@/lib/action-response'
+import { getSession, isAdmin } from '@/lib/auth/server'
 import { getErrorMessage } from '@/lib/error-utils'
-import { isAdmin } from '@/lib/supabase/isAdmin'
-import { createClient } from '@/lib/supabase/server'
 import { Tag } from '@/types/blog'
 import { and, count, desc, eq, getTableColumns, ilike, inArray, or, sql } from 'drizzle-orm'
 import { getTranslations } from 'next-intl/server'
@@ -236,14 +235,9 @@ export async function createPostAction({
     return actionResponse.forbidden('Admin privileges required.')
   }
 
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (userError || !user) {
-    return actionResponse.unauthorized()
-  }
+  const session = await getSession()
+  const user = session?.user
+  if (!user) return actionResponse.unauthorized()
   const authorId = user.id
 
   const { tags: inputTags, ...postData } = validatedFields.data
@@ -630,11 +624,8 @@ export async function getPublishedPostBySlugAction({
     let restrictionCustomCode: string | undefined = undefined
 
     if (post.visibility === 'logged_in' || post.visibility === 'subscribers') {
-      const supabase = await createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
+      const session = await getSession()
+      const user = session?.user
       if (!user) {
         finalContent = ''
         restrictionCustomCode = 'unauthorized'

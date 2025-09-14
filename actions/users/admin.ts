@@ -1,10 +1,10 @@
 "use server";
 
-import { db } from '@/db';
-import { user as userSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { user as userSchema } from '@/drizzle/db/schema';
 import { actionResponse } from '@/lib/action-response';
+import { isAdmin } from '@/lib/auth/server';
 import { getErrorMessage } from '@/lib/error-utils';
-import { isAdmin } from '@/lib/supabase/isAdmin';
 import { count, desc, ilike, or } from 'drizzle-orm';
 
 type UserType = typeof userSchema.$inferSelect;

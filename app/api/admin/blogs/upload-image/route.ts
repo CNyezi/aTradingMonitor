@@ -19,9 +19,9 @@ export const runtime = "edge";
 import { BLOGS_IMAGE_PATH } from '@/config/common';
 import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { apiResponse } from '@/lib/api-response';
+import { isAdmin } from '@/lib/auth/server';
 import { generateR2Key, serverUploadFile } from '@/lib/cloudflare/r2';
 import { getErrorMessage } from '@/lib/error-utils';
-import { isAdmin } from '@/lib/supabase/isAdmin';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 

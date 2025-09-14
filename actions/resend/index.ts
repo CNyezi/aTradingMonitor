@@ -2,19 +2,22 @@
 
 import { actionResponse } from '@/lib/action-response';
 import resend from '@/lib/resend';
+import * as React from 'react';
 
 const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID!;
 
 interface SendEmailProps {
   email: string;
   subject: string;
-  react: React.ReactNode;
+  react: React.ComponentType<any> | React.ReactElement;
+  reactProps?: Record<string, any>;
 }
 
 export async function sendEmail({
   email,
   subject,
   react,
+  reactProps,
 }: SendEmailProps) {
   try {
     if (!email) {
@@ -37,11 +40,15 @@ export async function sendEmail({
     const unsubscribeToken = Buffer.from(email).toString('base64');
     const unsubscribeLinkEN = `${process.env.NEXT_PUBLIC_SITE_URL}/unsubscribe/newsletter?token=${unsubscribeToken}`;
 
+    const emailContent = reactProps
+      ? React.createElement(react as React.ComponentType<any>, reactProps)
+      : (react as React.ReactElement);
+
     await resend.emails.send({
       from,
       to,
       subject,
-      react,
+      react: emailContent,
       headers: {
         "List-Unsubscribe": `<${unsubscribeLinkEN}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"

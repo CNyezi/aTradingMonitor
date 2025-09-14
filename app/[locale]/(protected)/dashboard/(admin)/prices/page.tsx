@@ -1,6 +1,6 @@
 import { getAdminPricingPlans } from "@/actions/prices/admin";
 import { Button } from "@/components/ui/button";
-import { pricingPlans as pricingPlansSchema } from "@/db/schema";
+import { pricingPlans as pricingPlansSchema } from "@/drizzle/db/schema";
 import { Link as I18nLink, Locale } from "@/i18n/routing";
 import { constructMetadata } from "@/lib/metadata";
 import { PlusCircle } from "lucide-react";

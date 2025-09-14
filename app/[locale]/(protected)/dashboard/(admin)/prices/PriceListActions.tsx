@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { pricingPlans as pricingPlansSchema } from "@/db/schema";
+import { pricingPlans as pricingPlansSchema } from "@/drizzle/db/schema";
 import { DEFAULT_LOCALE, Link as I18nLink, useRouter } from "@/i18n/routing";
 import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";

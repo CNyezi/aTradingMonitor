@@ -1,10 +1,10 @@
 'use server';
 
-import { db } from '@/db';
-import { creditLogs as creditLogsSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { creditLogs as creditLogsSchema } from '@/drizzle/db/schema';
 import { actionResponse } from '@/lib/action-response';
+import { getSession } from '@/lib/auth/server';
 import { getErrorMessage } from '@/lib/error-utils';
-import { createClient } from '@/lib/supabase/server';
 import { count, desc, eq } from 'drizzle-orm';
 
 export type CreditLog = typeof creditLogsSchema.$inferSelect;
@@ -31,16 +31,9 @@ export async function getCreditLogs({
   pageIndex = 0,
   pageSize = 20,
 }: ListCreditLogsParams = {}): Promise<ListCreditLogsResult> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
 
   try {
     const whereClause = eq(creditLogsSchema.userId, user.id);

@@ -1,20 +1,17 @@
-import { db } from '@/db';
-import { orders as ordersSchema, subscriptions as subscriptionsSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { orders as ordersSchema, subscriptions as subscriptionsSchema } from '@/drizzle/db/schema';
 import { apiResponse } from '@/lib/api-response';
+import { getSession } from '@/lib/auth/server';
 import { syncSubscriptionData } from '@/lib/stripe/actions';
 import stripe from '@/lib/stripe/stripe';
-import { createClient } from '@/lib/supabase/server';
 import { and, eq, inArray } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return apiResponse.unauthorized();
-  }
+  const session = await getSession();
+  const user = session?.user;
+  if (!user) return apiResponse.unauthorized();
 
   const sessionId = req.nextUrl.searchParams.get('session_id');
   if (!sessionId) {
@@ -49,7 +46,7 @@ export async function GET(req: NextRequest) {
         }
 
         try {
-          await syncSubscriptionData(subId, custId, session.metadata);
+          await syncSubscriptionData(subId, custId, session.metadata || undefined);
         } catch (syncError) {
           console.error(`[Verify API] Error during fallback sync for session ${sessionId}:`, syncError);
         }

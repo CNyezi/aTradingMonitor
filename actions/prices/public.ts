@@ -1,7 +1,7 @@
 'use server';
 
-import { db } from '@/db';
-import { pricingPlans as pricingPlansSchema } from '@/db/schema';
+import { db } from '@/drizzle/db';
+import { pricingPlans as pricingPlansSchema } from '@/drizzle/db/schema';
 import { actionResponse, ActionResult } from '@/lib/action-response';
 import { getErrorMessage } from '@/lib/error-utils';
 import { and, asc, eq } from 'drizzle-orm';
