@@ -45,7 +45,7 @@ export function UserInfo({ renderContainer, user }: UserInfoProps) {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.replace("/");
+          router.refresh();
         },
       },
     });
