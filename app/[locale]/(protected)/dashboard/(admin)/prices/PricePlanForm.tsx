@@ -34,9 +34,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DEFAULT_LOCALE, LOCALES, useRouter } from "@/i18n/routing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { extractJsonFromText, isValidJsonString } from "@/lib/safeJson";
 import { formatCurrency } from "@/lib/utils";
-import { PricingPlan } from "@/types/pricing";
 import { useCompletion } from "@ai-sdk/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -58,6 +58,8 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { PricingCardPreview } from "./PricingCardPreview";
 
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
+
 const featureSchema = z.object({
   description: z.string().min(1, "Feature description cannot be empty."),
   included: z.boolean().default(true).optional(),
@@ -69,33 +71,33 @@ const pricingPlanFormSchema = z.object({
   environment: z.enum(["test", "live"], {
     required_error: "Environment is required.",
   }),
-  card_title: z.string().min(1, "Card title is required."),
-  card_description: z.string().optional().nullable(),
-  stripe_price_id: z.string().optional().nullable(),
-  stripe_product_id: z.string().optional().nullable(),
-  stripe_coupon_id: z.string().optional().nullable(),
-  enable_manual_input_coupon: z.boolean().optional().nullable(),
-  payment_type: z.string().optional().nullable(),
-  recurring_interval: z.string().optional().nullable(),
+  cardTitle: z.string().min(1, "Card title is required."),
+  cardDescription: z.string().optional().nullable(),
+  stripePriceId: z.string().optional().nullable(),
+  stripeProductId: z.string().optional().nullable(),
+  stripeCouponId: z.string().optional().nullable(),
+  enableManualInputCoupon: z.boolean().optional().nullable(),
+  paymentType: z.string().optional().nullable(),
+  recurringInterval: z.string().optional().nullable(),
   price: z.number().optional().nullable(),
   currency: z.string().optional().nullable(),
-  display_price: z.string().optional().nullable(),
-  original_price: z.string().optional().nullable(),
-  price_suffix: z.string().optional().nullable(),
+  displayPrice: z.string().optional().nullable(),
+  originalPrice: z.string().optional().nullable(),
+  priceSuffix: z.string().optional().nullable(),
   features: z.array(featureSchema).default([]).optional(),
-  is_highlighted: z.boolean().optional().nullable(),
-  highlight_text: z.string().optional().nullable(),
-  button_text: z.string().optional().nullable(),
-  button_link: z.string().optional().nullable(),
-  display_order: z.coerce.number().int().optional().nullable(),
-  is_active: z.boolean().optional().nullable(),
-  lang_jsonb: z
+  isHighlighted: z.boolean().optional().nullable(),
+  highlightText: z.string().optional().nullable(),
+  buttonText: z.string().optional().nullable(),
+  buttonLink: z.string().optional().nullable(),
+  displayOrder: z.coerce.number().int().optional().nullable(),
+  isActive: z.boolean().optional().nullable(),
+  langJsonb: z
     .string()
     .refine(isValidJsonString, { message: "Must be valid JSON or empty." })
     .transform((val) => (val.trim() ? JSON.parse(val) : null))
     .nullable()
     .optional(),
-  benefits_jsonb: z
+  benefitsJsonb: z
     .string()
     .refine(isValidJsonString, { message: "Must be valid JSON or empty." })
     .transform((val) => (val.trim() ? JSON.parse(val) : null))
@@ -130,20 +132,19 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
     resolver: zodResolver(pricingPlanFormSchema),
     defaultValues: {
       environment: initialData?.environment ?? "test",
-      card_title: initialData?.card_title ?? "",
-      card_description: initialData?.card_description ?? "",
-      stripe_price_id: initialData?.stripe_price_id ?? "",
-      stripe_product_id: initialData?.stripe_product_id ?? "",
-      stripe_coupon_id: initialData?.stripe_coupon_id ?? "",
-      enable_manual_input_coupon:
-        initialData?.enable_manual_input_coupon ?? false,
-      payment_type: initialData?.payment_type ?? "",
-      recurring_interval: initialData?.recurring_interval ?? "",
-      price: initialData?.price ?? undefined,
+      cardTitle: initialData?.cardTitle ?? "",
+      cardDescription: initialData?.cardDescription ?? "",
+      stripePriceId: initialData?.stripePriceId ?? "",
+      stripeProductId: initialData?.stripeProductId ?? "",
+      stripeCouponId: initialData?.stripeCouponId ?? "",
+      enableManualInputCoupon: initialData?.enableManualInputCoupon ?? false,
+      paymentType: initialData?.paymentType ?? "",
+      recurringInterval: initialData?.recurringInterval ?? "",
+      price: Number(initialData?.price) ?? undefined,
       currency: initialData?.currency ?? "",
-      display_price: initialData?.display_price ?? "",
-      original_price: initialData?.original_price ?? "",
-      price_suffix: initialData?.price_suffix ?? "",
+      displayPrice: initialData?.displayPrice ?? "",
+      originalPrice: initialData?.originalPrice ?? "",
+      priceSuffix: initialData?.priceSuffix ?? "",
       features:
         initialData?.features && Array.isArray(initialData.features)
           ? initialData.features.map((f: any) => ({
@@ -153,17 +154,17 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               href: f?.href ?? "",
             }))
           : [],
-      is_highlighted: initialData?.is_highlighted ?? false,
-      highlight_text: initialData?.highlight_text ?? "",
-      button_text: initialData?.button_text ?? "",
-      button_link: initialData?.button_link ?? "",
-      display_order: initialData?.display_order ?? 0,
-      is_active: initialData?.is_active ?? true,
-      lang_jsonb: initialData?.lang_jsonb
-        ? JSON.stringify(initialData.lang_jsonb, null, 2)
+      isHighlighted: initialData?.isHighlighted ?? false,
+      highlightText: initialData?.highlightText ?? "",
+      buttonText: initialData?.buttonText ?? "",
+      buttonLink: initialData?.buttonLink ?? "",
+      displayOrder: initialData?.displayOrder ?? 0,
+      isActive: initialData?.isActive ?? true,
+      langJsonb: initialData?.langJsonb
+        ? JSON.stringify(initialData.langJsonb, null, 2)
         : "",
-      benefits_jsonb: initialData?.benefits_jsonb
-        ? JSON.stringify(initialData.benefits_jsonb, null, 2)
+      benefitsJsonb: initialData?.benefitsJsonb
+        ? JSON.stringify(initialData.benefitsJsonb, null, 2)
         : "",
     },
   });
@@ -174,26 +175,26 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   });
 
   const watchedValues = useWatch({ control: form.control });
-  const watchStripePriceId = form.watch("stripe_price_id");
+  const watchStripePriceId = form.watch("stripePriceId");
   const watchEnvironment = form.watch("environment");
-  const watchIsHighlighted = form.watch("is_highlighted");
-  const watchStripeCouponId = form.watch("stripe_coupon_id");
+  const watchIsHighlighted = form.watch("isHighlighted");
+  const watchStripeCouponId = form.watch("stripeCouponId");
 
   useEffect(() => {
-    if (watchStripePriceId !== initialData?.stripe_price_id) {
-      form.setValue("stripe_product_id", "", { shouldValidate: true });
-      form.setValue("payment_type", "", { shouldValidate: true });
-      form.setValue("recurring_interval", "", { shouldValidate: true });
+    if (watchStripePriceId !== initialData?.stripePriceId) {
+      form.setValue("stripeProductId", "", { shouldValidate: true });
+      form.setValue("paymentType", "", { shouldValidate: true });
+      form.setValue("recurringInterval", "", { shouldValidate: true });
       form.setValue("price", undefined, { shouldValidate: true });
       form.setValue("currency", "", { shouldValidate: true });
     }
-  }, [watchStripePriceId, initialData?.stripe_price_id]);
+  }, [watchStripePriceId, initialData?.stripePriceId]);
 
   useEffect(() => {
     const calculateDisplayPrice = async () => {
       const numericPrice = form.getValues("price");
       const currency = form.getValues("currency");
-      const originalPrice = form.getValues("original_price");
+      const originalPrice = form.getValues("originalPrice");
 
       if (
         numericPrice === null ||
@@ -205,14 +206,14 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       }
 
       if (!watchStripeCouponId) {
-        form.setValue("display_price", originalPrice);
-        form.setValue("enable_manual_input_coupon", false);
+        form.setValue("displayPrice", originalPrice);
+        form.setValue("enableManualInputCoupon", false);
         return;
       }
 
       const coupon = coupons.find((c) => c.id === watchStripeCouponId);
       if (!coupon) {
-        form.setValue("display_price", originalPrice);
+        form.setValue("displayPrice", originalPrice);
         return;
       }
 
@@ -223,7 +224,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       } else if (coupon.amount_off) {
         discountedPrice = numericPrice - coupon.amount_off / 100;
       } else {
-        form.setValue("display_price", originalPrice);
+        form.setValue("displayPrice", originalPrice);
         return;
       }
 
@@ -233,7 +234,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
         discountedPrice,
         currency
       );
-      form.setValue("display_price", formattedDiscountedPrice, {
+      form.setValue("displayPrice", formattedDiscountedPrice, {
         shouldValidate: true,
       });
     };
@@ -267,7 +268,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   }, [watchEnvironment]);
 
   const handleStripeVerify = async () => {
-    const priceId = form.getValues("stripe_price_id");
+    const priceId = form.getValues("stripePriceId");
     const environment = form.getValues("environment");
     if (!priceId) {
       toast.error(t("stripePriceIdRequired"));
@@ -294,14 +295,14 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
         throw new Error(result.error || t("verifyStripeError2"));
       }
 
-      form.setValue("stripe_product_id", result.data.productId, {
+      form.setValue("stripeProductId", result.data.productId, {
         shouldValidate: true,
       });
-      form.setValue("payment_type", result.data.paymentType, {
+      form.setValue("paymentType", result.data.paymentType, {
         shouldValidate: true,
       });
       form.setValue(
-        "recurring_interval",
+        "recurringInterval",
         result.data.recurring?.interval || "-",
         {
           shouldValidate: true,
@@ -319,20 +320,20 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       form.setValue("currency", currency, { shouldValidate: true });
 
       const formattedPrice = await formatCurrency(priceInCorrectUnit, currency);
-      form.setValue("original_price", formattedPrice, {
+      form.setValue("originalPrice", formattedPrice, {
         shouldValidate: true,
       });
-      if (!form.getValues("display_price")) {
-        form.setValue("display_price", formattedPrice, {
+      if (!form.getValues("displayPrice")) {
+        form.setValue("displayPrice", formattedPrice, {
           shouldValidate: true,
         });
       }
-      if (!form.getValues("price_suffix")) {
-        form.setValue("price_suffix", result.data.recurring?.interval, {
+      if (!form.getValues("priceSuffix")) {
+        form.setValue("priceSuffix", result.data.recurring?.interval, {
           shouldValidate: true,
         });
       }
-      form.setValue("button_link", "", { shouldValidate: true });
+      form.setValue("buttonLink", "", { shouldValidate: true });
 
       toast.success(t("stripePriceIdVerified"));
     } catch (error: any) {
@@ -341,9 +342,9 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
         description: error.message || error.props,
       });
       // Optional
-      // form.setValue("stripe_product_id", "");
-      // form.setValue("payment_type", "");
-      // form.setValue("recurring_interval", "");
+      // form.setValue("stripeProductId", "");
+      // form.setValue("paymentType", "");
+      // form.setValue("recurringInterval", "");
       // form.setValue("price", undefined);
       // form.setValue("currency", "");
     } finally {
@@ -357,13 +358,13 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
     const currentLocale = (locale || DEFAULT_LOCALE) as string;
 
     const jsonTemplate = {
-      card_title: currentValues.card_title || "",
-      card_description: currentValues.card_description || "",
-      display_price: currentValues.display_price || "",
-      original_price: currentValues.original_price || "",
+      cardTitle: currentValues.cardTitle || "",
+      cardDescription: currentValues.cardDescription || "",
+      displayPrice: currentValues.displayPrice || "",
+      originalPrice: currentValues.originalPrice || "",
       currency:
         currentValues.currency || process.env.NEXT_PUBLIC_DEFAULT_CURRENCY,
-      price_suffix: currentValues.price_suffix || "",
+      priceSuffix: currentValues.priceSuffix || "",
       features:
         currentValues.features && currentValues.features.length > 0
           ? currentValues.features.map((f) => ({
@@ -373,20 +374,20 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               href: f?.href ?? "",
             }))
           : [],
-      highlight_text: currentValues.highlight_text || "",
-      button_text: currentValues.button_text || "",
+      highlightText: currentValues.highlightText || "",
+      buttonText: currentValues.buttonText || "",
     };
 
     const emptyTemplate = {
-      card_title: "",
-      card_description: "",
-      display_price: "",
-      original_price: "",
+      cardTitle: "",
+      cardDescription: "",
+      displayPrice: "",
+      originalPrice: "",
       currency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY,
-      price_suffix: "",
+      priceSuffix: "",
       features: [],
-      highlight_text: "",
-      button_text: "",
+      highlightText: "",
+      buttonText: "",
     };
 
     const otherLocales = locales.filter((l) => l !== currentLocale);
@@ -406,7 +407,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   const generateLangTemplate = async () => {
     const template = await getLangTemplate();
 
-    form.setValue("lang_jsonb", JSON.stringify(template, null, 2), {
+    form.setValue("langJsonb", JSON.stringify(template, null, 2), {
       shouldValidate: true,
     });
     toast.info(t("multiLanguageTemplateGenerated"));
@@ -417,7 +418,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   ) => {
     e.preventDefault();
     const template = await getLangTemplate();
-    form.setValue("lang_jsonb", "", { shouldValidate: true });
+    form.setValue("langJsonb", "", { shouldValidate: true });
 
     const prompt = `This is the multilingual configuration for a SaaS product's pricing card. The copy for the default language (${DEFAULT_LOCALE}) is provided below. Acting as a translation expert, please complete the copy for the other languages within the JSON structure, prices and currency units must remain untouched. Ensure all translations are natural and idiomatic, suitable for native speakers. Here is the template: ${JSON.stringify(
       template,
@@ -441,18 +442,18 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
       provider: process.env.NEXT_PUBLIC_AI_PROVIDER || "",
     },
     onResponse: (response) => {
-      // form.setValue("lang_jsonb", completion, { shouldValidate: true });
+      // form.setValue("langJsonb", completion, { shouldValidate: true });
     },
     onFinish: (prompt: string, completion: string) => {
       const extractedJson = extractJsonFromText(completion);
       if (extractedJson) {
-        form.setValue("lang_jsonb", extractedJson, { shouldValidate: true });
+        form.setValue("langJsonb", extractedJson, { shouldValidate: true });
       } else {
         console.warn("AI response does not contain valid JSON:", completion);
         toast.error(
           "Translation completed but the response is not valid JSON. Please check and correct manually."
         );
-        form.setValue("lang_jsonb", completion, { shouldValidate: false });
+        form.setValue("langJsonb", completion, { shouldValidate: false });
       }
     },
     onError: (error: any) => {
@@ -471,12 +472,12 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
     if (completion) {
       const extractedJson = extractJsonFromText(completion);
       if (extractedJson) {
-        form.setValue("lang_jsonb", extractedJson, {
+        form.setValue("langJsonb", extractedJson, {
           shouldValidate: true,
           shouldDirty: true,
         });
       } else {
-        form.setValue("lang_jsonb", completion, {
+        form.setValue("langJsonb", completion, {
           shouldValidate: false,
           shouldDirty: true,
         });
@@ -484,7 +485,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
     }
   }, [completion]);
 
-  const handleFormatJson = (fieldName: "lang_jsonb" | "benefits_jsonb") => {
+  const handleFormatJson = (fieldName: "langJsonb" | "benefitsJsonb") => {
     const currentValue = form.getValues(fieldName);
     if (
       !currentValue ||
@@ -516,8 +517,8 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
   };
 
   const onSubmit = async (values: PricingPlanFormValues) => {
-    const langJsonError = form.getFieldState("lang_jsonb").error;
-    const benefitsJsonError = form.getFieldState("benefits_jsonb").error;
+    const langJsonError = form.getFieldState("langJsonb").error;
+    const benefitsJsonError = form.getFieldState("benefitsJsonb").error;
 
     if (langJsonError || benefitsJsonError) {
       toast.error("Please fix JSON format errors before submitting.");
@@ -608,7 +609,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="card_title"
+                  name="cardTitle"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("cardTitle")} *</FormLabel>
@@ -625,7 +626,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="card_description"
+                  name="cardDescription"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("cardDescription")}</FormLabel>
@@ -654,7 +655,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="stripe_price_id"
+                  name="stripePriceId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stripe Price ID</FormLabel>
@@ -696,7 +697,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="stripe_product_id"
+                  name="stripeProductId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stripe Product ID</FormLabel>
@@ -717,7 +718,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="payment_type"
+                    name="paymentType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Payment Type</FormLabel>
@@ -736,7 +737,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="recurring_interval"
+                    name="recurringInterval"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Recurring Interval</FormLabel>
@@ -807,7 +808,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
 
                 <FormField
                   control={form.control}
-                  name="stripe_coupon_id"
+                  name="stripeCouponId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stripe Coupon</FormLabel>
@@ -863,7 +864,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                                 size="icon"
                                 className="text-muted-foreground"
                                 onClick={() =>
-                                  form.setValue("stripe_coupon_id", "", {
+                                  form.setValue("stripeCouponId", "", {
                                     shouldValidate: true,
                                   })
                                 }
@@ -885,7 +886,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 {watchStripeCouponId && (
                   <FormField
                     control={form.control}
-                    name="enable_manual_input_coupon"
+                    name="enableManualInputCoupon"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
@@ -919,7 +920,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="display_price"
+                    name="displayPrice"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("displayPrice")}</FormLabel>
@@ -940,7 +941,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="original_price"
+                    name="originalPrice"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("displayOriginalPrice")}</FormLabel>
@@ -963,7 +964,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="price_suffix"
+                    name="priceSuffix"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("displayPriceSuffix")}</FormLabel>
@@ -1102,7 +1103,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 {/* Highlight Section */}
                 <FormField
                   control={form.control}
-                  name="is_highlighted"
+                  name="isHighlighted"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
@@ -1126,7 +1127,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 {watchIsHighlighted && (
                   <FormField
                     control={form.control}
-                    name="highlight_text"
+                    name="highlightText"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t("highlightText")}</FormLabel>
@@ -1150,7 +1151,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 {/* Button Configuration */}
                 <FormField
                   control={form.control}
-                  name="button_text"
+                  name="buttonText"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("buttonText")}</FormLabel>
@@ -1171,7 +1172,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="button_link"
+                  name="buttonLink"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("buttonLink")}</FormLabel>
@@ -1243,7 +1244,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 </div>
                 <FormField
                   control={form.control}
-                  name="lang_jsonb"
+                  name="langJsonb"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("languageJSON")}</FormLabel>
@@ -1252,7 +1253,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                           placeholder={
                             isTranslating
                               ? "Translating..."
-                              : `{ "zh": { "card_title": "Nexty.dev 高级启动模板", ... }, "jp": { "card_title": "Nexty.dev 高級起動テンプレート", ... } }`
+                              : `{ "zh": { "cardTitle": "Nexty.dev 高级启动模板", ... }, "jp": { "cardTitle": "Nexty.dev 高級起動テンプレート", ... } }`
                           }
                           {...field}
                           value={field.value ?? ""}
@@ -1282,7 +1283,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               <CardContent>
                 <FormField
                   control={form.control}
-                  name="benefits_jsonb"
+                  name="benefitsJsonb"
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex justify-between items-center mb-1">
@@ -1291,7 +1292,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => handleFormatJson("benefits_jsonb")}
+                          onClick={() => handleFormatJson("benefitsJsonb")}
                           disabled={isLoading}
                           className="gap-1"
                         >
@@ -1301,7 +1302,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                       </div>
                       <FormControl>
                         <Textarea
-                          placeholder={`{\n  "monthly_credits": 500,\n  "one_time_credits": 0,\n  "other_feature": true\n}`}
+                          placeholder={`{\n  "monthlyCredits": 500,\n  "oneTimeCredits": 0,\n  "otherFeature": true\n}`}
                           {...field}
                           value={field.value ?? ""}
                           rows={8}
@@ -1329,7 +1330,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
               <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="display_order"
+                  name="displayOrder"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("displayOrder")}</FormLabel>
@@ -1350,7 +1351,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="is_active"
+                  name="isActive"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
@@ -1412,7 +1413,7 @@ export function PricePlanForm({ initialData, planId }: PricePlanFormProps) {
             <PricingCardPreview
               watchedValues={
                 isTranslating
-                  ? { ...watchedValues, lang_jsonb: "" }
+                  ? { ...watchedValues, langJsonb: "" }
                   : watchedValues
               }
             />

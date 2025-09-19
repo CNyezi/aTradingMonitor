@@ -2,8 +2,8 @@ export const maxDuration = 30;
 
 import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { apiResponse } from '@/lib/api-response';
-import stripe from '@/lib/stripe/stripe';
-import { isAdmin } from '@/lib/supabase/isAdmin';
+import { isAdmin } from '@/lib/auth/server';
+import { stripe } from '@/lib/stripe';
 import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { NextRequest } from 'next/server';

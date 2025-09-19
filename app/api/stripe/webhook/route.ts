@@ -1,7 +1,7 @@
+import { handleCheckoutSessionCompleted, handleInvoicePaid, handleInvoicePaymentFailed, handleRefund, handleSubscriptionUpdate } from '@/actions/stripe/webhook-handlers';
 import { apiResponse } from '@/lib/api-response';
 import { getErrorMessage } from '@/lib/error-utils';
-import stripe from '@/lib/stripe/stripe';
-import { handleCheckoutSessionCompleted, handleInvoicePaid, handleInvoicePaymentFailed, handleRefund, handleSubscriptionUpdate } from '@/lib/stripe/webhook-handlers';
+import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import { after } from 'next/server';
 import Stripe from 'stripe';

@@ -94,10 +94,6 @@ function ContentToolbar({
 }: ContentToolbarProps) {
   const t = useTranslations("DashboardBlogs.Form.toolbar");
 
-  const showTooltip =
-    !process.env.NEXT_PUBLIC_AI_MODEL_ID ||
-    !process.env.NEXT_PUBLIC_AI_PROVIDER;
-
   return (
     <>
       <DiffSourceToggleWrapper>
@@ -197,14 +193,14 @@ export function PostForm({
     title: initialData?.title || "",
     slug: initialData?.slug || "",
     description: initialData?.description || "",
-    featured_image_url: initialData?.featured_image_url || "",
+    featuredImageUrl: initialData?.featuredImageUrl || "",
     content: initialData?.content || "",
     tags:
       initialData?.tags?.map((t) => ({
         id: t.id,
         name: t.name,
       })) || [],
-    is_pinned: initialData?.is_pinned ?? false,
+    isPinned: initialData?.isPinned ?? false,
     status: initialData?.status || "draft",
     visibility: initialData?.visibility || "public",
   };
@@ -522,7 +518,7 @@ export function PostForm({
             {/* Featured Image Upload */}
             <FormField
               control={form.control}
-              name="featured_image_url"
+              name="featuredImageUrl"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{t("fields.featuredImageUrl.label")}</FormLabel>
@@ -669,7 +665,7 @@ export function PostForm({
             {/* Is Pinned */}
             <FormField
               control={form.control}
-              name="is_pinned"
+              name="isPinned"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
@@ -706,8 +702,8 @@ export function PostForm({
                 {isSubmitting
                   ? t("submittingButton")
                   : initialData && !isDuplicate
-                  ? t("updateButton")
-                  : t("createButton")}
+                    ? t("updateButton")
+                    : t("createButton")}
               </Button>
             </div>
           </div>

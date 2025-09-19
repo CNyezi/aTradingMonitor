@@ -2,17 +2,7 @@
  * ai sdk docs:
  * https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-image
  * https://sdk.vercel.ai/providers/ai-sdk-providers
- * 
- * vercel runtime:
- * https://vercel.com/docs/functions/runtimes/edge
- * https://vercel.com/docs/functions/runtimes/node-js
- * 
- * vercel maxDuration: 
- * https://vercel.com/docs/functions/configuring-functions/duration
  */
-
-export const runtime = "nodejs";
-export const maxDuration = 60;
 
 import { apiResponse } from "@/lib/api-response";
 // import { generateR2Key, getDataFromDataUrl, serverUploadFile } from "@/lib/cloudflare/r2"; // Optional: Uncomment if you want to upload results to R2

@@ -53,11 +53,11 @@ export const columns: ColumnDef<PostWithTags>[] = [
     ),
   },
   {
-    accessorKey: "is_pinned",
+    accessorKey: "isPinned",
     header: "Pinned",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        {row.getValue("is_pinned") ? <Pin className="w-4 h-4" /> : "-"}
+        {row.getValue("isPinned") ? <Pin className="w-4 h-4" /> : "-"}
       </div>
     ),
   },
@@ -101,10 +101,10 @@ export const columns: ColumnDef<PostWithTags>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "published_at",
+    accessorKey: "publishedAt",
     header: "Published",
     cell: ({ row }) => {
-      const date = row.getValue("published_at") as string | Date;
+      const date = row.getValue("publishedAt") as string | Date;
       try {
         return date ? dayjs(date).format("YYYY-MM-DD HH:mm") : "-";
       } catch {

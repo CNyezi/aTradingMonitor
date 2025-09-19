@@ -54,11 +54,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-muted-foreground">{t("description")}</p>
-      </div>
-
       <Suspense
         fallback={
           <div className="flex items-center justify-center h-64">

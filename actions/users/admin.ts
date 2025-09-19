@@ -1,10 +1,14 @@
 "use server";
 
+import type { ActionResult } from '@/lib/action-response';
 import { actionResponse } from '@/lib/action-response';
-import { isAdmin } from '@/lib/supabase/isAdmin';
-import { Database } from '@/lib/supabase/types';
-import { UserType } from "@/types/admin/users";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { isAdmin } from '@/lib/auth/server';
+import { db } from '@/lib/db';
+import { user as userSchema } from '@/lib/db/schema';
+import { getErrorMessage } from '@/lib/error-utils';
+import { count, desc, eq, ilike, or } from 'drizzle-orm';
+
+type UserType = typeof userSchema.$inferSelect;
 
 export interface GetUsersResult {
   success: boolean;
@@ -26,41 +30,115 @@ export async function getUsers({
   pageSize?: number;
   filter?: string;
 }): Promise<GetUsersResult> {
-
   if (!(await isAdmin())) {
-    return actionResponse.forbidden("Admin privileges required.");
+    return actionResponse.forbidden('Admin privileges required.');
   }
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  try {
+    const conditions = [];
+    if (filter) {
+      conditions.push(
+        or(
+          ilike(userSchema.email, `%${filter}%`),
+          ilike(userSchema.name, `%${filter}%`)
+        )
+      );
+    }
 
-  const from = pageIndex * pageSize;
-  const to = from + pageSize - 1;
+    const usersQuery = db
+      .select()
+      .from(userSchema)
+      .where(conditions.length > 0 ? or(...conditions) : undefined)
+      .orderBy(desc(userSchema.createdAt))
+      .offset(pageIndex * pageSize)
+      .limit(pageSize);
 
-  let query = supabaseAdmin
-    .from("users")
-    .select("*", { count: 'exact' });
+    const totalCountQuery = db
+      .select({ value: count() })
+      .from(userSchema)
+      .where(conditions.length > 0 ? or(...conditions) : undefined);
 
-  if (filter) {
-    const filterValue = `%${filter}%`;
-    query = query.or(
-      `email.ilike.${filterValue},full_name.ilike.${filterValue}`
-    );
+    const [results, totalCountResult] = await Promise.all([
+      usersQuery,
+      totalCountQuery,
+    ]);
+
+    const totalCount = totalCountResult[0].value;
+
+    return actionResponse.success({
+      users: results as unknown as UserType[] || [],
+      totalCount: totalCount,
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return actionResponse.error(getErrorMessage(error));
+  }
+}
+
+export async function banUser({
+  userId,
+  reason,
+}: {
+  userId: string;
+  reason?: string;
+}): Promise<ActionResult> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden('Admin privileges required.');
   }
 
-  query = query.range(from, to).order("created_at", { ascending: false });
+  try {
+    const target = await db
+      .select({ id: userSchema.id, role: userSchema.role })
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1);
 
-  const { data: users, error, count } = await query;
+    if (target.length === 0) {
+      return actionResponse.notFound('User not found.');
+    }
 
-  if (error) {
-    console.error("Error fetching users:", error);
-    return actionResponse.notFound("Failed to fetch users");
+    if (target[0].role === 'admin') {
+      return actionResponse.forbidden('Cannot ban admin users.');
+    }
+
+    await db
+      .update(userSchema)
+      .set({ banned: true, banReason: reason ?? 'Banned by admin', banExpires: null })
+      .where(eq(userSchema.id, userId));
+
+    return actionResponse.success();
+  } catch (error: any) {
+    return actionResponse.error(getErrorMessage(error));
+  }
+}
+
+export async function unbanUser({
+  userId,
+}: {
+  userId: string;
+}): Promise<ActionResult> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden('Admin privileges required.');
   }
 
-  return actionResponse.success({
-    users: users || [],
-    totalCount: count || 0,
-  });
-} 
+  try {
+    const target = await db
+      .select({ id: userSchema.id })
+      .from(userSchema)
+      .where(eq(userSchema.id, userId))
+      .limit(1);
+
+    if (target.length === 0) {
+      return actionResponse.notFound('User not found.');
+    }
+
+    await db
+      .update(userSchema)
+      .set({ banned: false, banReason: null, banExpires: null })
+      .where(eq(userSchema.id, userId));
+
+    return actionResponse.success();
+  } catch (error: any) {
+    return actionResponse.error(getErrorMessage(error));
+  }
+}

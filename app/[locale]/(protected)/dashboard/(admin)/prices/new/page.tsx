@@ -1,10 +1,12 @@
 import { getPricingPlanById } from "@/actions/prices/admin";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { constructMetadata } from "@/lib/metadata";
-import { PricingPlan } from "@/types/pricing";
 import { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { PricePlanForm } from "../PricePlanForm";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 type Params = Promise<{ locale: string }>;
 
@@ -47,21 +49,21 @@ export default async function NewPricePlanPage({
       initialDataForForm = {
         ...originalPlan,
         id: "",
-        card_title: `${originalPlan.card_title} (Copy)`,
-        card_description: originalPlan.card_description,
-        stripe_price_id: "",
-        stripe_product_id: "",
-        payment_type: "",
-        recurring_interval: "",
+        cardTitle: `${originalPlan.cardTitle} (Copy)`,
+        cardDescription: originalPlan.cardDescription,
+        stripePriceId: "",
+        stripeProductId: "",
+        paymentType: "",
+        recurringInterval: "",
         price: null,
         currency: "",
-        display_price: originalPlan.display_price,
-        original_price: originalPlan.original_price,
-        price_suffix: originalPlan.price_suffix,
-        is_highlighted: originalPlan.is_highlighted,
-        highlight_text: originalPlan.highlight_text,
-        button_text: originalPlan.button_text,
-        button_link: originalPlan.button_link,
+        displayPrice: originalPlan.displayPrice,
+        originalPrice: originalPlan.originalPrice,
+        priceSuffix: originalPlan.priceSuffix,
+        isHighlighted: originalPlan.isHighlighted,
+        highlightText: originalPlan.highlightText,
+        buttonText: originalPlan.buttonText,
+        buttonLink: originalPlan.buttonLink,
       };
     }
   }

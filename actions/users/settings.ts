@@ -2,19 +2,22 @@
 
 import { DEFAULT_LOCALE } from "@/i18n/routing";
 import { actionResponse } from "@/lib/action-response";
+import { getSession } from "@/lib/auth/server";
 import {
   deleteFile,
   generateR2Key,
   serverUploadFile,
 } from "@/lib/cloudflare/r2";
+import { db } from "@/lib/db";
+import { user as userSchema } from "@/lib/db/schema";
 import { getErrorMessage } from "@/lib/error-utils";
-import { createClient } from "@/lib/supabase/server";
 import {
   AVATAR_ALLOWED_FILE_TYPES,
   AVATAR_MAX_FILE_SIZE,
   FULL_NAME_MAX_LENGTH,
   isValidFullName,
 } from "@/lib/validations";
+import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 
 const MAX_FILE_SIZE = AVATAR_MAX_FILE_SIZE;
@@ -30,15 +33,10 @@ export async function updateUserSettingsAction({
   locale = DEFAULT_LOCALE,
 }: UpdateUserSettingsParams) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user: authUser },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const session = await getSession()
+    const authUser = session?.user;
 
-    if (authError || !authUser) {
-      return actionResponse.unauthorized();
-    }
+    if (!authUser) return actionResponse.unauthorized();
 
     const t = await getTranslations({
       locale,
@@ -82,9 +80,9 @@ export async function updateUserSettingsAction({
           key: key,
         });
 
-        if (authUser.user_metadata?.avatar_url) {
+        if (authUser.image) {
           try {
-            const oldAvatarUrl = authUser.user_metadata.avatar_url as string;
+            const oldAvatarUrl = authUser.image as string;
             const oldPath = new URL(oldAvatarUrl).pathname.split('/').slice(-3).join('/');
 
             if (oldPath.startsWith(`avatars/${authUser.id}/`)) {
@@ -101,34 +99,16 @@ export async function updateUserSettingsAction({
       }
     }
 
-    const updateData: { full_name: string; avatar_url?: string } = {
-      full_name: fullName.trim(),
-    };
-
-    if (avatarUrl) {
-      updateData.avatar_url = avatarUrl;
-    }
-
-
-    const { error: updateAuthError } = await supabase.auth.updateUser({
-      data: updateData,
-    });
-
-    if (updateAuthError) {
-      console.error("Update auth user error:", updateAuthError);
-      return actionResponse.error(t("toast.errorUpdateAuthUser"));
-    }
-
-    const { error: updateUserError } = await supabase.rpc(
-      "update_my_profile",
-      {
-        new_full_name: fullName.trim(),
-        new_avatar_url: avatarUrl || authUser.user_metadata?.avatar_url || ''
-      }
-    );
-
-    if (updateUserError) {
-      console.error("Update user profile RPC error:", updateUserError);
+    try {
+      await db
+        .update(userSchema)
+        .set({
+          name: fullName.trim(),
+          image: avatarUrl || authUser.image || null,
+        })
+        .where(eq(userSchema.id, authUser.id));
+    } catch (updateUserError) {
+      console.error("Update user profile error:", updateUserError);
       return actionResponse.error(t("toast.errorUpdateUserProfile"));
     }
 

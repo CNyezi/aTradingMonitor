@@ -1,7 +1,7 @@
 import { apiResponse } from "@/lib/api-response";
+import { isAdmin } from "@/lib/auth/server";
 import { getErrorMessage } from "@/lib/error-utils";
-import stripe from "@/lib/stripe/stripe";
-import { isAdmin } from "@/lib/supabase/isAdmin";
+import { stripe } from "@/lib/stripe";
 import { NextRequest } from "next/server";
 import Stripe from "stripe";
 

@@ -1,12 +1,11 @@
-import BaiDuAnalytics from "@/app/BaiDuAnalytics";
-import GoogleAdsense from "@/app/GoogleAdsense";
-import GoogleAnalytics from "@/app/GoogleAnalytics";
-import PlausibleAnalytics from "@/app/PlausibleAnalytics";
-import ToltScript from "@/app/ToltScript";
-import GoogleOneTap from "@/components/auth/GoogleOneTap";
+import { GoogleOneTap } from "@/components/auth/GoogleOneTap";
 import { LanguageDetectionAlert } from "@/components/LanguageDetectionAlert";
-import { AuthProvider } from "@/components/providers/AuthProvider";
 import { TailwindIndicator } from "@/components/TailwindIndicator";
+import BaiDuAnalytics from "@/components/tracking/BaiDuAnalytics";
+import GoogleAdsense from "@/components/tracking/GoogleAdsense";
+import GoogleAnalytics from "@/components/tracking/GoogleAnalytics";
+import PlausibleAnalytics from "@/components/tracking/PlausibleAnalytics";
+import ToltScript from "@/components/tracking/ToltScript";
 import { Toaster } from "@/components/ui/sonner";
 import { siteConfig } from "@/config/site";
 import { DEFAULT_LOCALE, Locale, routing } from "@/i18n/routing";
@@ -74,13 +73,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale || DEFAULT_LOCALE} suppressHydrationWarning>
       <head>
-        {process.env.NODE_ENV === "development" ? (
-          <></>
-        ) : (
-          <>
-            <ToltScript />
-          </>
-        )}
+        <ToltScript />
       </head>
       <body
         className={cn(
@@ -89,26 +82,18 @@ export default async function LocaleLayout({
         )}
       >
         <NextIntlClientProvider messages={messages}>
-          <AuthProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme={siteConfig.defaultNextTheme}
-              enableSystem
-            >
-              {messages.LanguageDetection && <LanguageDetectionAlert />}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme={siteConfig.defaultNextTheme}
+            enableSystem
+          >
+            {messages.LanguageDetection && <LanguageDetectionAlert />}
 
-              {/* {messages.Header && <Header />} */}
-
-              {/* <main className="flex-1 flex flex-col items-center"> */}
-              {children}
-              {/* </main> */}
-
-              {/* {messages.Footer && <Footer />} */}
-            </ThemeProvider>
-          </AuthProvider>
+            {children}
+          </ThemeProvider>
         </NextIntlClientProvider>
         <GoogleOneTap />
-        <Toaster />
+        <Toaster richColors />
         <TailwindIndicator />
         {process.env.NODE_ENV === "development" ? (
           <></>

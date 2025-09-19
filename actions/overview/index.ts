@@ -1,9 +1,11 @@
 'use server';
 
 import { actionResponse, ActionResult } from '@/lib/action-response';
+import { isAdmin } from '@/lib/auth/server';
+import { db } from '@/lib/db';
+import { orders as ordersSchema, pricingPlans as pricingPlansSchema, user as userSchema } from '@/lib/db/schema';
 import { getErrorMessage } from '@/lib/error-utils';
-import { Database } from '@/lib/supabase/types';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { and, count, eq, gte, inArray, lt, sql } from 'drizzle-orm';
 
 interface IStats {
   today: number;
@@ -31,15 +33,10 @@ export interface IOverviewStats {
 }
 
 export interface IDailyGrowthStats {
-  report_date: string;
-  new_users_count: number;
-  new_orders_count: number;
+  reportDate: string;
+  newUsersCount: number;
+  newOrdersCount: number;
 }
-
-const supabaseAdmin = createAdminClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 function calculateGrowthRate(today: number, yesterday: number): number {
   if (yesterday === 0) {
@@ -49,51 +46,107 @@ function calculateGrowthRate(today: number, yesterday: number): number {
 }
 
 export const getOverviewStats = async (): Promise<ActionResult<IOverviewStats>> => {
-  // if (!(await isAdmin())) {
-  //   return actionResponse.forbidden('Admin privileges required.');
-  // }
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden('Admin privileges required.');
+  }
   try {
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
     const yesterdayStart = new Date(
       now.getFullYear(),
       now.getMonth(),
       now.getDate() - 1
-    ).toISOString();
+    );
 
     // User stats
-    const { count: totalUsers } = await supabaseAdmin
-      .from('users')
-      .select('id', { count: 'exact' });
-    const todayUsers =
-      (await supabaseAdmin.from('users').select('id', { count: 'exact' }).gte('created_at', todayStart))
-        .count ?? 0;
-    const yesterdayUsers =
-      (
-        await supabaseAdmin
-          .from('users')
-          .select('id', { count: 'exact' })
-          .gte('created_at', yesterdayStart)
-          .lt('created_at', todayStart)
-      ).count ?? 0;
+    const totalUsersResult = await db.select({ value: count() }).from(userSchema);
+    const totalUsers = totalUsersResult[0].value;
+
+    const todayUsersResult = await db
+      .select({ value: count() })
+      .from(userSchema)
+      .where(gte(userSchema.createdAt, todayStart));
+    const todayUsers = todayUsersResult[0].value;
+
+    const yesterdayUsersResult = await db
+      .select({ value: count() })
+      .from(userSchema)
+      .where(
+        and(
+          gte(userSchema.createdAt, yesterdayStart),
+          lt(userSchema.createdAt, todayStart)
+        )
+      );
+    const yesterdayUsers = yesterdayUsersResult[0].value;
 
     // Order stats
-    const getOrderStatsForPeriod = async (startDate: string, endDate: string) => {
-      const { data, error } = await supabaseAdmin.rpc('get_order_stats_for_period', {
-        start_date_param: startDate,
-        end_date_param: endDate,
-      });
+    const getOrderStatsForPeriod = async (
+      startDate: Date,
+      endDate: Date
+    ): Promise<IOrderStatsResult> => {
+      const result = await db
+        .select({
+          oneTimeCount:
+            sql`COUNT(*) FILTER (WHERE ${ordersSchema.orderType} = 'one_time_purchase')`.mapWith(
+              Number
+            ),
+          oneTimeRevenue:
+            sql`COALESCE(SUM(${ordersSchema.amountTotal}) FILTER (WHERE ${ordersSchema.orderType} = 'one_time_purchase'), 0)`.mapWith(
+              Number
+            ),
+          monthlyCount:
+            sql`COUNT(*) FILTER (WHERE ${ordersSchema.orderType} IN ('subscription_initial', 'subscription_renewal') AND ${pricingPlansSchema.recurringInterval} = 'month')`.mapWith(
+              Number
+            ),
+          monthlyRevenue:
+            sql`COALESCE(SUM(${ordersSchema.amountTotal}) FILTER (WHERE ${pricingPlansSchema.recurringInterval} = 'month'), 0)`.mapWith(
+              Number
+            ),
+          yearlyCount:
+            sql`COUNT(*) FILTER (WHERE ${ordersSchema.orderType} IN ('subscription_initial', 'subscription_renewal') AND ${pricingPlansSchema.recurringInterval} = 'year')`.mapWith(
+              Number
+            ),
+          yearlyRevenue:
+            sql`COALESCE(SUM(${ordersSchema.amountTotal}) FILTER (WHERE ${pricingPlansSchema.recurringInterval} = 'year'), 0)`.mapWith(
+              Number
+            ),
+        })
+        .from(ordersSchema)
+        .leftJoin(pricingPlansSchema, eq(ordersSchema.planId, pricingPlansSchema.id))
+        .where(
+          and(
+            gte(ordersSchema.createdAt, startDate),
+            lt(ordersSchema.createdAt, endDate),
+            inArray(ordersSchema.status, ['succeeded', 'active'])
+          )
+        )
 
-      if (error) {
-        console.error('Error fetching order stats via RPC:', error);
-        throw new Error('An error occurred while fetching order statistics.');
-      }
-
-      return data as unknown as IOrderStatsResult;
+      const stats = result[0];
+      return {
+        oneTime: {
+          count: stats.oneTimeCount,
+          revenue: stats.oneTimeRevenue,
+        },
+        monthly: {
+          count: stats.monthlyCount,
+          revenue: stats.monthlyRevenue,
+        },
+        yearly: {
+          count: stats.yearlyCount,
+          revenue: stats.yearlyRevenue,
+        },
+      };
     };
 
-    const todayOrderStats = await getOrderStatsForPeriod(todayStart, new Date().toISOString());
-    const yesterdayOrderStats = await getOrderStatsForPeriod(yesterdayStart, todayStart);
+    const todayOrderStats = await getOrderStatsForPeriod(todayStart, now);
+    const yesterdayOrderStats = await getOrderStatsForPeriod(
+      yesterdayStart,
+      todayStart
+    );
 
     const stats: IOverviewStats = {
       users: {
@@ -166,9 +219,9 @@ export const getOverviewStats = async (): Promise<ActionResult<IOverviewStats>> 
 export const getDailyGrowthStats = async (
   period: '7d' | '30d' | '90d'
 ): Promise<ActionResult<IDailyGrowthStats[]>> => {
-  // if (!(await isAdmin())) {
-  //   return actionResponse.forbidden('Admin privileges required.');
-  // }
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden('Admin privileges required.');
+  }
   try {
     const now = new Date();
     let startDate: Date;
@@ -184,22 +237,77 @@ export const getDailyGrowthStats = async (
         startDate = new Date(new Date().setMonth(now.getMonth() - 3));
         break;
       default:
-        // This should not happen due to TypeScript types, but it's good practice
-        // to handle it.
         throw new Error('Invalid period specified.');
     }
 
-    const { data, error } = await supabaseAdmin.rpc('get_daily_growth_stats', {
-      start_date_param: startDate.toISOString(),
-    });
+    const userDateTrunc = sql`date_trunc('day', ${userSchema.createdAt})`
 
-    if (error) {
-      throw new Error(
-        'Failed to fetch daily growth stats: ' +
-        (error instanceof Error ? error.message : String(error))
-      );
+    const dailyUsers = await db
+      .select({
+        date: userDateTrunc,
+        count: count(userSchema.id),
+      })
+      .from(userSchema)
+      .where(gte(userSchema.createdAt, startDate))
+      .groupBy(userDateTrunc)
+
+    const orderDateTrunc = sql`date_trunc('day', ${ordersSchema.createdAt})`
+
+    const dailyOrders = await db
+      .select({
+        date: orderDateTrunc,
+        count: count(ordersSchema.id),
+      })
+      .from(ordersSchema)
+      .where(
+        and(
+          gte(ordersSchema.createdAt, startDate),
+          inArray(ordersSchema.status, ['succeeded', 'active']),
+          inArray(ordersSchema.orderType, [
+            'one_time_purchase',
+            'subscription_initial',
+            'subscription_renewal',
+          ])
+        )
+      )
+      .groupBy(orderDateTrunc)
+
+    const dailyUsersMap = new Map(
+      dailyUsers.map((r) => {
+        let dateStr: string;
+        if (r.date instanceof Date) {
+          dateStr = r.date.toISOString().split('T')[0];
+        } else {
+          dateStr = new Date(r.date as string).toISOString().split('T')[0];
+        }
+        return [dateStr, r.count];
+      })
+    );
+    const dailyOrdersMap = new Map(
+      dailyOrders.map((r) => {
+        let dateStr: string;
+        if (r.date instanceof Date) {
+          dateStr = r.date.toISOString().split('T')[0];
+        } else {
+          dateStr = new Date(r.date as string).toISOString().split('T')[0];
+        }
+        return [dateStr, r.count];
+      })
+    );
+
+    const result: IDailyGrowthStats[] = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= now) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      result.push({
+        reportDate: dateStr,
+        newUsersCount: dailyUsersMap.get(dateStr) || 0,
+        newOrdersCount: dailyOrdersMap.get(dateStr) || 0,
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-    return actionResponse.success(data ?? []);
+
+    return actionResponse.success(result);
   } catch (error) {
     return actionResponse.error(getErrorMessage(error));
   }

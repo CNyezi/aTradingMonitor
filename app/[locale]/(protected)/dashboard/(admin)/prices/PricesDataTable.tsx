@@ -17,10 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PricingPlan } from "@/types/pricing";
+import { Link as I18nLink } from "@/i18n/routing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnPinningState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -30,9 +32,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { PlusCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import * as React from "react";
+import { useState } from "react";
 import { columns } from "./Columns";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 const PAGE_SIZE = 20;
 
@@ -45,13 +50,14 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
 }: DataTableProps<TData, TValue>) {
   const t = useTranslations("Prices.PricesDataTable");
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({
+    left: ["environment", "cardTitle"],
+    right: ["actions"],
+  });
 
   const table = useReactTable({
     data,
@@ -64,11 +70,13 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onColumnPinningChange: setColumnPinning,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      columnPinning,
     },
     initialState: {
       pagination: {
@@ -76,45 +84,57 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
       },
       sorting: [
         { id: "environment", desc: false },
-        { id: "display_order", desc: false },
+        { id: "displayOrder", desc: false },
       ],
     },
   });
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row items-start gap-4 py-4">
-        <Input
-          placeholder="Filter by title..."
-          value={
-            (table.getColumn("card_title")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("card_title")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <Select
-          value={
-            (table.getColumn("environment")?.getFilterValue() as string) ??
-            "all"
-          }
-          onValueChange={(value) => {
-            const filterValue = value === "all" ? null : value;
-            table.getColumn("environment")?.setFilterValue(filterValue);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter Environment" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t("allEnvironments")}</SelectItem>
-            <SelectItem value="test">{t("test")}</SelectItem>
-            <SelectItem value="live">{t("live")}</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col sm:flex-row items-start sm:justify-between sm:items-center gap-4 py-4">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
+          <Input
+            placeholder="Filter by title..."
+            value={
+              (table.getColumn("cardTitle")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("cardTitle")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+          <Select
+            value={
+              (table.getColumn("environment")?.getFilterValue() as string) ??
+              "all"
+            }
+            onValueChange={(value) => {
+              const filterValue = value === "all" ? null : value;
+              table.getColumn("environment")?.setFilterValue(filterValue);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter Environment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("allEnvironments")}</SelectItem>
+              <SelectItem value="test">{t("test")}</SelectItem>
+              <SelectItem value="live">{t("live")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button asChild className="highlight-bg text-white">
+          <I18nLink
+            href="/dashboard/prices/new"
+            title="Create New Plan"
+            prefetch={false}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" /> Create New Plan
+          </I18nLink>
+        </Button>
       </div>
-      <div className="rounded-md border relative min-h-[200px] max-h-[calc(100vh-330px)] overflow-y-auto">
+      <div className="relative min-h-[200px] max-h-[calc(100vh-200px)] overflow-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -124,10 +144,30 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
                     <TableHead
                       key={header.id}
                       style={{
-                        width:
-                          header.getSize() !== 150
-                            ? undefined
-                            : `${header.getSize()}px`,
+                        width: header.getSize(),
+                        minWidth: header.column.columnDef.minSize,
+                        maxWidth: header.column.columnDef.maxSize,
+                        position: header.column.getIsPinned()
+                          ? "sticky"
+                          : "relative",
+                        left:
+                          header.column.getIsPinned() === "left"
+                            ? `${header.column.getStart("left")}px`
+                            : undefined,
+                        right:
+                          header.column.getIsPinned() === "right"
+                            ? `${header.column.getAfter("right")}px`
+                            : undefined,
+                        zIndex: header.column.getIsPinned() ? 20 : 1,
+                        backgroundColor: "hsl(var(--background))",
+                        boxShadow:
+                          header.column.getIsPinned() === "left" &&
+                          header.column.getIsLastColumn("left")
+                            ? "2px 0 4px -2px rgba(0, 0, 0, 0.1)"
+                            : header.column.getIsPinned() === "right" &&
+                                header.column.getIsFirstColumn("right")
+                              ? "-2px 0 4px -2px rgba(0, 0, 0, 0.1)"
+                              : undefined,
                       }}
                     >
                       {header.isPlaceholder
@@ -150,7 +190,35 @@ export function PricesDataTable<TData extends PricingPlan, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                        maxWidth: cell.column.columnDef.maxSize,
+                        position: cell.column.getIsPinned()
+                          ? "sticky"
+                          : "relative",
+                        left:
+                          cell.column.getIsPinned() === "left"
+                            ? `${cell.column.getStart("left")}px`
+                            : undefined,
+                        right:
+                          cell.column.getIsPinned() === "right"
+                            ? `${cell.column.getAfter("right")}px`
+                            : undefined,
+                        zIndex: cell.column.getIsPinned() ? 20 : 1,
+                        backgroundColor: "hsl(var(--background))",
+                        boxShadow:
+                          cell.column.getIsPinned() === "left" &&
+                          cell.column.getIsLastColumn("left")
+                            ? "2px 0 4px -2px rgba(0, 0, 0, 0.1)"
+                            : cell.column.getIsPinned() === "right" &&
+                                cell.column.getIsFirstColumn("right")
+                              ? "-2px 0 4px -2px rgba(0, 0, 0, 0.1)"
+                              : undefined,
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

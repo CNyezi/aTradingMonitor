@@ -23,11 +23,11 @@ export function PricingCardPreview({ watchedValues }: PricingCardPreviewProps) {
     let langJsonData = {};
     let hasParseError = false;
 
-    if (currentValues.lang_jsonb) {
-      const parsedData = safeJsonParse(currentValues.lang_jsonb);
+    if (currentValues.langJsonb) {
+      const parsedData = safeJsonParse(currentValues.langJsonb);
       if (
         Object.keys(parsedData).length === 0 &&
-        currentValues.lang_jsonb.trim()
+        currentValues.langJsonb.trim()
       ) {
         hasParseError = true;
         setParseError(

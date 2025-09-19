@@ -6,41 +6,45 @@ export interface PricingPlanFeature {
 }
 
 export interface PricingPlanTranslation {
-  card_title?: string;
-  card_description?: string;
-  display_price?: string;
-  original_price?: string;
-  price_suffix?: string;
+  cardTitle?: string;
+  cardDescription?: string;
+  displayPrice?: string;
+  originalPrice?: string;
+  priceSuffix?: string;
   features?: PricingPlanFeature[];
-  highlight_text?: string;
-  button_text?: string;
+  highlightText?: string;
+  buttonText?: string;
+}
+
+export interface PricingPlanLangJsonb {
+  [locale: string]: PricingPlanTranslation;
 }
 
 export interface PricingPlan {
   id: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   environment: 'test' | 'live';
-  card_title: string;
-  card_description?: string | null;
-  stripe_price_id?: string | null;
-  stripe_product_id?: string | null;
-  stripe_coupon_id?: string | null;
-  enable_manual_input_coupon?: boolean;
-  payment_type?: 'one_time' | 'recurring' | string | null;
-  recurring_interval?: 'month' | 'year' | 'week' | string | null;
+  cardTitle: string;
+  cardDescription?: string | null;
+  stripePriceId?: string | null;
+  stripeProductId?: string | null;
+  stripeCouponId?: string | null;
+  enableManualInputCoupon?: boolean;
+  paymentType?: 'one_time' | 'recurring' | string | null;
+  recurringInterval?: 'month' | 'year' | 'week' | string | null;
   price?: number | null;
   currency?: string | null;
-  display_price?: string | null;
-  original_price?: string | null;
-  price_suffix?: string | null;
+  displayPrice?: string | null;
+  originalPrice?: string | null;
+  priceSuffix?: string | null;
   features: PricingPlanFeature[] | null;
-  is_highlighted: boolean;
-  highlight_text?: string | null;
-  button_text?: string | null;
-  button_link?: string | null;
-  display_order: number;
-  is_active: boolean;
-  lang_jsonb?: { [lang_code: string]: PricingPlanTranslation } | null;
-  benefits_jsonb?: { [key: string]: any } | null;
+  isHighlighted: boolean;
+  highlightText?: string | null;
+  buttonText?: string | null;
+  buttonLink?: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  langJsonb?: PricingPlanLangJsonb | null;
+  benefitsJsonb?: { [key: string]: any } | null;
 } 

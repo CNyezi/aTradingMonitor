@@ -151,7 +151,7 @@ export default function CreditUsageExamplePage() {
         </CardHeader>
         <CardContent className="text-sm space-y-2">
           <p>
-            1. <strong>Unified Credit Deduction Logic:</strong>
+            <strong>Unified Credit Deduction Logic:</strong>
           </p>
           <ul className="list-disc pl-5 space-y-1">
             <li>
@@ -166,23 +166,11 @@ export default function CreditUsageExamplePage() {
               credits first, then from one-time credits.
             </li>
             <li>
-              Every deduction is now recorded in the new{" "}
+              Every deduction is now recorded in the{" "}
               <code className="bg-gray-200 dark:bg-gray-800">credit_logs</code>{" "}
               table.
             </li>
           </ul>
-          <p>
-            2. Ensure the new Supabase RPC functions (from{" "}
-            <code className="bg-gray-200 dark:bg-gray-800">
-              data/8、credit_logs.sql
-            </code>
-            ) are applied to your database.
-          </p>
-          <p>
-            3. In a real application, credit deduction should happen on the
-            server-side *after* a feature&apos;s successful execution, typically
-            within the API route that provides the feature.
-          </p>
         </CardContent>
       </Card>
     </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { DynamicIcon } from "@/components/DynamicIcon";
-import { useAuth } from "@/components/providers/AuthProvider";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { siteConfig } from "@/config/site";
 import { Link as I18nLink, usePathname } from "@/i18n/routing";
+import { authClient } from "@/lib/auth/auth-client";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
@@ -28,7 +28,8 @@ type Menu = {
 };
 
 export function DashboardSidebar() {
-  const { user } = useAuth();
+  const { data: session } = authClient.useSession();
+  const user = session?.user as any | undefined;
   const pathname = usePathname();
   const t = useTranslations("Login");
 

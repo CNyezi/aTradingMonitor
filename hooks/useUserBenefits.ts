@@ -1,7 +1,7 @@
 "use client";
 
 import { getClientUserBenefits, UserBenefits } from "@/actions/usage/benefits";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { authClient } from "@/lib/auth/auth-client";
 import useSWR from "swr";
 
 const benefitsFetcher = async ([userId]: [string | undefined]) => {
@@ -16,9 +16,11 @@ const benefitsFetcher = async ([userId]: [string | undefined]) => {
 };
 
 export function useUserBenefits() {
-  const { user } = useAuth();
+  const { data: session, isPending } = authClient.useSession();
+  const userId = (session?.user as any | undefined)?.id as string | undefined;
+
   const { data, error, isLoading, mutate } = useSWR(
-    user ? ["user-benefits", user.id] : null,
+    userId && !isPending ? ["user-benefits", userId] : null,
     benefitsFetcher,
     {
       revalidateOnFocus: true,

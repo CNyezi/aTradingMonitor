@@ -1,25 +1,25 @@
 "use client";
 
 import LoginForm from "@/components/auth/LoginForm";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { useRouter } from "@/i18n/routing";
+import { authClient } from "@/lib/auth/auth-client";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Suspense, useEffect } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { data: session, isPending } = authClient.useSession();
 
   const t = useTranslations("Login");
 
   useEffect(() => {
-    if (user) {
+    if (session?.user) {
       router.replace("/");
     }
-  }, [user, router]);
+  }, [session?.user]);
 
-  if (user) {
+  if (session?.user) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <Loader2 className="w-4 h-4 animate-spin" />

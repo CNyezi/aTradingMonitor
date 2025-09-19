@@ -1,8 +1,9 @@
 "use client";
 
-import { listTagsAction, type Tag as DbTag } from "@/actions/blogs/tags";
+import { listTagsAction } from "@/actions/blogs/tags";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { type Tag as DbTag } from "@/types/blog";
 import { Tag as TagIcon, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";

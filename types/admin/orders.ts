@@ -1,8 +1,8 @@
-import { Tables } from '@/lib/supabase/types';
+import { orders as ordersSchema } from '@/lib/db/schema';
 
-export type OrderWithUser = Tables<'orders'> & {
+export type OrderWithUser = typeof ordersSchema.$inferSelect & {
   users: {
     email: string;
-    full_name: string | null;
+    name: string | null;
   } | null;
 }; 

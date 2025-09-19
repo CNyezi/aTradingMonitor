@@ -1,4 +1,3 @@
-import { updateSession } from '@/lib/supabase/middleware';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
@@ -8,6 +7,7 @@ const intlMiddleware = createIntlMiddleware(routing);
 const referralParams = ['utm_source', 'ref', 'via', 'aff', 'referral', 'referral_code'];
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
+
   let referralValue: string | null = null;
 
   for (const param of referralParams) {
@@ -18,25 +18,11 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  const supabaseResponse = await updateSession(request);
-
-  if (supabaseResponse.headers.get('location')) {
-    if (referralValue) {
-      supabaseResponse.cookies.set('referral_source', referralValue);
-    }
-    return supabaseResponse;
-  }
-
   const intlResponse = intlMiddleware(request);
 
   if (referralValue) {
     intlResponse.cookies.set('referral_source', referralValue);
   }
-
-  supabaseResponse.cookies.getAll().forEach((cookie) => {
-    const { name, value, ...options } = cookie;
-    intlResponse.cookies.set(name, value, options);
-  });
 
   return intlResponse;
 }

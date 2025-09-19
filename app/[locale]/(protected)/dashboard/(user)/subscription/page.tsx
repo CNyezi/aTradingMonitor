@@ -1,20 +1,15 @@
+import { createStripePortalSession } from "@/actions/stripe";
 import { getUserBenefits } from "@/actions/usage/benefits";
 import CurrentUserBenefitsDisplay from "@/components/layout/CurrentUserBenefitsDisplay";
 import { Button } from "@/components/ui/button";
 import { Link as I18nLink } from "@/i18n/routing";
-import { createStripePortalSession } from "@/lib/stripe/actions";
-import { createClient } from "@/lib/supabase/server";
+import { getSession } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 
 export default async function SubscriptionPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
+  const session = await getSession();
+  const user = session?.user;
+  if (!user) redirect("/login");
 
   const benefits = await getUserBenefits(user.id);
 

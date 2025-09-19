@@ -1,9 +1,12 @@
 'use server';
 
 import { ActionResult, actionResponse } from '@/lib/action-response';
-import { Database } from '@/lib/supabase/types';
+import { isAdmin } from '@/lib/auth/server';
+import { db } from '@/lib/db';
+import { orders as ordersSchema, user as userSchema } from '@/lib/db/schema';
+import { getErrorMessage } from '@/lib/error-utils';
 import { OrderWithUser } from '@/types/admin/orders';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { and, count, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 const FilterSchema = z.object({
@@ -11,7 +14,7 @@ const FilterSchema = z.object({
   pageSize: z.coerce.number().default(10),
   filter: z.string().optional(),
   provider: z.string().optional(),
-  order_type: z.string().optional(),
+  orderType: z.string().optional(),
   status: z.string().optional(),
 });
 
@@ -20,63 +23,74 @@ export type GetOrdersResult = ActionResult<{
   totalCount: number;
 }>;
 
-const supabaseAdmin = createAdminClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function getOrders(
   params: z.infer<typeof FilterSchema>
 ): Promise<GetOrdersResult> {
+  if (!(await isAdmin())) {
+    return actionResponse.forbidden('Admin privileges required.');
+  }
   try {
-    const { pageIndex, pageSize, filter, provider, order_type, status } =
+    const { pageIndex, pageSize, filter, provider, orderType, status } =
       FilterSchema.parse(params);
 
-    const start = pageIndex * pageSize;
-    const end = start + pageSize - 1;
-
-    let query = supabaseAdmin
-      .from('orders')
-      .select('*, users(email, full_name)', { count: 'exact' });
-
+    const conditions = [];
+    if (provider) {
+      conditions.push(eq(ordersSchema.provider, provider));
+    }
+    if (orderType) {
+      conditions.push(eq(ordersSchema.orderType, orderType));
+    }
+    if (status) {
+      conditions.push(eq(ordersSchema.status, status));
+    }
     if (filter) {
-      query = query.or(
-        `email.ilike.%${filter}%,provider_order_id.ilike.%${filter}%`,
-        {
-          foreignTable: 'users',
-        }
+      conditions.push(
+        or(
+          ilike(userSchema.email, `%${filter}%`),
+          ilike(ordersSchema.providerOrderId, `%${filter}%`),
+          sql`CAST(${ordersSchema.id} AS TEXT) ILIKE ${`%${filter}%`}`
+        )
       );
     }
 
-    if (provider) {
-      query = query.eq('provider', provider);
-    }
-    if (order_type) {
-      query = query.eq('order_type', order_type);
-    }
-    if (status) {
-      query = query.eq('status', status);
-    }
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const {
-      data: orders,
-      error,
-      count,
-    } = await query
-      .range(start, end)
-      .order('created_at', { ascending: false });
+    const ordersQuery = db
+      .select({
+        order: ordersSchema,
+        user: { email: userSchema.email, name: userSchema.name },
+      })
+      .from(ordersSchema)
+      .leftJoin(userSchema, eq(ordersSchema.userId, userSchema.id))
+      .where(whereClause)
+      .orderBy(desc(ordersSchema.createdAt))
+      .offset(pageIndex * pageSize)
+      .limit(pageSize);
 
-    if (error) {
-      throw error;
-    }
+    const totalCountQuery = db
+      .select({ value: count() })
+      .from(ordersSchema)
+      .leftJoin(userSchema, eq(ordersSchema.userId, userSchema.id))
+      .where(whereClause);
+
+    const [results, totalCountResult] = await Promise.all([
+      ordersQuery,
+      totalCountQuery,
+    ]);
+
+    const totalCount = totalCountResult[0].value;
+
+    const ordersData = results.map((r) => ({
+      ...r.order,
+      users: r.user,
+    }));
 
     return actionResponse.success({
-      orders: orders as unknown as OrderWithUser[],
-      totalCount: count ?? 0,
+      orders: ordersData as unknown as OrderWithUser[],
+      totalCount: totalCount,
     });
   } catch (error) {
     console.error('Error getting orders', error);
-    const message = error instanceof Error ? error.message : 'Error getting orders';
-    return actionResponse.error(message);
+    return actionResponse.error(getErrorMessage(error));
   }
 } 

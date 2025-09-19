@@ -48,10 +48,11 @@ export async function subscribeToNewsletter(email: string, locale = 'en'): Promi
     await sendEmail({
       email: normalizedEmail,
       subject,
-      react: await NewsletterWelcomeEmail({
+      react: NewsletterWelcomeEmail,
+      reactProps: {
         email: normalizedEmail,
         unsubscribeLink: unsubscribeLinkEN
-      })
+      }
     })
 
     return actionResponse.success({ email: normalizedEmail });

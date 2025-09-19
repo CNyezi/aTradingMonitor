@@ -1,9 +1,12 @@
+import { getOrCreateStripeCustomer } from '@/actions/stripe';
 import { apiResponse } from '@/lib/api-response';
+import { getSession } from '@/lib/auth/server';
+import { db } from '@/lib/db';
+import { pricingPlans as pricingPlansSchema } from '@/lib/db/schema';
 import { getErrorMessage } from '@/lib/error-utils';
-import { getOrCreateStripeCustomer } from '@/lib/stripe/actions';
-import stripe from '@/lib/stripe/stripe';
-import { createClient } from '@/lib/supabase/server';
+import { stripe } from '@/lib/stripe';
 import { getURL } from '@/lib/utils';
+import { eq } from 'drizzle-orm';
 import type { Stripe } from 'stripe';
 
 type RequestData = {
@@ -13,13 +16,11 @@ type RequestData = {
 };
 
 export async function POST(req: Request) {
-  const supabase = await createClient();
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !user) {
+  const session = await getSession();
+  const user = session?.user;
+  if (!user) {
     console.error('User not authenticated.');
-    return apiResponse.unauthorized()
+    return apiResponse.unauthorized();
   }
   const userId = user.id;
 
@@ -40,18 +41,27 @@ export async function POST(req: Request) {
   try {
     const customerId = await getOrCreateStripeCustomer(userId);
 
-    const { data: plan, error: planError } = await supabase
-      .from('pricing_plans')
-      .select('id, card_title, payment_type, trial_period_days, benefits_jsonb, stripe_product_id')
-      .eq('stripe_price_id', priceId)
-      .single();
+    const results = await db
+      .select({
+        id: pricingPlansSchema.id,
+        cardTitle: pricingPlansSchema.cardTitle,
+        paymentType: pricingPlansSchema.paymentType,
+        trialPeriodDays: pricingPlansSchema.trialPeriodDays,
+        benefitsJsonb: pricingPlansSchema.benefitsJsonb,
+        stripeProductId: pricingPlansSchema.stripeProductId,
+      })
+      .from(pricingPlansSchema)
+      .where(eq(pricingPlansSchema.stripePriceId, priceId))
+      .limit(1);
 
-    if (planError || !plan) {
-      console.error(`Plan not found for priceId ${priceId}:`, planError);
+    const plan = results[0];
+
+    if (!plan) {
+      console.error(`Plan not found for priceId ${priceId}`);
       return apiResponse.notFound('Plan not found');
     }
 
-    const isSubscription = plan.payment_type === 'recurring';
+    const isSubscription = plan.paymentType === 'recurring';
     const mode = isSubscription ? 'subscription' : 'payment';
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
@@ -75,7 +85,7 @@ export async function POST(req: Request) {
       metadata: {
         userId: userId,
         planId: plan.id,
-        planName: plan.card_title,
+        planName: plan.cardTitle,
         priceId: priceId,
         ...(referral && { tolt_referral: referral }),
       },
@@ -89,11 +99,11 @@ export async function POST(req: Request) {
 
     if (isSubscription) {
       sessionParams.subscription_data = {
-        trial_period_days: plan.trial_period_days ?? undefined,
+        trial_period_days: plan.trialPeriodDays ?? undefined,
         metadata: {
           userId: userId,
           planId: plan.id,
-          planName: plan.card_title,
+          planName: plan.cardTitle,
           priceId: priceId,
         },
       };
@@ -102,7 +112,7 @@ export async function POST(req: Request) {
         metadata: {
           userId: userId,
           planId: plan.id,
-          planName: plan.card_title,
+          planName: plan.cardTitle,
           priceId: priceId,
         },
       };

@@ -1,11 +1,14 @@
 'use server';
 
 import { actionResponse, ActionResult } from '@/lib/action-response';
-import { getUserBenefits as fetchUserBenefitsInternal, UserBenefits } from './benefits';
-
-import { createClient } from '@/lib/supabase/server';
-import { Database } from '@/lib/supabase/types';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { getSession } from '@/lib/auth/server';
+import { db } from '@/lib/db';
+import {
+  creditLogs as creditLogsSchema,
+  usage as usageSchema,
+} from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { getUserBenefits, UserBenefits } from './benefits';
 
 export interface DeductCreditsData {
   message: string;
@@ -22,12 +25,9 @@ export async function deductCredits(
   amountToDeduct: number,
   notes: string,
 ): Promise<ActionResult<DeductCreditsData | null>> {
-  const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
 
   if (amountToDeduct <= 0) {
     return actionResponse.badRequest('Amount to deduct must be positive.');
@@ -37,29 +37,53 @@ export async function deductCredits(
     return actionResponse.badRequest('Deduction notes are required.');
   }
 
-  const supabaseAdmin = createAdminClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
   try {
-    const { data: rpcSuccess, error: rpcError } = await supabaseAdmin.rpc('deduct_credits_and_log', {
-      p_user_id: user.id,
-      p_deduct_amount: amountToDeduct,
-      p_notes: notes,
+    await db.transaction(async (tx) => {
+      // Lock the user's usage row for the duration of the transaction
+      const usageResults = await tx.select({
+        oneTimeCreditsBalance: usageSchema.oneTimeCreditsBalance,
+        subscriptionCreditsBalance: usageSchema.subscriptionCreditsBalance,
+      })
+        .from(usageSchema)
+        .where(eq(usageSchema.userId, user.id))
+        .for('update');
+
+      const usage = usageResults[0];
+
+      if (!usage) {
+        throw new Error('INSUFFICIENT_CREDITS');
+      }
+
+      const totalCredits = usage.oneTimeCreditsBalance + usage.subscriptionCreditsBalance;
+      if (totalCredits < amountToDeduct) {
+        throw new Error('INSUFFICIENT_CREDITS');
+      }
+
+      const deductedFromSub = Math.min(usage.subscriptionCreditsBalance, amountToDeduct);
+      const deductedFromOneTime = amountToDeduct - deductedFromSub;
+
+      const newSubBalance = usage.subscriptionCreditsBalance - deductedFromSub;
+      const newOneTimeBalance = usage.oneTimeCreditsBalance - deductedFromOneTime;
+
+      await tx.update(usageSchema)
+        .set({
+          subscriptionCreditsBalance: newSubBalance,
+          oneTimeCreditsBalance: newOneTimeBalance,
+        })
+        .where(eq(usageSchema.userId, user.id));
+
+      await tx.insert(creditLogsSchema)
+        .values({
+          userId: user.id,
+          amount: -amountToDeduct,
+          oneTimeBalanceAfter: newOneTimeBalance,
+          subscriptionBalanceAfter: newSubBalance,
+          type: 'feature_usage',
+          notes: notes,
+        });
     });
 
-    if (rpcError) {
-      console.error(`Error calling deduct_credits_and_log RPC:`, rpcError);
-      return actionResponse.error(`Failed to deduct credits: ${rpcError.message}`);
-    }
-
-    // return 'false' means insufficient credits
-    if (rpcSuccess === false) {
-      return actionResponse.badRequest('Insufficient credits.');
-    }
-
-    const updatedBenefits = await fetchUserBenefitsInternal(user.id);
+    const updatedBenefits = await getUserBenefits(user.id);
 
     return actionResponse.success({
       message: 'Credits deducted successfully.',
@@ -67,19 +91,20 @@ export async function deductCredits(
     });
 
   } catch (e: any) {
+    if (e.message === 'INSUFFICIENT_CREDITS') {
+      return actionResponse.badRequest('Insufficient credits.');
+    }
     console.error(`Unexpected error in deductCredits:`, e);
     return actionResponse.error(e.message || 'An unexpected server error occurred.');
   }
 }
 
 export async function getClientUserBenefits(): Promise<ActionResult<UserBenefits | null>> {
-  const supabase = await createClient();
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
   try {
-    const benefits = await fetchUserBenefitsInternal(user.id);
+    const benefits = await getUserBenefits(user.id);
     if (benefits) {
       return actionResponse.success(benefits);
     }

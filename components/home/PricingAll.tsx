@@ -13,8 +13,11 @@ import { getPublicPricingPlans } from "@/actions/prices/public";
 import { PricingCardDisplay } from "@/components/home/PricingCardDisplay";
 import FeatureBadge from "@/components/shared/FeatureBadge";
 import { DEFAULT_LOCALE } from "@/i18n/routing";
-import { PricingPlan } from "@/types/pricing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
+import { PricingPlanLangJsonb } from "@/types/pricing";
 import { getLocale, getTranslations } from "next-intl/server";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 export default async function PricingAll() {
   const t = await getTranslations("Landing.Pricing");
@@ -56,7 +59,8 @@ export default async function PricingAll() {
         >
           {allPlans.map((plan) => {
             const localizedPlan =
-              plan.lang_jsonb?.[locale] || plan.lang_jsonb?.[DEFAULT_LOCALE];
+              (plan.langJsonb as PricingPlanLangJsonb)?.[locale] ||
+              (plan.langJsonb as PricingPlanLangJsonb)?.[DEFAULT_LOCALE];
 
             if (!localizedPlan) {
               console.warn(

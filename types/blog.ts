@@ -3,15 +3,21 @@ export type BlogPost = {
   locale?: string
   title: string
   description?: string
-  featured_image_url?: string
+  featuredImageUrl?: string
   slug: string
   tags?: string
-  published_at: Date
+  publishedAt: Date
   status?: 'draft' | 'published' | 'archived'
   visibility?: 'public' | 'logged_in' | 'subscribers'
-  is_pinned?: boolean
+  isPinned?: boolean
   content: string
   metadata?: {
     [key: string]: any
   },
+}
+
+export type Tag = {
+  id: string
+  name: string
+  createdAt: Date
 }

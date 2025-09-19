@@ -1,15 +1,15 @@
 "use client";
 
-import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_LOCALE, usePathname, useRouter } from "@/i18n/routing";
-import { handleLogin } from "@/lib/utils";
-import { PricingPlan } from "@/types/pricing";
+import { DEFAULT_LOCALE, useRouter } from "@/i18n/routing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { Loader2, MousePointerClick } from "lucide-react";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 type Params = {
   plan: PricingPlan;
@@ -19,18 +19,16 @@ type Params = {
 export default function PricingCTA({ plan, localizedPlan }: Params) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
   const locale = useLocale();
-  const { showLoginDialog } = useAuth();
 
   const handleCheckout = async (applyCoupon = true) => {
-    const stripePriceId = plan.stripe_price_id ?? null;
+    const stripePriceId = plan.stripePriceId ?? null;
     if (!stripePriceId) {
       toast.error("Price ID is missing for this plan.");
       return;
     }
 
-    const couponCode = plan.stripe_coupon_id;
+    const couponCode = plan.stripeCouponId;
 
     setIsLoading(true);
     try {
@@ -65,7 +63,7 @@ export default function PricingCTA({ plan, localizedPlan }: Params) {
 
       if (!response.ok) {
         if (response.status === 401) {
-          handleLogin(router, showLoginDialog, pathname);
+          router.push("/login");
           toast.error("You must be logged in to purchase a plan.");
           return;
         }
@@ -98,46 +96,44 @@ export default function PricingCTA({ plan, localizedPlan }: Params) {
   return (
     <div>
       <Button
-        asChild={!!plan.button_link}
+        asChild={!!plan.buttonLink}
         disabled={isLoading}
         className={`w-full flex items-center justify-center gap-2 text-white py-5 font-medium ${
-          plan.is_highlighted
+          plan.isHighlighted
             ? "highlight-button"
             : "bg-gray-800 hover:bg-gray-700"
         } ${
-          plan.stripe_coupon_id && plan.enable_manual_input_coupon
-            ? "mb-2"
-            : "mb-6"
+          plan.stripeCouponId && plan.enableManualInputCoupon ? "mb-2" : "mb-6"
         }`}
-        {...(!plan.button_link && {
+        {...(!plan.buttonLink && {
           onClick: () => handleCheckout(),
         })}
       >
-        {plan.button_link ? (
+        {plan.buttonLink ? (
           <Link
-            href={plan.button_link}
-            title={localizedPlan.button_text || plan.button_text}
+            href={plan.buttonLink}
+            title={localizedPlan.buttonText || plan.buttonText}
             rel="noopener noreferrer nofollow"
             target="_blank"
             prefetch={false}
           >
-            {localizedPlan.button_text || plan.button_text}
-            {plan.is_highlighted && <MousePointerClick className="w-5 h-5" />}
+            {localizedPlan.buttonText || plan.buttonText}
+            {plan.isHighlighted && <MousePointerClick className="w-5 h-5" />}
           </Link>
         ) : (
           <>
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              localizedPlan.button_text || plan.button_text
+              localizedPlan.buttonText || plan.buttonText
             )}
-            {plan.is_highlighted && !isLoading && (
+            {plan.isHighlighted && !isLoading && (
               <MousePointerClick className="w-5 h-5 ml-2" />
             )}
           </>
         )}
       </Button>
-      {plan.stripe_coupon_id && plan.enable_manual_input_coupon && (
+      {plan.stripeCouponId && plan.enableManualInputCoupon && (
         <div className="text-center mb-2">
           <button
             onClick={() => handleCheckout(false)}

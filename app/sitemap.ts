@@ -37,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (slugPart) {
           allBlogSitemapEntries.push({
             url: `${siteUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}/blogs/${slugPart}`,
-            lastModified: post.metadata?.updatedAt || post.published_at || new Date(),
+            lastModified: post.metadata?.updatedAt || post.publishedAt || new Date(),
             changeFrequency: 'daily' as ChangeFrequency,
             priority: 0.7,
           });
@@ -57,7 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if (slugPart) {
           allBlogSitemapEntries.push({
             url: `${siteUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}/blogs/${slugPart}`,
-            lastModified: post.published_at || new Date(),
+            lastModified: post.publishedAt || new Date(),
             changeFrequency: 'daily' as ChangeFrequency,
             priority: 0.7,
           });

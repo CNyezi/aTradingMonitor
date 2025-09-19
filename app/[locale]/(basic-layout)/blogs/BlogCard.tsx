@@ -40,14 +40,14 @@ export function BlogCard({ post, locale }: { post: BlogPost; locale: string }) {
       <div className="bg-card border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-3px]">
         <div className="relative h-48 w-full overflow-hidden">
           <Image
-            src={post.featured_image_url || "/placeholder.svg"}
+            src={post.featuredImageUrl || "/placeholder.svg"}
             alt={post.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
 
           <div className="absolute top-3 right-3 flex gap-2">
-            {post.is_pinned && (
+            {post.isPinned && (
               <div
                 className="bg-amber-500/90 text-white rounded-full p-1.5"
                 title="Pinned Post"
@@ -65,7 +65,7 @@ export function BlogCard({ post, locale }: { post: BlogPost; locale: string }) {
           </div>
 
           <div className="absolute bottom-3 left-3 bg-slate-900/80 text-white text-xs px-2.5 py-1 rounded-full">
-            {dayjs(post.published_at).format("MMM D, YYYY")}
+            {dayjs(post.publishedAt).format("MMM D, YYYY")}
           </div>
         </div>
 

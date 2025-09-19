@@ -3,16 +3,7 @@
  * https://sdk.vercel.ai/docs/reference/ai-sdk-core/stream-text
  * https://sdk.vercel.ai/docs/reference/ai-sdk-core/generate-text
  * https://sdk.vercel.ai/providers/ai-sdk-providers
- * 
- * vercel runtime:
- * https://vercel.com/docs/functions/runtimes/edge
- * https://vercel.com/docs/functions/runtimes/node-js
- * 
- * vercel maxDuration: 
- * https://vercel.com/docs/functions/configuring-functions/duration
  */
-
-export const runtime = "edge"; // if deploy to vercel/netlify/cloudflare, use edge runtime
 
 import { apiResponse } from "@/lib/api-response";
 import { anthropic } from "@ai-sdk/anthropic";

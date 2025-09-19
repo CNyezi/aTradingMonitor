@@ -56,11 +56,11 @@ export const GrowthChart = () => {
   const chartData = data ?? [];
 
   const totalUsers = chartData.reduce(
-    (sum, item) => sum + item.new_users_count,
+    (sum, item) => sum + item.newUsersCount,
     0
   );
   const totalOrders = chartData.reduce(
-    (sum, item) => sum + item.new_orders_count,
+    (sum, item) => sum + item.newOrdersCount,
     0
   );
 
@@ -139,7 +139,7 @@ export const GrowthChart = () => {
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis
-                dataKey="report_date"
+                dataKey="reportDate"
                 // tickFormatter={(str) =>
                 //   new Date(str).toLocaleDateString(undefined, {
                 //     month: "short",
@@ -155,7 +155,7 @@ export const GrowthChart = () => {
               <Legend />
               <Area
                 type="monotone"
-                dataKey="new_users_count"
+                dataKey="newUsersCount"
                 name={t("newUsers")}
                 stroke="hsl(var(--chart-2))"
                 fill="url(#colorUsers)"
@@ -163,7 +163,7 @@ export const GrowthChart = () => {
               />
               <Area
                 type="monotone"
-                dataKey="new_orders_count"
+                dataKey="newOrdersCount"
                 name={t("newOrders")}
                 stroke="hsl(var(--chart-1))"
                 fill="url(#colorOrders)"

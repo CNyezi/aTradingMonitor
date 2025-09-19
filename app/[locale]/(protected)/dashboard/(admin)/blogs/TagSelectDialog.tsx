@@ -1,6 +1,6 @@
 "use client";
 
-import { createTagAction, Tag as DbTag } from "@/actions/blogs/tags";
+import { createTagAction } from "@/actions/blogs/tags";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { type Tag as DbTag } from "@/types/blog";
 import { Loader2, PlusCircle, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";

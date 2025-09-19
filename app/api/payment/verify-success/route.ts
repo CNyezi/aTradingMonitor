@@ -1,22 +1,17 @@
+import { syncSubscriptionData } from '@/actions/stripe';
 import { apiResponse } from '@/lib/api-response';
-import { syncSubscriptionData } from '@/lib/stripe/actions';
-import stripe from '@/lib/stripe/stripe';
-import { createClient } from '@/lib/supabase/server';
-import { createClient as createAdminClient } from '@supabase/supabase-js';
+import { getSession } from '@/lib/auth/server';
+import { db } from '@/lib/db';
+import { orders as ordersSchema, subscriptions as subscriptionsSchema } from '@/lib/db/schema';
+import { stripe } from '@/lib/stripe';
+import { and, eq, inArray } from 'drizzle-orm';
 import { NextRequest } from 'next/server';
 import Stripe from 'stripe';
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const supabaseAdmin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    return apiResponse.unauthorized();
-  }
+  const session = await getSession();
+  const user = session?.user;
+  if (!user) return apiResponse.unauthorized();
 
   const sessionId = req.nextUrl.searchParams.get('session_id');
   if (!sessionId) {
@@ -51,18 +46,33 @@ export async function GET(req: NextRequest) {
         }
 
         try {
-          await syncSubscriptionData(subId, custId, session.metadata);
+          await syncSubscriptionData(subId, custId, session.metadata || undefined);
         } catch (syncError) {
           console.error(`[Verify API] Error during fallback sync for session ${sessionId}:`, syncError);
         }
 
-        const { data: activeSubscription, error: subCheckError } = await supabaseAdmin
-          .from('subscriptions')
-          .select('id, plan_id, status, metadata')
-          .eq('stripe_subscription_id', subId)
-          .eq('user_id', user.id)
-          .in('status', ['active', 'trialing'])
-          .maybeSingle();
+        let activeSubscription, subCheckError = null;
+        try {
+          const results = await db
+            .select({
+              id: subscriptionsSchema.id,
+              planId: subscriptionsSchema.planId,
+              status: subscriptionsSchema.status,
+              metadata: subscriptionsSchema.metadata,
+            })
+            .from(subscriptionsSchema)
+            .where(
+              and(
+                eq(subscriptionsSchema.stripeSubscriptionId, subId),
+                eq(subscriptionsSchema.userId, user.id),
+                inArray(subscriptionsSchema.status, ['active', 'trialing'])
+              )
+            )
+            .limit(1);
+          activeSubscription = results[0];
+        } catch (e) {
+          subCheckError = e;
+        }
 
         if (subCheckError) {
           console.error(`[Verify API] DB error checking subscription ${subId}:`, subCheckError);
@@ -77,8 +87,8 @@ export async function GET(req: NextRequest) {
         } else {
           return apiResponse.success({
             subscriptionId: activeSubscription.id,
-            planName: activeSubscription.metadata?.planName,
-            planId: activeSubscription.plan_id,
+            planName: (activeSubscription.metadata as any)?.planName,
+            planId: activeSubscription.planId,
             status: activeSubscription.status,
             message: 'Subscription verified and active.',
           });
@@ -90,15 +100,28 @@ export async function GET(req: NextRequest) {
 
         const piId = session.payment_intent ? typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent.id : session.id;
 
-        const { data: existingOrder, error: orderCheckError } = await supabaseAdmin
-          .from('orders')
-          .select('id, metadata')
-          .eq('provider', 'stripe')
-          .eq('provider_order_id', piId)
-          .eq('user_id', user.id)
-          .eq('order_type', 'one_time_purchase')
-          .eq('status', 'succeeded')
-          .maybeSingle();
+        let existingOrder, orderCheckError = null;
+        try {
+          const results = await db
+            .select({
+              id: ordersSchema.id,
+              metadata: ordersSchema.metadata,
+            })
+            .from(ordersSchema)
+            .where(
+              and(
+                eq(ordersSchema.provider, 'stripe'),
+                eq(ordersSchema.providerOrderId, piId),
+                eq(ordersSchema.userId, user.id),
+                eq(ordersSchema.orderType, 'one_time_purchase'),
+                eq(ordersSchema.status, 'succeeded')
+              )
+            )
+            .limit(1);
+          existingOrder = results[0];
+        } catch (e) {
+          orderCheckError = e;
+        }
 
         if (orderCheckError) {
           console.error(`[Verify API] DB error checking order for PI ${piId}:`, orderCheckError);
@@ -114,8 +137,8 @@ export async function GET(req: NextRequest) {
           const message = 'Payment verified and order confirmed.';
           return apiResponse.success({
             orderId: existingOrder.id,
-            planName: existingOrder.metadata?.planName,
-            planId: existingOrder.metadata?.planId,
+            planName: (existingOrder.metadata as any)?.planName,
+            planId: (existingOrder.metadata as any)?.planId,
             message: message
           });
         }

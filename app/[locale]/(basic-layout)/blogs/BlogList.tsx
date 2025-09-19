@@ -1,8 +1,7 @@
 "use client";
 
 import { listPublishedPostsAction, PublicPost } from "@/actions/blogs/posts";
-import { Tag } from "@/actions/blogs/tags";
-import { BlogPost } from "@/types/blog";
+import { BlogPost, Tag } from "@/types/blog";
 import dayjs from "dayjs";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -17,14 +16,14 @@ function mapServerPostToBlogCard(post: PublicPost, locale: string): BlogPost {
     locale: locale,
     title: post.title,
     description: post.description ?? "",
-    featured_image_url: post.featured_image_url ?? "/placeholder.svg",
+    featuredImageUrl: post.featuredImageUrl ?? "/placeholder.svg",
     slug: post.slug,
     tags: post.tags ?? "",
-    published_at:
-      (post.published_at && dayjs(post.published_at).toDate()) || new Date(),
+    publishedAt:
+      (post.publishedAt && dayjs(post.publishedAt).toDate()) || new Date(),
     status: post.status ?? "published",
     visibility: post.visibility ?? "public",
-    is_pinned: post.is_pinned ?? false,
+    isPinned: post.isPinned ?? false,
     content: "", // content is not used in the blog card
   };
 }

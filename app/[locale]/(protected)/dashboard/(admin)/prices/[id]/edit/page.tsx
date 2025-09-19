@@ -1,36 +1,32 @@
+import { isAdmin } from "@/lib/auth/server";
+import { db } from "@/lib/db";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { constructMetadata } from "@/lib/metadata";
-import { isAdmin } from "@/lib/supabase/isAdmin";
-import { Database } from "@/lib/supabase/types";
-import { PricingPlan } from "@/types/pricing";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { eq } from "drizzle-orm";
 import { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { PricePlanForm } from "../../PricePlanForm";
 
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
+
 async function getPricingPlanById(id: string): Promise<PricingPlan | null> {
   try {
-    const supabase = await createAdminClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    const { data: plan, error } = await supabase
-      .from("pricing_plans")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const results = await db
+      .select()
+      .from(pricingPlansSchema)
+      .where(eq(pricingPlansSchema.id, id))
+      .limit(1);
 
-    if (error) {
-      if (error.code === "PGRST116") {
-        console.error(`Pricing plan with ID ${id} not found.`);
-        return null;
-      }
-      console.error(`Error fetching pricing plan ${id}:`, error);
-      throw new Error(`Failed to fetch pricing plan: ${error.message}`);
+    const plan = results[0];
+
+    if (!plan) {
+      console.error(`Pricing plan with ID ${id} not found.`);
+      return null;
     }
 
-    return plan as PricingPlan;
+    return plan as any;
   } catch (error) {
     console.error(`Unexpected error fetching plan ${id}:`, error);
     throw error;
@@ -62,7 +58,7 @@ export async function generateMetadata({
     page: "PricesEdit",
     title: t("title"),
     description: t("description", {
-      title: plan.card_title,
+      title: plan.cardTitle,
       environment: plan.environment,
     }),
     locale: locale as Locale,
@@ -97,7 +93,7 @@ export default async function EditPricePlanPage({
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-muted-foreground">
           {t("description", {
-            title: plan.card_title,
+            title: plan.cardTitle,
             environment: plan.environment,
           })}
         </p>

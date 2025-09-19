@@ -14,27 +14,31 @@ interface InvoicePaymentFailedEmailProps {
 
 const commonStyles = {
   container: {
-    fontFamily: "'Inter', sans-serif",
+    fontFamily:
+      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     maxWidth: "600px",
     margin: "0 auto",
-    padding: "20px",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f8fafc",
+    padding: "40px 20px",
   },
-  section: {
-    marginBottom: "30px",
-    paddingBottom: "20px",
-    borderBottom: "1px solid #e5e7eb",
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    padding: "40px",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
   },
   title: {
     color: "#ef4444",
-    marginBottom: "16px",
-    fontSize: "20px",
+    fontSize: "24px",
     fontWeight: "bold",
+    margin: "0 0 24px 0",
+    textAlign: "center" as const,
   },
   paragraph: {
-    marginBottom: "16px",
-    lineHeight: 1.6,
-    color: "#374151",
+    fontSize: "16px",
+    lineHeight: "1.6",
+    color: "#4b5563",
+    margin: "0 0 24px 0",
   },
   highlight: {
     fontWeight: "bold" as const,
@@ -46,33 +50,50 @@ const commonStyles = {
     color: "#ffffff",
     textDecoration: "none",
     borderRadius: "6px",
-    fontWeight: "bold",
-    marginTop: "10px",
-    marginBottom: "20px",
+    fontWeight: "500",
+    fontSize: "16px",
+    margin: "24px 0",
   },
   infoBox: {
     backgroundColor: "#f9fafb",
     padding: "15px",
     borderRadius: "6px",
     border: "1px solid #e5e7eb",
-    marginBottom: "16px",
+    margin: "24px 0",
     fontSize: "14px",
   },
   supportText: {
     fontSize: "14px",
     color: "#6b7280",
+    margin: "24px 0 0",
   },
   link: {
     color: "#3b82f6",
     textDecoration: "underline",
   },
   footer: {
-    marginTop: "30px",
-    paddingTop: "20px",
+    marginTop: "32px",
+    paddingTop: "24px",
     borderTop: "1px solid #e5e7eb",
     textAlign: "center" as const,
+  },
+  footerText: {
     fontSize: "12px",
     color: "#9ca3af",
+    margin: "0",
+  },
+  logo: {
+    width: "80px",
+    height: "80px",
+    backgroundColor: "#000000",
+    borderRadius: "50%",
+    margin: "0 auto 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "36px",
+    fontWeight: "bold",
+    color: "#ffffff",
   },
 };
 
@@ -85,7 +106,31 @@ const EnglishVersion: React.FC<InvoicePaymentFailedEmailProps> = ({
   supportLink,
   invoiceId,
 }) => (
-  <div style={commonStyles.section}>
+  <div style={commonStyles.card}>
+    <div style={commonStyles.logo}>
+      <img
+        src={`${siteConfig.url}/logo.png`}
+        alt={siteConfig.name}
+        width={80}
+        height={80}
+      />
+    </div>
+
+    <h1
+      style={{
+        ...commonStyles.title,
+        fontSize: "24px",
+        fontWeight: "bold",
+        color: "#3b82f6",
+      }}
+    >
+      <a
+        href={siteConfig.url}
+        style={{ textDecoration: "none", color: "#3b82f6" }}
+      >
+        {siteConfig.name}
+      </a>
+    </h1>
     <h2 style={commonStyles.title}>Action Required: Payment Failed</h2>
     <p style={commonStyles.paragraph}>
       We were unable to process the payment for your{" "}
@@ -135,7 +180,9 @@ export const InvoicePaymentFailedEmail: React.FC<
       <EnglishVersion {...props} />
 
       <div style={commonStyles.footer}>
-        © {new Date().getFullYear()} {siteConfig.name} - All Rights Reserved
+        <p style={commonStyles.footerText}>
+          © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+        </p>
       </div>
     </div>
   );

@@ -11,13 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DEFAULT_LOCALE, Link as I18nLink, useRouter } from "@/i18n/routing";
-import { PricingPlan } from "@/types/pricing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DeletePlanDialog } from "./DeletePlanDialog";
 
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 interface PriceListActionsProps {
   plan: PricingPlan;
 }
@@ -58,7 +59,7 @@ export function PriceListActions({ plan }: PriceListActionsProps) {
       }
 
       toast.success(
-        t("deleteSuccess", { title: planToDelete?.card_title || planId })
+        t("deleteSuccess", { title: planToDelete?.cardTitle || planId })
       );
       setIsDeleteDialogOpen(false);
       setPlanToDelete(null);
@@ -109,7 +110,7 @@ export function PriceListActions({ plan }: PriceListActionsProps) {
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         planId={planToDelete?.id ?? null}
-        planTitle={planToDelete?.card_title ?? null}
+        planTitle={planToDelete?.cardTitle ?? null}
         onConfirmDelete={handleConfirmDelete}
       />
     </>

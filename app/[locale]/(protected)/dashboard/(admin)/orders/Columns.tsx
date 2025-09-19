@@ -1,21 +1,29 @@
 "use client";
 
-import CopyButton from "@/components/mdx/CopyButton";
 import { Badge } from "@/components/ui/badge";
 import { OrderWithUser } from "@/types/admin/orders";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<OrderWithUser>[] = [
   {
     accessorKey: "id",
     header: "ID",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1">
-        <div className="max-w-[150px] truncate">{row.getValue("id")}</div>
-        <CopyButton text={row.getValue("id") as string} />
-      </div>
-    ),
+    cell: ({ row }) => {
+      const id = row.getValue("id") as string;
+      return (
+        <div
+          className="max-w-[200px] truncate cursor-pointer"
+          onClick={() => {
+            navigator.clipboard.writeText(id);
+            toast.success("Copied ID to clipboard");
+          }}
+        >
+          {id}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "users",
@@ -24,9 +32,17 @@ export const columns: ColumnDef<OrderWithUser>[] = [
       const user = row.original.users;
       return (
         <div className="flex flex-col">
-          <span className="font-medium">{user?.full_name}</span>
-          <span className="text-muted-foreground flex items-center gap-1">
-            {user?.email} <CopyButton text={user?.email || ""} />
+          <span className="font-medium">{user?.name}</span>
+          <span
+            className="text-muted-foreground cursor-pointer"
+            onClick={() => {
+              if (user?.email) {
+                navigator.clipboard.writeText(user.email);
+                toast.success("Copied email to clipboard");
+              }
+            }}
+          >
+            {user?.email}
           </span>
         </div>
       );
@@ -40,19 +56,27 @@ export const columns: ColumnDef<OrderWithUser>[] = [
     },
   },
   {
-    accessorKey: "provider_order_id",
+    accessorKey: "providerOrderId",
     header: "Provider Order ID",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1">
-        <div className="max-w-[150px] truncate">
-          {row.getValue("provider_order_id")}
+    cell: ({ row }) => {
+      const providerOrderId = row.getValue("providerOrderId") as string;
+      return (
+        <div
+          className="max-w-[200px] truncate cursor-pointer"
+          onClick={() => {
+            if (providerOrderId) {
+              navigator.clipboard.writeText(providerOrderId);
+              toast.success("Copied Provider Order ID to clipboard");
+            }
+          }}
+        >
+          {providerOrderId}
         </div>
-        <CopyButton text={row.getValue("id") as string} />
-      </div>
-    ),
+      );
+    },
   },
   {
-    accessorKey: "amount_total",
+    accessorKey: "amountTotal",
     header: "Amount",
     cell: ({ row }) => (
       <div className="flex flex-col w-[120px]">
@@ -60,25 +84,25 @@ export const columns: ColumnDef<OrderWithUser>[] = [
           {new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: row.original.currency,
-          }).format(row.original.amount_total)}
+          }).format(Number(row.original.amountTotal))}
         </span>
-        {row.original.amount_discount ? (
+        {row.original.amountDiscount ? (
           <span className="text-xs text-muted-foreground">
             Discount:{" "}
             {new Intl.NumberFormat("en-US", {
               style: "currency",
               currency: row.original.currency,
-            }).format(row.original.amount_discount)}
+            }).format(Number(row.original.amountDiscount))}
           </span>
         ) : null}
       </div>
     ),
   },
   {
-    accessorKey: "order_type",
+    accessorKey: "orderType",
     header: "Type",
     cell: ({ row }) => (
-      <Badge variant="outline">{row.original.order_type}</Badge>
+      <Badge variant="outline">{row.original.orderType}</Badge>
     ),
   },
   {
@@ -100,10 +124,10 @@ export const columns: ColumnDef<OrderWithUser>[] = [
     },
   },
   {
-    accessorKey: "created_at",
+    accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => {
-      const date = row.getValue("created_at") as string | Date;
+      const date = row.getValue("createdAt") as string | Date;
       try {
         return date ? (
           <div className="w-[180px]">

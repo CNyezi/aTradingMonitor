@@ -13,6 +13,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ContentRestrictionMessage } from "./ContentRestrictionMessage";
 
+export const dynamicParams = true;
+
 type Params = Promise<{
   locale: string;
   slug: string;
@@ -47,7 +49,7 @@ export async function generateMetadata({
     page: "blogs",
     title: post.title,
     description: post.description,
-    images: post.featured_image_url ? [post.featured_image_url] : [],
+    images: post.featuredImageUrl ? [post.featuredImageUrl] : [],
     locale: locale as Locale,
     path: fullPath,
     noIndex: isContentRestricted,
@@ -147,10 +149,10 @@ export default async function BlogPage({ params }: { params: Params }) {
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
           <div className="flex items-center">
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {dayjs(post.published_at).format("MMMM D, YYYY")}
+            {dayjs(post.publishedAt).format("MMMM D, YYYY")}
           </div>
 
-          {post.is_pinned && (
+          {post.isPinned && (
             <div className="flex items-center bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 px-2 py-0.5 rounded-md text-xs">
               {t("BlogDetail.featured")}
             </div>
@@ -164,10 +166,10 @@ export default async function BlogPage({ params }: { params: Params }) {
         )}
       </header>
 
-      {post.featured_image_url && (
+      {post.featuredImageUrl && (
         <div className="my-10 rounded-xl overflow-hidden shadow-md aspect-video relative">
           <Image
-            src={post.featured_image_url}
+            src={post.featuredImageUrl}
             alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, 1200px"

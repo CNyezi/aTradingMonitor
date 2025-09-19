@@ -50,22 +50,22 @@ export const getColumns = (
   t: (key: string) => string
 ): ColumnDef<CreditLog>[] => [
   {
-    accessorKey: "created_at",
-    header: t("header_date"),
+    accessorKey: "createdAt",
+    header: "Created At",
     cell: ({ row }) => (
       <div>
-        {dayjs(row.getValue("created_at")).format("YYYY-MM-DD HH:mm:ss")}
+        {dayjs(row.getValue("createdAt")).format("YYYY-MM-DD HH:mm:ss")}
       </div>
     ),
   },
   {
     accessorKey: "type",
-    header: t("header_type"),
+    header: "Type",
     cell: ({ row }) => formatLogType(row.getValue("type"), t),
   },
   {
     accessorKey: "notes",
-    header: t("header_details"),
+    header: "Details",
     cell: ({ row }) => (
       <TooltipProvider>
         <Tooltip>
@@ -81,13 +81,13 @@ export const getColumns = (
   },
   {
     accessorKey: "amount",
-    header: () => <div className="text-right">{t("header_amount")}</div>,
+    header: "Amount",
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"));
       const formatted = amount > 0 ? `+${amount}` : amount.toString();
       return (
         <div
-          className={`text-right font-medium ${
+          className={`font-medium ${
             amount > 0 ? "text-green-600" : "text-destructive"
           }`}
         >
@@ -97,24 +97,20 @@ export const getColumns = (
     },
   },
   {
-    accessorKey: "one_time_balance_after",
-    header: () => (
-      <div className="text-right">{t("header_balance_one_time")}</div>
-    ),
+    accessorKey: "oneTimeBalanceAfter",
+    header: "One-Time Balance After",
     cell: ({ row }) => (
-      <div className="text-right text-muted-foreground">
-        {row.getValue("one_time_balance_after")}
+      <div className="text-muted-foreground">
+        {row.getValue("oneTimeBalanceAfter")}
       </div>
     ),
   },
   {
-    accessorKey: "subscription_balance_after",
-    header: () => (
-      <div className="text-right">{t("header_balance_subscription")}</div>
-    ),
+    accessorKey: "subscriptionBalanceAfter",
+    header: "Subscription Balance After",
     cell: ({ row }) => (
-      <div className="text-right text-muted-foreground">
-        {row.getValue("subscription_balance_after")}
+      <div className="text-muted-foreground">
+        {row.getValue("subscriptionBalanceAfter")}
       </div>
     ),
   },

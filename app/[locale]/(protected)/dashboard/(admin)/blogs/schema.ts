@@ -11,11 +11,11 @@ export const basePostSchema = z.object({
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }),
   content: z.string().optional(),
   description: z.string().optional(),
-  featured_image_url: z.string().url({ message: "Featured image must be a valid URL if provided." }).optional().or(z.literal("")),
+  featuredImageUrl: z.string().url({ message: "Featured image must be a valid URL if provided." }).optional().or(z.literal("")),
   status: z.enum(["draft", "published", "archived"]),
   visibility: z.enum(["public", "logged_in", "subscribers"]),
   tags: z.array(tagSchema).optional(),
-  is_pinned: z.boolean().optional(),
+  isPinned: z.boolean().optional(),
 });
 
 export const postActionSchema = basePostSchema.extend({

@@ -1,7 +1,10 @@
 import PricingCTA from "@/components/home/PricingCTA";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
-import { PricingPlan, PricingPlanTranslation } from "@/types/pricing";
+import { PricingPlanFeature, PricingPlanTranslation } from "@/types/pricing";
 import { Check, X } from "lucide-react";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 const defaultBorderStyle = "border-gray-300 dark:border-gray-600";
 const highlightedBorderStyle =
@@ -20,27 +23,27 @@ export function PricingCardDisplay({
   localizedPlan,
 }: PricingCardDisplayProps) {
   const cardTitle =
-    localizedPlan?.card_title || plan.card_title || "Unnamed Plan";
+    localizedPlan?.cardTitle || plan.cardTitle || "Unnamed Plan";
   const cardDescription =
-    localizedPlan?.card_description || plan.card_description || "";
-  const displayPrice = localizedPlan?.display_price || plan.display_price || "";
-  const originalPrice = localizedPlan?.original_price || plan.original_price;
+    localizedPlan?.cardDescription || plan.cardDescription || "";
+  const displayPrice = localizedPlan?.displayPrice || plan.displayPrice || "";
+  const originalPrice = localizedPlan?.originalPrice || plan.originalPrice;
   const priceSuffix =
-    localizedPlan?.price_suffix?.replace(/^\/+/, "") ||
-    plan.price_suffix?.replace(/^\/+/, "");
+    localizedPlan?.priceSuffix?.replace(/^\/+/, "") ||
+    plan.priceSuffix?.replace(/^\/+/, "");
   const features = localizedPlan?.features || plan.features || [];
-  const highlightText = localizedPlan?.highlight_text;
+  const highlightText = localizedPlan?.highlightText;
 
   return (
     <div
       id={id}
       className={`card rounded-xl p-8 shadow-sm border-t-4 ${
-        plan.is_highlighted ? highlightedBorderStyle : defaultBorderStyle
+        plan.isHighlighted ? highlightedBorderStyle : defaultBorderStyle
       } ${
-        plan.is_highlighted ? "shadow-lg transform scale-105 relative z-10" : ""
+        plan.isHighlighted ? "shadow-lg transform scale-105 relative z-10" : ""
       }`}
     >
-      {plan.is_highlighted && highlightText && (
+      {plan.isHighlighted && highlightText && (
         <div
           className={cn(
             "absolute top-[-1px] right-0 text-white text-xs px-3 py-1 rounded-bl-lg rounded-tr-lg font-medium",
@@ -71,7 +74,7 @@ export function PricingCardDisplay({
         ) : null}
       </div>
       <ul className="space-y-3 mb-6">
-        {features?.map(
+        {(features as PricingPlanFeature[])?.map(
           (
             feature: { description: string; included: boolean; bold?: boolean },
             index: number

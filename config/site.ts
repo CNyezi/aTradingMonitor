@@ -2,10 +2,9 @@ import { SiteConfig } from "@/types/siteConfig";
 
 export const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nexty.dev";
 
-const GITHUB_URL = 'https://github.com/wenextdev'
-const TWITTER_EN = 'https://x.com/judewei_dev'
-const TWITTER_ZH = 'https://x.com/weijunext'
-const BSKY_URL = 'https://bsky.app/profile/judewei.bsky.social'
+const GITHUB_URL = ''
+const TWITTER_URL = ''
+const BSKY_URL = ''
 const DISCORD_URL = process.env.NEXT_PUBLIC_DISCORD_INVITE_URL
 const EMAIL_URL = 'mailto:hi@nexty.dev'
 
@@ -15,15 +14,14 @@ export const siteConfig: SiteConfig = {
   authors: [
     {
       name: "nexty.dev",
-      url: "https://nexty.dev",
+      url: BASE_URL,
     }
   ],
   creator: '@judewei_dev',
   socialLinks: {
     github: GITHUB_URL,
     bluesky: BSKY_URL,
-    twitter: TWITTER_EN,
-    twitterZh: TWITTER_ZH,
+    twitter: TWITTER_URL,
     discord: DISCORD_URL,
     email: EMAIL_URL,
   },

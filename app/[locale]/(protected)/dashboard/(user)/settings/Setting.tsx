@@ -1,11 +1,12 @@
 "use client";
 
 import { updateUserSettingsAction } from "@/actions/users/settings";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth/auth-client";
+import { user as userSchema } from "@/lib/db/schema";
 import {
   AVATAR_ACCEPT_ATTRIBUTE,
   AVATAR_ALLOWED_EXTENSIONS,
@@ -16,11 +17,15 @@ import {
 } from "@/lib/validations";
 import { Loader2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function Settings() {
-  const { user, refreshUser } = useAuth();
+type User = typeof userSchema.$inferSelect;
+
+export default function Settings({ user }: { user: User }) {
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [fullNameError, setFullNameError] = useState<string>("");
@@ -31,7 +36,7 @@ export default function Settings() {
   const locale = useLocale();
 
   useEffect(() => {
-    setFullName(user?.user_metadata?.full_name || "");
+    setFullName(user?.name || "");
   }, [user]);
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,11 +117,17 @@ export default function Settings() {
         description: t("toast.updateSuccessDescription"),
       });
 
-      await refreshUser();
+      await authClient.getSession({
+        query: {
+          disableCookieCache: true,
+        },
+      });
+      router.refresh();
+
       setAvatarFile(null);
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
+        // setPreviewUrl(null);
       }
       const fileInput = document.querySelector(
         'input[type="file"]'
@@ -140,6 +151,7 @@ export default function Settings() {
     return () => {
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
       }
     };
   }, [previewUrl]);
@@ -150,7 +162,7 @@ export default function Settings() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label>{t("form.emailLabel")}</Label>
-          <Input defaultValue={user?.email} disabled className="bg-muted" />
+          <Input defaultValue={user.email} disabled className="bg-muted" />
         </div>
 
         <div className="space-y-2">
@@ -171,12 +183,10 @@ export default function Settings() {
           <div className="flex items-center gap-4">
             <Avatar className="w-20 h-20">
               <AvatarImage
-                src={previewUrl || user?.user_metadata?.avatar_url || undefined}
-                alt={user?.user_metadata?.full_name || "User avatar"}
+                src={previewUrl || user.image || undefined}
+                alt={user.name || "User avatar"}
               />
-              <AvatarFallback>
-                {user?.user_metadata?.full_name?.[0] || "U"}
-              </AvatarFallback>
+              <AvatarFallback>{user.email[0] || ""}</AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">
               <Input
@@ -184,7 +194,6 @@ export default function Settings() {
                 accept={AVATAR_ACCEPT_ATTRIBUTE}
                 onChange={handleAvatarChange}
                 className="max-w-[300px] hover:cursor-pointer"
-                lang="en"
               />
               <p className="text-xs text-muted-foreground">
                 {t("form.avatarHint", {

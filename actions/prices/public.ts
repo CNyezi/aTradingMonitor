@@ -1,34 +1,42 @@
 'use server';
 
 import { actionResponse, ActionResult } from '@/lib/action-response';
+import { db, isDatabaseEnabled } from '@/lib/db';
+import { pricingPlans as pricingPlansSchema } from '@/lib/db/schema';
 import { getErrorMessage } from '@/lib/error-utils';
-import { createClient } from "@/lib/supabase/server";
-import { PricingPlan } from "@/types/pricing";
+import { isStripeEnabled } from '@/lib/stripe';
+import { and, asc, eq } from 'drizzle-orm';
 import 'server-only';
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect
 
 /**
  * Public List
  */
-export async function getPublicPricingPlans(): Promise<ActionResult<PricingPlan[]>> {
-  const supabase = await createClient();
-  const environment = process.env.NODE_ENV === 'production' ? 'live' : 'test';
+export async function getPublicPricingPlans(): Promise<
+  ActionResult<PricingPlan[]>
+> {
+  if (!isDatabaseEnabled || !isStripeEnabled) {
+    return actionResponse.success([])
+  }
+
+  const environment = process.env.NODE_ENV === 'production' ? 'live' : 'test'
 
   try {
-    const { data: plans, error } = await supabase
-      .from("pricing_plans")
-      .select("*")
-      .eq("environment", environment)
-      .eq("is_active", true)
-      .order("display_order", { ascending: true });
+    const plans = await db
+      .select()
+      .from(pricingPlansSchema)
+      .where(
+        and(
+          eq(pricingPlansSchema.environment, environment),
+          eq(pricingPlansSchema.isActive, true)
+        )
+      )
+      .orderBy(asc(pricingPlansSchema.displayOrder))
 
-    if (error) {
-      console.error("Error fetching public pricing plans:", error);
-      return actionResponse.error(`Failed to fetch pricing plans: ${error.message}`);
-    }
-
-    return actionResponse.success((plans as unknown as PricingPlan[]) || []);
+    return actionResponse.success((plans as unknown as PricingPlan[]) || [])
   } catch (error) {
-    console.error("Unexpected error in getPublicPricingPlans:", error);
-    return actionResponse.error(getErrorMessage(error));
+    console.error('Unexpected error in getPublicPricingPlans:', error)
+    return actionResponse.error(getErrorMessage(error))
   }
 }

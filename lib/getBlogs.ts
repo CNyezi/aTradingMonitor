@@ -36,12 +36,12 @@ export async function getPosts(locale: string = DEFAULT_LOCALE): Promise<{ posts
           locale, // use locale parameter
           title: data.title,
           description: data.description,
-          featured_image_url: data.featured_image_url || '',
+          featuredImageUrl: data.featuredImageUrl || '',
           slug: data.slug,
           tags: data.tags,
-          published_at: data.published_at,
+          publishedAt: data.publishedAt,
           status: data.status || 'published',
-          is_pinned: data.is_pinned || false,
+          isPinned: data.isPinned || false,
           content,
           metadata: data,
         };
@@ -54,12 +54,12 @@ export async function getPosts(locale: string = DEFAULT_LOCALE): Promise<{ posts
   // filter out non-published articles
   allPosts = allPosts.filter(post => post.status === 'published');
 
-  // sort posts by is_pinned and published_at
+  // sort posts by isPinned and publishedAt
   allPosts = allPosts.sort((a, b) => {
-    if (a.is_pinned !== b.is_pinned) {
-      return (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0);
+    if (a.isPinned !== b.isPinned) {
+      return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
     }
-    return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
   });
 
   return {
@@ -72,13 +72,13 @@ function mapServerPostToBlogPost(serverPost: PublicPostWithContent, locale: stri
     locale: locale,
     title: serverPost.title,
     description: serverPost.description ?? "",
-    featured_image_url: serverPost.featured_image_url ?? "",
+    featuredImageUrl: serverPost.featuredImageUrl ?? "",
     slug: serverPost.slug,
     tags: serverPost.tags ?? "",
-    published_at:
-      (serverPost.published_at && dayjs(serverPost.published_at).toDate()) || new Date(serverPost.created_at),
+    publishedAt:
+      (serverPost.publishedAt && dayjs(serverPost.publishedAt).toDate()) || new Date(serverPost.createdAt),
     status: serverPost.status ?? "published",
-    is_pinned: serverPost.is_pinned ?? false,
+    isPinned: serverPost.isPinned ?? false,
     content: serverPost.content ?? '',
     visibility: serverPost.visibility,
   };
@@ -106,13 +106,13 @@ export async function getPostBySlug(
               locale,
               title: data.title,
               description: data.description || '',
-              featured_image_url: data.featured_image_url || '',
+              featuredImageUrl: data.featuredImageUrl || '',
               slug: data.slug,
               tags: data.tags || '',
-              published_at: data.published_at ? new Date(data.published_at) : new Date(),
+              publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
               status: data.status || 'published',
               visibility: data.visibility || 'public',
-              is_pinned: data.is_pinned || false,
+              isPinned: data.isPinned || false,
               content,
               metadata: data,
             },

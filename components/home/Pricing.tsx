@@ -13,9 +13,12 @@ import { PricingCardDisplay } from "@/components/home/PricingCardDisplay";
 import FeatureBadge from "@/components/shared/FeatureBadge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DEFAULT_LOCALE } from "@/i18n/routing";
-import { PricingPlan } from "@/types/pricing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
+import { PricingPlanLangJsonb } from "@/types/pricing";
 import { Gift } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 export default async function Pricing() {
   const t = await getTranslations("Landing.Pricing");
@@ -33,16 +36,16 @@ export default async function Pricing() {
 
   const annualPlans = allPlans.filter(
     (plan) =>
-      plan.payment_type === "recurring" && plan.recurring_interval === "year"
+      plan.paymentType === "recurring" && plan.recurringInterval === "year"
   );
 
   const monthlyPlans = allPlans.filter(
     (plan) =>
-      plan.payment_type === "recurring" && plan.recurring_interval === "month"
+      plan.paymentType === "recurring" && plan.recurringInterval === "month"
   );
 
   const oneTimePlans = allPlans.filter(
-    (plan) => plan.payment_type === "one_time"
+    (plan) => plan.paymentType === "one_time"
   );
 
   // count the number of available plan types
@@ -81,13 +84,14 @@ export default async function Pricing() {
           plans.length === 1
             ? "grid-cols-1 max-w-sm mx-auto"
             : plans.length === 2
-            ? "grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto"
-            : "grid-cols-1 lg:grid-cols-3 max-w-7xl mx-auto"
+              ? "grid-cols-1 md:grid-cols-2 max-w-3xl mx-auto"
+              : "grid-cols-1 lg:grid-cols-3 max-w-7xl mx-auto"
         }`}
       >
         {plans.map((plan) => {
           const localizedPlan =
-            plan.lang_jsonb?.[locale] || plan.lang_jsonb?.[DEFAULT_LOCALE];
+            (plan.langJsonb as PricingPlanLangJsonb)?.[locale] ||
+            (plan.langJsonb as PricingPlanLangJsonb)?.[DEFAULT_LOCALE];
 
           if (!localizedPlan) {
             console.warn(
@@ -100,7 +104,7 @@ export default async function Pricing() {
 
           return (
             <PricingCardDisplay
-              id={plan.is_highlighted ? "highlight-card" : undefined}
+              id={plan.isHighlighted ? "highlight-card" : undefined}
               key={plan.id}
               plan={plan}
               localizedPlan={localizedPlan}

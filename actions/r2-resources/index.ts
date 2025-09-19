@@ -1,10 +1,9 @@
 "use server";
 
 import { actionResponse } from "@/lib/action-response";
+import { getSession, isAdmin } from "@/lib/auth/server";
 import { createR2Client, deleteFile as deleteR2Util, generateR2Key, ListedObject, listR2Objects } from "@/lib/cloudflare/r2";
 import { getErrorMessage } from "@/lib/error-utils";
-import { isAdmin } from "@/lib/supabase/isAdmin";
-import { createClient } from "@/lib/supabase/server";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { z } from "zod";
@@ -179,14 +178,9 @@ export async function generateAdminPresignedUploadUrl(
 export async function generateUserPresignedUploadUrl(
   input: GeneratePresignedUploadUrlInput
 ): Promise<GeneratePresignedUploadUrlData> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return actionResponse.unauthorized();
-  }
+  const session = await getSession()
+  const user = session?.user;
+  if (!user) return actionResponse.unauthorized();
 
   const userPath = `/users/${input.path}/userid-${user.id}`;
 

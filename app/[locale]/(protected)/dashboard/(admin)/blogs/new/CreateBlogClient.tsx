@@ -43,8 +43,8 @@ export default function CreateBlogClient() {
               title: `${originalPost.title} (Copy)`,
               slug: `${originalPost.slug}`,
               status: "draft",
-              is_pinned: false,
-              published_at: null,
+              isPinned: false,
+              publishedAt: null,
             };
             setInitialData(duplicatedPostData);
           } else {
@@ -75,7 +75,6 @@ export default function CreateBlogClient() {
     if (result.success && result.data?.postId) {
       toast.success(t("submitSuccess"));
       router.push(`/dashboard/blogs`);
-      router.refresh();
     } else {
       toast.error(t("submitErrorTitle"), {
         description: result.error || t("submitErrorDesc"),

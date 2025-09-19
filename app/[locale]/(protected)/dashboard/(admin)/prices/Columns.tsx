@@ -6,11 +6,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PricingPlan } from "@/types/pricing";
+import { pricingPlans as pricingPlansSchema } from "@/lib/db/schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { PriceListActions } from "./PriceListActions";
+
+type PricingPlan = typeof pricingPlansSchema.$inferSelect;
 
 export const columns: ColumnDef<PricingPlan>[] = [
   {
@@ -38,17 +40,18 @@ export const columns: ColumnDef<PricingPlan>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: "card_title",
+    accessorKey: "cardTitle",
     header: "Title",
+    minSize: 200,
     cell: ({ row }) => (
-      <span className="font-medium">{row.getValue("card_title")}</span>
+      <span className="font-medium">{row.getValue("cardTitle")}</span>
     ),
   },
   {
-    accessorKey: "stripe_price_id",
+    accessorKey: "stripePriceId",
     header: "Stripe Price ID",
     cell: ({ row }) => {
-      const priceId = row.getValue("stripe_price_id");
+      const priceId = row.getValue("stripePriceId");
       const environment = row.original.environment;
       const stripeLink = priceId
         ? `https://dashboard.stripe.com/${
@@ -77,11 +80,12 @@ export const columns: ColumnDef<PricingPlan>[] = [
     },
   },
   {
-    accessorKey: "payment_type",
+    accessorKey: "paymentType",
     header: "Payment Type",
+    minSize: 200,
     cell: ({ row }) => {
-      const paymentType = row.getValue("payment_type") as string | null;
-      const interval = row.original.recurring_interval;
+      const paymentType = row.getValue("paymentType") as string | null;
+      const interval = row.original.recurringInterval;
       if (paymentType === "recurring" && interval) {
         return (
           <span className="capitalize">
@@ -100,16 +104,12 @@ export const columns: ColumnDef<PricingPlan>[] = [
     accessorKey: "price",
     header: "Price",
     cell: ({ row }) => {
-      return (
-        <div className="text-right font-medium">
-          {row.original.display_price}
-        </div>
-      );
+      return <div className="font-medium">{row.original.displayPrice}</div>;
     },
     enableSorting: true,
   },
   {
-    accessorKey: "display_order",
+    accessorKey: "displayOrder",
     header: ({ column }) => {
       return (
         <Button
@@ -123,16 +123,16 @@ export const columns: ColumnDef<PricingPlan>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="text-center">{row.getValue("display_order")}</div>;
+      return <div className="text-center">{row.getValue("displayOrder")}</div>;
     },
     enableSorting: true,
     size: 50,
   },
   {
-    accessorKey: "is_active",
+    accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
+      const isActive = row.getValue("isActive") as boolean;
       return isActive ? (
         <Badge variant="default">Active</Badge>
       ) : (
@@ -142,14 +142,15 @@ export const columns: ColumnDef<PricingPlan>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "benefits_jsonb",
+    accessorKey: "benefitsJsonb",
     header: "Benefits",
+    minSize: 300,
     cell: ({ row }) => {
-      const benefits = row.getValue("benefits_jsonb") as object | null;
+      const benefits = row.getValue("benefitsJsonb") as object | null;
       const benefitsString = benefits ? JSON.stringify(benefits) : "-";
       const displayString =
-        benefitsString.length > 20
-          ? benefitsString.substring(0, 17) + "..."
+        benefitsString.length > 50
+          ? benefitsString.substring(0, 47) + "..."
           : benefitsString;
 
       return benefits && Object.keys(benefits).length > 0 ? (
@@ -175,7 +176,7 @@ export const columns: ColumnDef<PricingPlan>[] = [
     cell: ({ row, table }) => {
       const plan = row.original;
 
-      return <PriceListActions plan={plan} />;
+      return <PriceListActions plan={plan as PricingPlan} />;
     },
     enableSorting: false,
     enableHiding: false,
