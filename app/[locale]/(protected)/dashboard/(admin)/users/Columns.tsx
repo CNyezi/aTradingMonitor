@@ -270,6 +270,16 @@ export const columns: ColumnDef<UserType>[] = [
     ),
   },
   {
+    accessorKey: "referral",
+    header: "Referral",
+    cell: ({ row }) => {
+      const referral = row.original.referral;
+      return (
+        <span className="text-sm text-muted-foreground">{referral || "-"}</span>
+      );
+    },
+  },
+  {
     id: "status",
     header: "Status",
     cell: ({ row }) => {
