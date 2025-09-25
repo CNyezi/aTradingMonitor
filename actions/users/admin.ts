@@ -4,7 +4,7 @@ import type { ActionResult } from '@/lib/action-response';
 import { actionResponse } from '@/lib/action-response';
 import { isAdmin } from '@/lib/auth/server';
 import { db } from '@/lib/db';
-import { user as userSchema } from '@/lib/db/schema';
+import { session as sessionSchema, user as userSchema } from '@/lib/db/schema';
 import { getErrorMessage } from '@/lib/error-utils';
 import { count, desc, eq, ilike, or } from 'drizzle-orm';
 
@@ -105,6 +105,9 @@ export async function banUser({
       .update(userSchema)
       .set({ banned: true, banReason: reason ?? 'Banned by admin', banExpires: null })
       .where(eq(userSchema.id, userId));
+
+    // Revoke all sessions for this user to enforce immediate logout
+    await db.delete(sessionSchema).where(eq(sessionSchema.userId, userId));
 
     return actionResponse.success();
   } catch (error: any) {
