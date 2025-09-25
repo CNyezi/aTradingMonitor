@@ -127,7 +127,7 @@ export default function Settings({ user }: { user: User }) {
       setAvatarFile(null);
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
-        // setPreviewUrl(null);
+        setPreviewUrl(null);
       }
       const fileInput = document.querySelector(
         'input[type="file"]'
