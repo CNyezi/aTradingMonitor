@@ -2,6 +2,7 @@
 import { removeUserFromContacts, sendEmail } from '@/actions/resend';
 import { siteConfig } from '@/config/site';
 import { NewsletterWelcomeEmail } from '@/emails/newsletter-welcome';
+import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { actionResponse, ActionResult } from '@/lib/action-response';
 import { normalizeEmail, validateEmail } from '@/lib/email';
 import { checkRateLimit } from '@/lib/upstash';
@@ -9,7 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 
 const NEWSLETTER_RATE_LIMIT = {
-  prefix: process.env.UPSTASH_REDIS_NEWSLETTER_RATE_LIMIT_KEY || 'newsletter_rate_limit',
+  prefix: `${siteConfig.name.trim()}_newsletter_rate_limit`,
   maxRequests: parseInt(process.env.DAY_MAX_SUBMISSIONS || '10'),
   window: '1 d'
 };
@@ -28,7 +29,7 @@ async function validateRateLimit(locale: string) {
   }
 }
 
-export async function subscribeToNewsletter(email: string, locale = 'en'): Promise<ActionResult<{ email: string }>> {
+export async function subscribeToNewsletter(email: string, locale = DEFAULT_LOCALE): Promise<ActionResult<{ email: string }>> {
   try {
     await validateRateLimit(locale);
 
@@ -43,7 +44,7 @@ export async function subscribeToNewsletter(email: string, locale = 'en'): Promi
 
     const subject = `Welcome to ${siteConfig.name} Newsletter!`
     const unsubscribeToken = Buffer.from(normalizedEmail).toString('base64');
-    const unsubscribeLinkEN = `${process.env.NEXT_PUBLIC_SITE_URL}/unsubscribe/newsletter?token=${unsubscribeToken}`;
+    const unsubscribeLink = `${process.env.NEXT_PUBLIC_SITE_URL}/unsubscribe/newsletter?token=${unsubscribeToken}`;
 
     await sendEmail({
       email: normalizedEmail,
@@ -51,7 +52,7 @@ export async function subscribeToNewsletter(email: string, locale = 'en'): Promi
       react: NewsletterWelcomeEmail,
       reactProps: {
         email: normalizedEmail,
-        unsubscribeLink: unsubscribeLinkEN
+        unsubscribeLink: unsubscribeLink
       }
     })
 
@@ -64,7 +65,7 @@ export async function subscribeToNewsletter(email: string, locale = 'en'): Promi
   }
 }
 
-export async function unsubscribeFromNewsletter(token: string, locale = 'en'): Promise<ActionResult<{ email: string }>> {
+export async function unsubscribeFromNewsletter(token: string, locale = DEFAULT_LOCALE): Promise<ActionResult<{ email: string }>> {
   try {
     await validateRateLimit(locale);
     const t = await getTranslations({ locale, namespace: 'Footer.Newsletter' });
