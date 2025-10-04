@@ -15,7 +15,7 @@
   "Features": {
     "badge": {
       "label": "FEATURES",
-      "text": "Complete SaaS Starter Kit"
+      "text": "Production-ready SaaS Development Kit"
     },
     "title": "Production-ready Next.js SaaS Boilerplate",
     "description": "The Next.js boilerplate includes every essential feature modern SaaS applications require, letting you focus on your unique business logic and customer value.",
@@ -26,8 +26,34 @@
     },
     "items": [
       {
+        "title": "3 Powerful Boilerplates",
+        "description": "Purchase once, get 3 powerful boilerplates.",
+        "details": [
+          {
+            "title": "Boilerplate 1: Nexty",
+            "description": "Universal SaaS boilerplate with every feature you need.",
+            "href": "https://demo.nexty.dev"
+          },
+          {
+            "title": "Boilerplate 2: nexty-flux-kontext",
+            "description": "AI Image Generation SaaS boilerplate.",
+            "href": "https://flux-kontext.nexty.dev"
+          },
+          {
+            "title": "Boilerplate 3: nexty-directory",
+            "description": "Directory & listing website boilerplate.",
+            "href": "https://dofollow.tools"
+          }
+        ],
+        "images": [
+          "/images/features/template1.webp",
+          "/images/features/template2.webp",
+          "/images/features/template3.webp"
+        ]
+      },
+      {
         "title": "Authentication",
-        "description": "Integrated Supabase authentication with multiple sign-in options.",
+        "description": "Integrated Better Auth with multiple sign-in options.",
         "details": [
           {
             "title": "Social Sign-in",
@@ -44,6 +70,28 @@
         ],
         "images": [
           "/images/features/login.png"
+        ]
+      },
+      {
+        "title": "Database",
+        "description": "Integrated Drizzle ORM with multiple database options, such as Supabase, Neon, and Self-hosted PostgreSQL.",
+        "details": [
+          {
+            "title": "One Line Configuration",
+            "description": "Just fill in DATABASE_URL, and the best configuration will be automatically completed."
+          },
+          {
+            "title": "Comprehensive Built-in Tables",
+            "description": "Comprehensive set of tables for user management, pricing plans, orders, content management, and more."
+          },
+          {
+            "title": "Multiple Database Options",
+            "description": "Supabase, Neon, and Self-hosted PostgreSQL."
+          }
+        ],
+        "images": [
+          "/images/features/database-config.webp",
+          "/images/features/database-tables.webp"
         ]
       },
       {
@@ -302,32 +350,40 @@
     "description": "Common questions about our Next.js SaaS boilerplate and how it can help you build better applications faster",
     "items": [
       {
-        "question": "What technical knowledge do I need to use this template?",
-        "answer": "Nexty is an AI-friendly template that caters to all skill levels. If you're new to programming, you can leverage AI-assisted development to implement your requirements. For developers familiar with React and Next.js, you'll find the template particularly intuitive. We provide comprehensive documentation and examples - reviewing these resources first will significantly enhance your development experience."
+        "question": "Can I use this boilerplate as a non-technical person?",
+        "answer": "Absolutely! Nexty is specifically designed to work seamlessly with AI assistants, allowing even those with zero programming experience to develop products through AI-assisted development. Our code structure and documentation are AI-friendly, making it easier for AI to understand and modify the code. Technical teams will benefit from even greater development efficiency."
       },
       {
-        "question": "Is technical support included with purchase?",
-        "answer": "Absolutely! Technical support is included with all versions. Pro users receive 24/7 email support, while Enterprise customers benefit from dedicated one-on-one support with our technical team."
+        "question": "What makes this the best Next.js SaaS boilerplate?",
+        "answer": "Nexty is the most comprehensive Next.js SaaS starter kit available. Unlike other templates that only provide basic components, we include complete business workflows: authentication, payments, AI integration, content management, and monetization features. Everything is production-ready and battle-tested in real applications."
       },
       {
-        "question": "Does the template include all features shown in the demo?",
-        "answer": "Yes, every feature showcased in our demo is fully implemented and production-ready in the template. If you have specific feature requests, our team is open to discussing potential additions to future releases."
+        "question": "How quickly can I launch my SaaS with this boilerplate?",
+        "answer": "Your first project will take 3-5 days as you learn the boilerplate's features, but the learning curve pays off quickly. Our customers who've mastered the system now launch complete SaaS applications in just 1-2 days. The boilerplate handles all the complex infrastructure, so you can focus on what makes your product unique."
       },
       {
-        "question": "Does the template support subscription billing?",
-        "answer": "Yes, Nexty fully supports recurring subscription functionality. You can customize the subscription components and configure pricing tiers according to your business needs."
+        "question": "Is this suitable for AI-powered SaaS applications?",
+        "answer": "Absolutely! Our boilerplate includes comprehensive AI SDK integration with working examples for text generation, image creation, and video processing. It's compatible with OpenAI, Claude, Gemini, Grok, DeepSeek, and other popular AI models. Perfect for building AI tools or content generation platforms."
       },
       {
-        "question": "Is multilingual support available?",
-        "answer": "Yes, Nexty comes with built-in internationalization support. The template includes English, Chinese, and Japanese out of the box, and you can easily extend it to support additional languages as needed."
+        "question": "What payment methods and billing models are supported?",
+        "answer": "The boilerplate includes complete Stripe integration supporting one-time payments, subscriptions, usage-based billing, and automated renewals. You can start monetizing immediately."
       },
       {
-        "question": "How do I manage pricing plans?",
-        "answer": "This is one of Nexty's standout features. You can manage pricing plans directly through the Dashboard, including creating, editing, and removing pricing tiers. The template includes AI-powered translation capabilities, eliminating the need for manual language file configuration."
+        "question": "How does the content management system work?",
+        "answer": "Our built-in CMS supports Markdown and rich text editing, multilingual content, SEO optimization, paywall protection, and AI translation. You can manage articles, pages, and premium content through an intuitive admin dashboard with role-based access control."
       },
       {
-        "question": "What AI capabilities are built into the template?",
-        "answer": "The template comes with integrated AI image generation and conversational AI features. It's designed to seamlessly integrate with leading AI providers including OpenAI, Claude, Gemini, Grok & DeepSeek, enabling you to easily build AI-powered applications."
+        "question": "Is the boilerplate SEO-optimized?",
+        "answer": "Yes! The boilerplate includes comprehensive SEO features: automatic meta tags, structured data, XML sitemaps, OpenGraph support, and performance optimization. It's built with Next.js best practices for search engine visibility and faster loading times."
+      },
+      {
+        "question": "What kind of support do you provide?",
+        "answer": "We provide comprehensive documentation, code examples, and email support. We also have a public Discord community where you can get help from other developers and share your projects."
+      },
+      {
+        "question": "How do I manage pricing cards?",
+        "answer": "This is a key selling point of Nexty. You can manage pricing cards in the Dashboard, including adding, editing, and deleting pricing cards with AI multilingual translation support, eliminating complex multilingual file configuration."
       }
     ]
   },
