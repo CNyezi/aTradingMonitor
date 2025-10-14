@@ -1,5 +1,7 @@
 import {
   sendCreditUpgradeFailedEmail,
+  sendFraudRefundUserEmail,
+  sendFraudWarningAdminEmail,
   sendInvoicePaymentFailedEmail,
   syncSubscriptionData,
 } from '@/actions/stripe';
@@ -1011,29 +1013,84 @@ export async function handleEarlyFraudWarningCreated(warning: Stripe.Radar.Early
     return;
   }
 
+  // Get the configuration from environment variable
+  const fraudWarningType = process.env.STRIPE_RADAR_EARLY_FRAUD_WARNING_TYPE?.toLowerCase() || '';
+  const actions = fraudWarningType.split(',').map(action => action.trim());
+
+  const shouldRefund = actions.includes('refund');
+  const shouldSendEmail = actions.includes('email');
+
+  if (!shouldRefund && !shouldSendEmail) {
+    console.warn(`Fraud warning ${warning.id} for charge ${chargeId} detected, but no automatic actions configured. Set STRIPE_RADAR_EARLY_FRAUD_WARNING_TYPE to enable automatic responses.`);
+    return;
+  }
+
   try {
     const charge = (await stripe.charges.retrieve(chargeId)) as any;
 
-    if (!charge.refunded) {
-      await stripe.refunds.create({
-        charge: chargeId,
-        reason: 'fraudulent',
-      });
-      console.log(`Refund for charge ${chargeId}.`);
-
-      // if the charge is a subscription, delete the latest subscription
-      if (charge.description?.includes('Subscription')) {
-        const customerId = charge.customer as string;
-        const subscription = await stripe.subscriptions.list({
-          customer: customerId,
-          limit: 1,
+    if (shouldRefund) {
+      if (!charge.refunded) {
+        await stripe.refunds.create({
+          charge: chargeId,
+          reason: 'fraudulent',
         });
-        const latestSubscription = subscription.data[0] || null;
-        latestSubscription?.id && await stripe.subscriptions.cancel(latestSubscription?.id as string);
-        console.log(`Deleted subscription ${latestSubscription?.id}.`);
+        console.log(`Refund for charge ${chargeId}.`);
+
+        // if the charge is a subscription, delete the latest subscription
+        if (charge.description?.includes('Subscription')) {
+          const customerId = charge.customer as string;
+          const subscription = await stripe.subscriptions.list({
+            customer: customerId,
+            limit: 1,
+          });
+          const latestSubscription = subscription.data[0] || null;
+          if (latestSubscription?.id) {
+            await stripe.subscriptions.cancel(latestSubscription.id as string);
+            console.log(`Cancelled subscription ${latestSubscription.id} due to fraudulent charge.`);
+          }
+        }
+      } else {
+        console.log(`Charge ${chargeId} already refunded.`);
       }
-    } else {
-      console.log(`Charge ${chargeId} already refunded.`);
+    }
+
+    if (shouldSendEmail) {
+      // Send email to admin about fraudulent charge
+      const actionsTaken: string[] = [];
+      if (shouldRefund) {
+        actionsTaken.push('Automatic refund initiated');
+        if (charge.description?.includes('Subscription')) {
+          actionsTaken.push('Associated subscription cancelled');
+        }
+      }
+      actionsTaken.push('Fraud warning email sent to administrators');
+
+      try {
+        await sendFraudWarningAdminEmail({
+          warningId: warning.id,
+          chargeId: chargeId,
+          customerId: charge.customer as string,
+          amount: charge.amount / 100,
+          currency: charge.currency,
+          fraudType: 'Early Fraud Warning',
+          chargeDescription: charge.description || undefined,
+          actionsTaken,
+        });
+      } catch (adminEmailError) {
+        console.error(`Failed to send fraud warning admin email for charge ${chargeId}:`, adminEmailError);
+      }
+
+      // Send email to user about refund (only if refund was processed)
+      if (shouldRefund && !charge.refunded) {
+        try {
+          await sendFraudRefundUserEmail({
+            charge,
+            refundAmount: charge.amount,
+          });
+        } catch (userEmailError) {
+          console.error(`Failed to send fraud refund user email for charge ${chargeId}:`, userEmailError);
+        }
+      }
     }
   } catch (error) {
     console.error(`Error handling early fraud warning ${warning.id} for charge ${chargeId}:`, error);

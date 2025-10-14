@@ -3,6 +3,8 @@
 import { sendEmail } from '@/actions/resend';
 import { siteConfig } from '@/config/site';
 import { CreditUpgradeFailedEmail } from '@/emails/credit-upgrade-failed';
+import { FraudRefundUserEmail } from '@/emails/fraud-refund-user';
+import { FraudWarningAdminEmail } from '@/emails/fraud-warning-admin';
 import { InvoicePaymentFailedEmail } from '@/emails/invoice-payment-failed';
 import { getSession } from '@/lib/auth/server';
 import { db } from '@/lib/db';
@@ -416,6 +418,162 @@ export async function sendInvoicePaymentFailedEmail({
     }
   } catch (exception) {
     console.error(`Exception occurred while sending email to ${userEmail}:`, exception);
+  }
+}
+
+/**
+ * Sends a fraud warning notification email to administrators
+ */
+export async function sendFraudWarningAdminEmail({
+  warningId,
+  chargeId,
+  customerId,
+  amount,
+  currency,
+  fraudType,
+  chargeDescription,
+  actionsTaken,
+}: {
+  warningId: string;
+  chargeId: string;
+  customerId: string;
+  amount: number;
+  currency: string;
+  fraudType: string;
+  chargeDescription?: string;
+  actionsTaken: string[];
+}): Promise<void> {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    console.warn('ADMIN_EMAIL is not set, skipping fraud warning admin email.');
+    return;
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error('Resend API Key is not configured. Skipping email send.');
+    return;
+  }
+
+  try {
+    const dashboardUrl = `https://dashboard.stripe.com/payments/${chargeId}`;
+    const subject = `🚨 Fraud Warning Alert - Charge ${chargeId}`;
+
+    const emailProps = {
+      warningId,
+      chargeId,
+      customerId,
+      amount,
+      currency,
+      fraudType,
+      chargeDescription,
+      actionsTaken,
+      dashboardUrl,
+    };
+
+    await sendEmail({
+      email: adminEmail,
+      subject,
+      react: FraudWarningAdminEmail,
+      reactProps: emailProps,
+    });
+
+    console.log(`Sent fraud warning admin email to ${adminEmail} for charge ${chargeId}`);
+  } catch (emailError) {
+    console.error(`Failed to send fraud warning admin email for charge ${chargeId}:`, emailError);
+  }
+}
+
+/**
+ * Sends a refund notification email to the user when their transaction is refunded due to fraud
+ */
+export async function sendFraudRefundUserEmail({
+  charge,
+  refundAmount,
+}: {
+  charge: Stripe.Charge;
+  refundAmount: number;
+}): Promise<void> {
+  if (!process.env.RESEND_API_KEY) {
+    console.error('Resend API Key is not configured. Skipping email send.');
+    return;
+  }
+
+  if (!stripe) {
+    console.error('Stripe is not initialized. Please check your environment variables.');
+    return;
+  }
+
+  const customerId = typeof charge.customer === 'string' ? charge.customer : null;
+  if (!customerId) {
+    console.error(`Customer ID missing from charge: ${charge.id}. Cannot send refund email.`);
+    return;
+  }
+
+  try {
+    // Get customer information
+    const customer = await stripe.customers.retrieve(customerId);
+    if (!customer || customer.deleted) {
+      console.error(`Customer ${customerId} not found or deleted. Cannot send refund email.`);
+      return;
+    }
+
+    const customerEmail = customer.email;
+    const userId = customer.metadata?.userId;
+
+    if (!customerEmail) {
+      console.error(`Customer ${customerId} has no email address. Cannot send refund email.`);
+      return;
+    }
+
+    // Get user name if available
+    let userName: string | undefined;
+    if (userId) {
+      try {
+        const userDataResults = await db
+          .select({ name: userSchema.name })
+          .from(userSchema)
+          .where(eq(userSchema.id, userId))
+          .limit(1);
+        const userData = userDataResults[0];
+        userName = userData?.name || undefined;
+      } catch (error) {
+        console.warn(`Could not fetch user name for user ${userId}:`, error);
+      }
+    }
+
+    const refundDate = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const supportLink = process.env.NEXT_PUBLIC_DISCORD_INVITE_URL || `mailto:${siteConfig.socialLinks?.email}`;
+    const dashboardLink = userId ? `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard/my-orders` : undefined;
+
+    const emailProps = {
+      userName,
+      chargeId: charge.id,
+      amount: charge.amount / 100,
+      currency: charge.currency,
+      refundAmount: refundAmount / 100,
+      chargeDescription: charge.description || undefined,
+      refundDate,
+      supportLink,
+      dashboardLink,
+    };
+
+    const subject = `Important: Transaction Refunded - ${siteConfig.name}`;
+
+    await sendEmail({
+      email: customerEmail,
+      subject,
+      react: FraudRefundUserEmail,
+      reactProps: emailProps,
+    });
+
+    console.log(`Sent fraud refund notification email to ${customerEmail} for charge ${charge.id}`);
+  } catch (emailError) {
+    console.error(`Failed to send fraud refund user email for charge ${charge.id}:`, emailError);
   }
 }
 
