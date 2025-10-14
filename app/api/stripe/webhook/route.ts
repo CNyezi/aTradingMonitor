@@ -3,7 +3,7 @@ import { getErrorMessage } from '@/lib/error-utils';
 import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
-import { handleCheckoutSessionCompleted, handleInvoicePaid, handleInvoicePaymentFailed, handleRefund, handleSubscriptionUpdate } from './webhook-handlers';
+import { handleCheckoutSessionCompleted, handleEarlyFraudWarningCreated, handleInvoicePaid, handleInvoicePaymentFailed, handleRefund, handleSubscriptionUpdate } from './webhook-handlers';
 
 const relevantEvents = new Set([
   'checkout.session.completed',
@@ -13,6 +13,7 @@ const relevantEvents = new Set([
   'invoice.paid',
   'invoice.payment_failed',
   'charge.refunded',
+  'radar.early_fraud_warning.created'
 ]);
 
 export async function POST(req: Request) {
@@ -77,6 +78,9 @@ async function processWebhookEvent(event: Stripe.Event) {
       break;
     case 'charge.refunded':
       await handleRefund(event.data.object as Stripe.Charge);
+      break;
+    case 'radar.early_fraud_warning.created':
+      await handleEarlyFraudWarningCreated(event.data.object as Stripe.Radar.EarlyFraudWarning);
       break;
     default:
       console.warn(`Unhandled relevant event type: ${event.type}`);

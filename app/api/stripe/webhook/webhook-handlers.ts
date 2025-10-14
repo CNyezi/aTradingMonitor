@@ -992,3 +992,51 @@ async function applySubscriptionCreditsRevocation(params: {
     }
   });
 }
+
+/**
+ * Handles the `radar.early_fraud_warning.created` event.
+ * Initiates a refund for the fraudulent charge.
+ *
+ * @param warning The Stripe Radar Early Fraud Warning object.
+ */
+export async function handleEarlyFraudWarningCreated(warning: Stripe.Radar.EarlyFraudWarning) {
+  const chargeId = warning.charge;
+  if (typeof chargeId !== 'string') {
+    console.error('Charge ID missing from early fraud warning:', warning.id);
+    return;
+  }
+
+  if (!stripe) {
+    console.error('Stripe is not initialized. Please check your environment variables.');
+    return;
+  }
+
+  try {
+    const charge = (await stripe.charges.retrieve(chargeId)) as any;
+
+    if (!charge.refunded) {
+      await stripe.refunds.create({
+        charge: chargeId,
+        reason: 'fraudulent',
+      });
+      console.log(`Refund for charge ${chargeId}.`);
+
+      // if the charge is a subscription, delete the latest subscription
+      if (charge.description?.includes('Subscription')) {
+        const customerId = charge.customer as string;
+        const subscription = await stripe.subscriptions.list({
+          customer: customerId,
+          limit: 1,
+        });
+        const latestSubscription = subscription.data[0] || null;
+        latestSubscription?.id && await stripe.subscriptions.cancel(latestSubscription?.id as string);
+        console.log(`Deleted subscription ${latestSubscription?.id}.`);
+      }
+    } else {
+      console.log(`Charge ${chargeId} already refunded.`);
+    }
+  } catch (error) {
+    console.error(`Error handling early fraud warning ${warning.id} for charge ${chargeId}:`, error);
+    throw error;
+  }
+}
