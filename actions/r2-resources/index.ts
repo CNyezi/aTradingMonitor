@@ -174,9 +174,7 @@ export async function generateUserPresignedUploadUrl(
   const user = session?.user;
   if (!user) return actionResponse.unauthorized();
 
-  const userPath = `users/${input.path}/userid-${user.id}`;
-
-  return generatePresignedUploadUrl({ ...input, path: userPath });
+  return generatePresignedUploadUrl({ ...input });
 }
 
 export async function generatePublicPresignedUploadUrl(
