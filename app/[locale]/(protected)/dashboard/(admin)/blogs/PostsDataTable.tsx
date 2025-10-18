@@ -28,7 +28,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
 import { columns } from "./Columns";
-import { TagManagementDrawer } from "./TagManagementDrawer";
+import { TagManagementDialog } from "./TagManagementDialog";
 
 interface DataTableProps<TData, TValue> {
   initialData: TData[];
@@ -140,7 +140,7 @@ export function PostsDataTable<TData, TValue>({
           className="max-w-sm"
         />
         <div className="flex space-x-2">
-          <TagManagementDrawer />
+          <TagManagementDialog />
           <Button asChild className="highlight-bg text-white">
             <I18nLink
               href={`/dashboard/blogs/new`}
