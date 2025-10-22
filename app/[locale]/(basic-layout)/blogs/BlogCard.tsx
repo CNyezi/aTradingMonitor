@@ -38,7 +38,7 @@ export function BlogCard({ post, locale }: { post: BlogPost; locale: string }) {
       className="group block"
     >
       <div className="bg-card border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md hover:translate-y-[-3px]">
-        <div className="relative h-48 w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden aspect-[16/9]">
           <Image
             src={post.featuredImageUrl || "/placeholder.svg"}
             alt={post.title}
