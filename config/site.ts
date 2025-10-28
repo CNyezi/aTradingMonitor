@@ -4,7 +4,9 @@ export const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nexty.dev";
 
 const GITHUB_URL = ''
 const TWITTER_URL = ''
-const BSKY_URL = ''
+const YOUTUBE_URL = ''
+const INSTAGRAM_URL = ''
+const TIKTOK_URL = ''
 const DISCORD_URL = process.env.NEXT_PUBLIC_DISCORD_INVITE_URL
 const EMAIL_URL = 'hi@nexty.dev'
 
@@ -20,10 +22,13 @@ export const siteConfig: SiteConfig = {
   creator: '@judewei_dev',
   socialLinks: {
     github: GITHUB_URL,
-    bluesky: BSKY_URL,
     twitter: TWITTER_URL,
+    youtube: YOUTUBE_URL,
+    instagram: INSTAGRAM_URL,
+    tiktok: TIKTOK_URL,
     discord: DISCORD_URL,
     email: EMAIL_URL,
+    // add more social links here
   },
   themeColors: [
     { media: '(prefers-color-scheme: light)', color: 'white' },

@@ -4,11 +4,11 @@ import { TwitterX } from "@/components/social-icons/icons";
 import { siteConfig } from "@/config/site";
 import { Link as I18nLink } from "@/i18n/routing";
 import { FooterLink } from "@/types/common";
-import { GithubIcon, MailIcon } from "lucide-react";
+import { GithubIcon, InstagramIcon, MailIcon, Youtube } from "lucide-react";
 import { getMessages, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
-import { SiBluesky, SiDiscord } from "react-icons/si";
+import { SiDiscord, SiTiktok } from "react-icons/si";
 
 export default async function Footer() {
   const messages = await getMessages();
@@ -59,19 +59,6 @@ export default async function Footer() {
                       <GithubIcon className="size-4" aria-hidden="true" />
                     </Link>
                   )}
-                  {siteConfig.socialLinks?.bluesky && (
-                    <Link
-                      href={siteConfig.socialLinks.bluesky}
-                      prefetch={false}
-                      target="_blank"
-                      rel="noreferrer nofollow noopener"
-                      aria-label="Blue Sky"
-                      title="View on Bluesky"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
-                    >
-                      <SiBluesky className="w-4 h-4" aria-hidden="true" />
-                    </Link>
-                  )}
                   {siteConfig.socialLinks?.twitter && (
                     <Link
                       href={siteConfig.socialLinks.twitter}
@@ -83,6 +70,45 @@ export default async function Footer() {
                       className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
                     >
                       <TwitterX className="w-4 h-4" aria-hidden="true" />
+                    </Link>
+                  )}
+                  {siteConfig.socialLinks?.youtube && (
+                    <Link
+                      href={siteConfig.socialLinks.youtube}
+                      prefetch={false}
+                      target="_blank"
+                      rel="noreferrer nofollow noopener"
+                      aria-label="YouTube"
+                      title="View on YouTube"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <Youtube className="w-4 h-4" aria-hidden="true" />
+                    </Link>
+                  )}
+                  {siteConfig.socialLinks?.instagram && (
+                    <Link
+                      href={siteConfig.socialLinks.instagram}
+                      prefetch={false}
+                      target="_blank"
+                      rel="noreferrer nofollow noopener"
+                      aria-label="Instagram"
+                      title="View on Instagram"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <InstagramIcon className="w-4 h-4" aria-hidden="true" />
+                    </Link>
+                  )}
+                  {siteConfig.socialLinks?.tiktok && (
+                    <Link
+                      href={siteConfig.socialLinks.tiktok}
+                      prefetch={false}
+                      target="_blank"
+                      rel="noreferrer nofollow noopener"
+                      aria-label="TikTok"
+                      title="View on TikTok"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
+                    >
+                      <SiTiktok className="w-4 h-4" aria-hidden="true" />
                     </Link>
                   )}
                   {siteConfig.socialLinks?.discord && (

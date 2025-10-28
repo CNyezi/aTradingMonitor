@@ -145,16 +145,6 @@ export const UserWelcomeEmail: React.FC<UserWelcomeEmailProps> = ({
                 GitHub
               </a>
             )}
-            {siteConfig.socialLinks?.bluesky && (
-              <a
-                href={siteConfig.socialLinks.bluesky}
-                target="_blank"
-                rel="noreferrer nofollow noopener"
-                style={commonStyles.socialLink}
-              >
-                Bluesky
-              </a>
-            )}
             {siteConfig.socialLinks?.twitter && (
               <a
                 href={siteConfig.socialLinks.twitter}
@@ -163,6 +153,36 @@ export const UserWelcomeEmail: React.FC<UserWelcomeEmailProps> = ({
                 style={commonStyles.socialLink}
               >
                 Twitter
+              </a>
+            )}
+            {siteConfig.socialLinks?.youtube && (
+              <a
+                href={siteConfig.socialLinks.youtube}
+                target="_blank"
+                rel="noreferrer nofollow noopener"
+                style={commonStyles.socialLink}
+              >
+                YouTube
+              </a>
+            )}
+            {siteConfig.socialLinks?.instagram && (
+              <a
+                href={siteConfig.socialLinks.instagram}
+                target="_blank"
+                rel="noreferrer nofollow noopener"
+                style={commonStyles.socialLink}
+              >
+                Instagram
+              </a>
+            )}
+            {siteConfig.socialLinks?.tiktok && (
+              <a
+                href={siteConfig.socialLinks.tiktok}
+                target="_blank"
+                rel="noreferrer nofollow noopener"
+                style={commonStyles.socialLink}
+              >
+                TikTok
               </a>
             )}
             {siteConfig.socialLinks?.discord && (

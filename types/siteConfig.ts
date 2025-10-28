@@ -14,12 +14,7 @@ export type SiteConfig = {
   url: string
   authors: AuthorsConfig[]
   socialLinks?: {
-    github?: string
-    bluesky?: string
-    twitter?: string
-    twitterZh?: string
-    discord?: string
-    email?: string
+    [key: string]: string | undefined
   }
   creator: string
   themeColors?: string | ThemeColor[]
