@@ -13,7 +13,7 @@ import { cookies } from "next/headers";
 
 export const auth = betterAuth({
   appName: siteConfig.name,
-  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SITE_URL,
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SITE_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   session: {
     cookieCache: {
