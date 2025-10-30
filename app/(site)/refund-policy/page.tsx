@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Refund Policy",
     description: `Refund policy and guidelines for ${siteConfig.name} services.`,
     path: `/refund-policy`,
+    locale: "en",
     availableLocales: ["en"],
   });
 }

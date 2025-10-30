@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Terms of Service",
     description: `Terms and conditions for using ${siteConfig.name}.`,
     path: `/terms-of-service`,
+    locale: "en",
     availableLocales: ["en"],
   });
 }

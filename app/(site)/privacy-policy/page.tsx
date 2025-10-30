@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Privacy Policy",
     description: `How ${siteConfig.name} collect and use your information.`,
     path: `/privacy-policy`,
+    locale: "en",
     availableLocales: ["en"],
   });
 }
