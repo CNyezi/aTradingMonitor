@@ -139,88 +139,8 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
     // Handle user subscription data (subscriptions table) and benefits data (usage table)
     // ------------------------------------------
     if (finalUsageData) {
-      // Start of Yearly Subscription Catch-up Logic
-      let shouldContinue = true;
-      while (shouldContinue) {
-        shouldContinue = await db.transaction(async (tx) => {
-          const usageResults = await tx.select()
-            .from(usageSchema)
-            .where(eq(usageSchema.userId, userId))
-            .for('update');
-          const usage = usageResults[0];
-
-          if (!usage) { return false; }
-
-          finalUsageData = usage as UsageData;
-          const yearlyDetails = (usage.balanceJsonb as any)?.yearlyAllocationDetails;
-
-          if (!yearlyDetails ||
-            (yearlyDetails.remainingMonths || 0) <= 0 ||
-            !yearlyDetails.nextCreditDate ||
-            new Date() < new Date(yearlyDetails.nextCreditDate)) {
-            return false;
-          }
-
-          const yearMonthToAllocate = new Date(yearlyDetails.nextCreditDate)
-            .toISOString()
-            .slice(0, 7);
-
-          if (yearlyDetails.lastAllocatedMonth === yearMonthToAllocate) {
-            return false;
-          }
-
-          const allocationDate = new Date(yearlyDetails.nextCreditDate);
-          const creditsToAllocate = yearlyDetails.monthlyCredits;
-
-          const newRemainingMonths = yearlyDetails.remainingMonths - 1;
-          const nextCreditDate = new Date(yearlyDetails.nextCreditDate);
-          nextCreditDate.setMonth(nextCreditDate.getMonth() + 1);
-
-          const newYearlyDetails = {
-            ...yearlyDetails,
-            remainingMonths: newRemainingMonths,
-            nextCreditDate: nextCreditDate.toISOString(),
-            lastAllocatedMonth: yearMonthToAllocate,
-          };
-
-          const newBalanceJsonb = {
-            ...(usage.balanceJsonb as any),
-            yearlyAllocationDetails: newYearlyDetails,
-          };
-
-          const newSubscriptionBalance = creditsToAllocate;
-
-          const updatedUsage = await tx.update(usageSchema)
-            .set({
-              subscriptionCreditsBalance: newSubscriptionBalance,
-              balanceJsonb: newBalanceJsonb,
-            })
-            .where(eq(usageSchema.userId, userId))
-            .returning({
-              oneTimeBalanceAfter: usageSchema.oneTimeCreditsBalance,
-              subscriptionBalanceAfter: usageSchema.subscriptionCreditsBalance,
-            });
-
-          const balances = updatedUsage[0];
-          if (balances) {
-            const relatedOrderId: string | null = yearlyDetails.relatedOrderId || null;
-
-            await tx.insert(creditLogsSchema).values({
-              userId: userId,
-              amount: creditsToAllocate,
-              oneTimeBalanceAfter: balances.oneTimeBalanceAfter,
-              subscriptionBalanceAfter: balances.subscriptionBalanceAfter,
-              type: 'subscription_grant',
-              notes: `Yearly subscription monthly credits allocated`,
-              relatedOrderId: relatedOrderId,
-              createdAt: allocationDate, // use the date of the month to allocate the credits
-            });
-          }
-
-          return newRemainingMonths > 0;
-        });
-      }
-      // End of Yearly Subscription Catch-up Logic
+      // Process yearly subscription catch-up logic
+      finalUsageData = await processYearlySubscriptionCatchUp(userId) ?? finalUsageData;
 
       const subscription = await fetchSubscriptionData(userId);
       const currentYearlyDetails = (finalUsageData.balanceJsonb as any)?.yearlyAllocationDetails;
@@ -239,6 +159,110 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
     console.error(`Unexpected error in getUserBenefits for user ${userId}:`, error);
     return defaultUserBenefits;
   }
+}
+
+/**
+ * Processes yearly subscription catch-up logic to allocate monthly credits
+ * that may have been missed. This function handles the allocation of credits
+ * for past months in a yearly subscription plan.
+ *
+ * @param userId The UUID of the user.
+ * @returns A promise resolving to the updated UsageData or null if no usage data exists.
+ */
+async function processYearlySubscriptionCatchUp(
+  userId: string
+): Promise<UsageData | null> {
+  let finalUsageData: UsageData | null = null;
+  let shouldContinue = true;
+
+  while (shouldContinue) {
+    shouldContinue = await db.transaction(async (tx) => {
+      const usageResults = await tx
+        .select()
+        .from(usageSchema)
+        .where(eq(usageSchema.userId, userId))
+        .for('update');
+      const usage = usageResults[0];
+
+      if (!usage) {
+        return false;
+      }
+
+      finalUsageData = usage as UsageData;
+      const yearlyDetails = (usage.balanceJsonb as any)?.yearlyAllocationDetails;
+
+      if (
+        !yearlyDetails ||
+        (yearlyDetails.remainingMonths || 0) <= 0 ||
+        !yearlyDetails.nextCreditDate ||
+        new Date() < new Date(yearlyDetails.nextCreditDate)
+      ) {
+        return false;
+      }
+
+      const yearMonthToAllocate = new Date(yearlyDetails.nextCreditDate)
+        .toISOString()
+        .slice(0, 7);
+
+      if (yearlyDetails.lastAllocatedMonth === yearMonthToAllocate) {
+        return false;
+      }
+
+      const allocationDate = new Date(yearlyDetails.nextCreditDate);
+      const creditsToAllocate = yearlyDetails.monthlyCredits;
+
+      const newRemainingMonths = yearlyDetails.remainingMonths - 1;
+      const nextCreditDate = new Date(yearlyDetails.nextCreditDate);
+      nextCreditDate.setMonth(nextCreditDate.getMonth() + 1);
+
+      const newYearlyDetails = {
+        ...yearlyDetails,
+        remainingMonths: newRemainingMonths,
+        nextCreditDate: nextCreditDate.toISOString(),
+        lastAllocatedMonth: yearMonthToAllocate,
+      };
+
+      const newBalanceJsonb = {
+        ...(usage.balanceJsonb as any),
+        yearlyAllocationDetails: newYearlyDetails,
+      };
+
+      const newSubscriptionBalance = creditsToAllocate;
+
+      const updatedUsage = await tx
+        .update(usageSchema)
+        .set({
+          subscriptionCreditsBalance: newSubscriptionBalance,
+          balanceJsonb: newBalanceJsonb,
+        })
+        .where(eq(usageSchema.userId, userId))
+        .returning({
+          oneTimeBalanceAfter: usageSchema.oneTimeCreditsBalance,
+          subscriptionBalanceAfter: usageSchema.subscriptionCreditsBalance,
+        });
+
+      const balances = updatedUsage[0];
+      if (balances) {
+        const relatedOrderId: string | null =
+          yearlyDetails.relatedOrderId || null;
+
+        await tx.insert(creditLogsSchema).values({
+          userId: userId,
+          amount: creditsToAllocate,
+          oneTimeBalanceAfter: balances.oneTimeBalanceAfter,
+          subscriptionBalanceAfter: balances.subscriptionBalanceAfter,
+          type: 'subscription_grant',
+          notes: `Yearly subscription monthly credits allocated`,
+          relatedOrderId: relatedOrderId,
+          createdAt: allocationDate, // use the date of the month to allocate the credits
+        });
+      }
+
+      return newRemainingMonths > 0;
+    });
+  }
+
+  return finalUsageData;
 }
 
 export async function getClientUserBenefits(): Promise<ActionResult<UserBenefits>> {
