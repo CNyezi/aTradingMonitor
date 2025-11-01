@@ -182,7 +182,7 @@ function SuccessContent() {
             Back to Home <ArrowRight className="w-4 h-4" />
           </I18nLink>
         </Button>
-        <Button className="flex-1 gap-2" asChild size="lg">
+        <Button className="flex-1 gap-2" asChild variant="outline" size="lg">
           <I18nLink href="/dashboard" title="Go to Dashboard" prefetch={true}>
             Go to Dashboard <ArrowRight className="w-4 h-4" />
           </I18nLink>
