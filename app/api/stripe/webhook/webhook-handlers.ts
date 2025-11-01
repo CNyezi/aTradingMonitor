@@ -399,6 +399,7 @@ export async function upgradeSubscriptionCredits(userId: string, planId: string,
               const monthlyDetails = {
                 monthlyAllocationDetails: {
                   monthlyCredits: creditsToGrant,
+                  relatedOrderId: orderId,
                 }
               };
 
@@ -471,6 +472,7 @@ export async function upgradeSubscriptionCredits(userId: string, planId: string,
                   nextCreditDate: nextCreditDate,
                   monthlyCredits: benefits.monthlyCredits,
                   lastAllocatedMonth: `${startDate.getFullYear()}-${(startDate.getMonth() + 1).toString().padStart(2, '0')}`,
+                  relatedOrderId: orderId,
                 }
               };
 

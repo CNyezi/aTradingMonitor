@@ -3,7 +3,7 @@
 import { actionResponse, ActionResult } from '@/lib/action-response';
 import { getSession } from '@/lib/auth/server';
 import { db } from '@/lib/db';
-import { subscriptions as subscriptionsSchema, usage as usageSchema } from '@/lib/db/schema';
+import { creditLogs as creditLogsSchema, subscriptions as subscriptionsSchema, usage as usageSchema } from '@/lib/db/schema';
 import { desc, eq } from 'drizzle-orm';
 
 export interface UserBenefits {
@@ -129,7 +129,6 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
 
     // ------------------------------------------
     // User with no usage data, it means he/she is a new user
-    // Reference: handleWelcomeCredits on https://github.com/WeNextDev/nexty-flux-kontext/blob/main/actions/usage/benefits.ts
     // ------------------------------------------
     // if (!usageData) {
     //   console.log(`New user(${userId}) with no usage data - may grant benefits if needed.`);
@@ -170,7 +169,9 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
             return false;
           }
 
+          const allocationDate = new Date(yearlyDetails.nextCreditDate);
           const creditsToAllocate = yearlyDetails.monthlyCredits;
+
           const newRemainingMonths = yearlyDetails.remainingMonths - 1;
           const nextCreditDate = new Date(yearlyDetails.nextCreditDate);
           nextCreditDate.setMonth(nextCreditDate.getMonth() + 1);
@@ -187,12 +188,34 @@ export async function getUserBenefits(userId: string): Promise<UserBenefits> {
             yearlyAllocationDetails: newYearlyDetails,
           };
 
-          await tx.update(usageSchema)
+          const newSubscriptionBalance = creditsToAllocate;
+
+          const updatedUsage = await tx.update(usageSchema)
             .set({
-              subscriptionCreditsBalance: creditsToAllocate,
+              subscriptionCreditsBalance: newSubscriptionBalance,
               balanceJsonb: newBalanceJsonb,
             })
-            .where(eq(usageSchema.userId, userId));
+            .where(eq(usageSchema.userId, userId))
+            .returning({
+              oneTimeBalanceAfter: usageSchema.oneTimeCreditsBalance,
+              subscriptionBalanceAfter: usageSchema.subscriptionCreditsBalance,
+            });
+
+          const balances = updatedUsage[0];
+          if (balances) {
+            const relatedOrderId: string | null = yearlyDetails.relatedOrderId || null;
+
+            await tx.insert(creditLogsSchema).values({
+              userId: userId,
+              amount: creditsToAllocate,
+              oneTimeBalanceAfter: balances.oneTimeBalanceAfter,
+              subscriptionBalanceAfter: balances.subscriptionBalanceAfter,
+              type: 'subscription_grant',
+              notes: `Yearly subscription monthly credits allocated`,
+              relatedOrderId: relatedOrderId,
+              createdAt: allocationDate, // use the date of the month to allocate the credits
+            });
+          }
 
           return newRemainingMonths > 0;
         });
