@@ -31,7 +31,7 @@ const HeaderLinks = () => {
           <NavigationMenuItem key={link.name}>
             {link.items ? (
               <>
-                <NavigationMenuTrigger className="">
+                <NavigationMenuTrigger className="bg-transparent rounded-xl px-4 py-2 flex items-center gap-x-1 hover:bg-accent-foreground/10 hover:text-accent-foreground text-sm font-normal text-muted-foreground">
                   {link.name}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -87,7 +87,7 @@ const HeaderLinks = () => {
                 target={link.target || "_self"}
                 rel={link.rel || undefined}
                 className={cn(
-                  "rounded-xl px-4 py-2 flex items-center gap-x-1 text-sm font-normal text-muted-foreground hover:bg-accent-foreground/10 hover:text-accent-foreground",
+                  "bg-transparent rounded-xl px-4 py-2 flex items-center gap-x-1 text-sm font-normal text-muted-foreground hover:bg-accent-foreground/10 hover:text-accent-foreground",
                   pathname === link.href && "font-medium text-accent-foreground"
                 )}
               >
