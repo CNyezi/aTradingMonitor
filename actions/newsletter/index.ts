@@ -5,9 +5,8 @@ import { NewsletterWelcomeEmail } from '@/emails/newsletter-welcome';
 import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { actionResponse, ActionResult } from '@/lib/action-response';
 import { normalizeEmail, validateEmail } from '@/lib/email';
-import { checkRateLimit } from '@/lib/upstash';
+import { checkRateLimit, getClientIPFromHeaders } from '@/lib/upstash';
 import { getTranslations } from 'next-intl/server';
-import { headers } from 'next/headers';
 
 const NEWSLETTER_RATE_LIMIT = {
   prefix: `${siteConfig.name.trim()}_newsletter_rate_limit`,
@@ -18,12 +17,9 @@ const NEWSLETTER_RATE_LIMIT = {
 async function validateRateLimit(locale: string) {
   const t = await getTranslations({ locale, namespace: 'Footer.Newsletter' });
 
-  const headersList = await headers();
-  const ip = headersList.get('x-real-ip') ||
-    headersList.get('x-forwarded-for') ||
-    'unknown';
+  const clientIP = await getClientIPFromHeaders();
 
-  const success = await checkRateLimit(ip, NEWSLETTER_RATE_LIMIT);
+  const success = await checkRateLimit(clientIP, NEWSLETTER_RATE_LIMIT);
   if (!success) {
     throw new Error(t('subscribe.multipleSubmissions'));
   }
