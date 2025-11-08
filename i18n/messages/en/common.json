@@ -21,8 +21,8 @@
         "href": "/ai-demo"
       },
       {
-        "name": "Blogs",
-        "href": "/blogs"
+        "name": "Blog",
+        "href": "/blog"
       },
       {
         "name": "Demo",
@@ -106,8 +106,8 @@
               "name": "Pricing"
             },
             {
-              "href": "/blogs",
-              "name": "Blogs"
+              "href": "/blog",
+              "name": "Blog"
             }
           ]
         },

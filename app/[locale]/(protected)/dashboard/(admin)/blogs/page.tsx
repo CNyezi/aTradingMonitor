@@ -1,4 +1,4 @@
-import { listPostsAction } from "@/actions/blogs/posts";
+import { listPostsAction } from "@/actions/posts/posts";
 import { PostDataTable } from "@/components/cms/PostDataTable";
 import { Locale } from "@/i18n/routing";
 import { constructMetadata } from "@/lib/metadata";

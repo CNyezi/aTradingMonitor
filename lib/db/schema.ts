@@ -268,7 +268,6 @@ export const creditLogs = pgTable(
 
 export const postTypeEnum = pgEnum('post_type', [
   'blog',
-  "guide"
 ])
 export type PostType = (typeof postTypeEnum.enumValues)[number]
 

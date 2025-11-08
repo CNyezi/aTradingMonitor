@@ -1,4 +1,4 @@
-import { getPublishedPostBySlugAction } from '@/actions/blogs/posts';
+import { getPublishedPostBySlugAction } from '@/actions/posts/posts';
 import { DEFAULT_LOCALE } from '@/i18n/routing';
 import { PostBase, PublicPostWithContent } from '@/types/cms';
 import dayjs from 'dayjs';

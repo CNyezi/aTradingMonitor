@@ -38,10 +38,6 @@ export interface PostConfig {
   actionSchema: z.ZodSchema;
   imagePath: string;
   enableTags: boolean;
-  labels: {
-    singular: string;
-    plural: string;
-  };
   routes: {
     list: string;
     create: string;
@@ -56,26 +52,6 @@ export const POST_CONFIGS: Record<PostType, PostConfig> = {
     actionSchema: postActionSchema,
     imagePath: BLOGS_IMAGE_PATH,
     enableTags: true,
-    labels: {
-      singular: "Blog",
-      plural: "Blogs",
-    },
-    routes: {
-      list: "/dashboard/blogs",
-      create: "/dashboard/blogs/new",
-      edit: (id: string) => `/dashboard/blogs/${id}`,
-    },
-  },
-  guide: {
-    postType: "blog",
-    schema: basePostSchema,
-    actionSchema: postActionSchema,
-    imagePath: BLOGS_IMAGE_PATH,
-    enableTags: true,
-    labels: {
-      singular: "Blog",
-      plural: "Blogs",
-    },
     routes: {
       list: "/dashboard/blogs",
       create: "/dashboard/blogs/new",

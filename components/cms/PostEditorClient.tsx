@@ -4,7 +4,7 @@ import {
   createPostAction,
   getPostByIdAction,
   updatePostAction,
-} from "@/actions/blogs/posts";
+} from "@/actions/posts/posts";
 import { PostForm } from "@/components/cms/PostForm";
 import { getPostConfig } from "@/components/cms/post-config";
 import { Button } from "@/components/ui/button";
@@ -64,21 +64,18 @@ export function PostEditorClient({
               };
               setInitialData(duplicatedPost);
             } else {
-              toast.error(
-                `Error fetching ${config.labels.singular.toLowerCase()} to duplicate`,
-                {
-                  description:
-                    result.error ||
-                    `Failed to fetch the ${config.labels.singular.toLowerCase()} to duplicate`,
-                }
-              );
+              toast.error(`Error fetching ${config.postType} to duplicate`, {
+                description:
+                  result.error ||
+                  `Failed to fetch the ${config.postType} to duplicate`,
+              });
               setInitialData(null);
               setPageMode("create");
             }
           } catch (error) {
             toast.error("Unexpected error occurred");
             console.error(
-              `Failed to fetch ${config.labels.singular.toLowerCase()} for duplication:`,
+              `Failed to fetch ${config.postType} for duplication:`,
               error
             );
             setInitialData(null);
@@ -104,20 +101,14 @@ export function PostEditorClient({
           if (result.success && result.data?.post) {
             setInitialData(result.data.post);
           } else {
-            toast.error(
-              `Failed to fetch ${config.labels.singular.toLowerCase()}`,
-              {
-                description: result.error,
-              }
-            );
+            toast.error(`Failed to fetch ${config.postType}`, {
+              description: result.error,
+            });
             setInitialData(null);
           }
         } catch (error) {
           toast.error("Unexpected error occurred");
-          console.error(
-            `Failed to fetch ${config.labels.singular.toLowerCase()}:`,
-            error
-          );
+          console.error(`Failed to fetch ${config.postType}:`, error);
           setInitialData(null);
         } finally {
           setIsLoading(false);
@@ -138,14 +129,13 @@ export function PostEditorClient({
       });
 
       if (result.success) {
-        toast.success(`${config.labels.singular} updated successfully!`);
+        toast.success(`${config.postType} updated successfully!`);
         router.push(config.routes.list);
         router.refresh();
       } else {
-        toast.error(`Error updating ${config.labels.singular.toLowerCase()}`, {
+        toast.error(`Error updating ${config.postType}`, {
           description:
-            result.error ||
-            `Failed to update the ${config.labels.singular.toLowerCase()}`,
+            result.error || `Failed to update the ${config.postType}`,
         });
       }
     } else {
@@ -155,17 +145,13 @@ export function PostEditorClient({
       });
 
       if (result.success && result.data?.postId) {
-        toast.success(`${config.labels.singular} created successfully!`);
+        toast.success(`${config.postType} created successfully!`);
         router.push(config.routes.list);
       } else {
-        toast.error(
-          `Error creating ${config.labels.singular.toLowerCase()} post`,
-          {
-            description:
-              result.error ||
-              `Failed to create the ${config.labels.singular.toLowerCase()} post`,
-          }
-        );
+        toast.error(`Error creating ${config.postType} post`, {
+          description:
+            result.error || `Failed to create the ${config.postType} post`,
+        });
       }
     }
   };
@@ -187,11 +173,10 @@ export function PostEditorClient({
     return (
       <div className="space-y-6 p-4 md:p-8 text-center">
         <h2 className="text-2xl font-bold tracking-tight">
-          {config.labels.singular} Not Found
+          {config.postType} Not Found
         </h2>
         <p className="text-muted-foreground">
-          The requested {config.labels.singular.toLowerCase()} post could not be
-          found
+          The requested {config.postType} post could not be found
         </p>
         <Button onClick={() => router.push(config.routes.list)}>
           Back to List
@@ -205,8 +190,8 @@ export function PostEditorClient({
       <div>
         <h1 className="text-2xl font-semibold">
           {mode === "edit"
-            ? `Edit ${config.labels.singular} Post`
-            : `Create ${config.labels.singular} Post`}
+            ? `Edit ${config.postType} Post`
+            : `Create ${config.postType} Post`}
         </h1>
       </div>
       <PostForm

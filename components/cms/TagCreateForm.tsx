@@ -1,6 +1,6 @@
 "use client";
 
-import { createTagAction } from "@/actions/blogs/tags";
+import { createTagAction } from "@/actions/posts/tags";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PostType } from "@/lib/db/schema";

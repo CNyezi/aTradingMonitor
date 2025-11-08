@@ -1,6 +1,6 @@
 "use client";
 
-import { deletePostAction } from "@/actions/blogs/posts";
+import { deletePostAction } from "@/actions/posts/posts";
 import {
   AlertDialog,
   AlertDialogAction,

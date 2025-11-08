@@ -1,8 +1,8 @@
-import { listPublishedPostsAction } from "@/actions/blogs/posts";
+import { listPublishedPostsAction } from "@/actions/posts/posts";
 import {
   getViewCountAction,
   incrementViewCountAction,
-} from "@/actions/blogs/views";
+} from "@/actions/posts/views";
 import { PostCard } from "@/components/cms/PostCard";
 import { RelatedPosts } from "@/components/cms/RelatedPosts";
 import { TableOfContents } from "@/components/tiptap/TableOfContents";
@@ -43,14 +43,14 @@ export async function generateMetadata({
       description: "Page not found",
       noIndex: true,
       locale: locale as Locale,
-      path: `/blogs/${slug}`,
+      path: `/blog/${slug}`,
     });
   }
 
   const isContentRestricted = !!errorCode;
 
   const metadataPath = post.slug.startsWith("/") ? post.slug : `/${post.slug}`;
-  const fullPath = `/blogs${metadataPath}`;
+  const fullPath = `/blog${metadataPath}`;
 
   // Detect which locales have this blog post available
   const availableLocales: string[] = [];
@@ -108,7 +108,7 @@ export default async function BlogPage({ params }: { params: Params }) {
 
   if (errorCode) {
     showRestrictionMessageInsteadOfContent = true;
-    const redirectUrl = `/blogs/${slug}`;
+    const redirectUrl = `/blog/${slug}`;
 
     if (errorCode === "unauthorized") {
       messageTitle = t("BlogDetail.accessRestricted");
@@ -160,7 +160,7 @@ export default async function BlogPage({ params }: { params: Params }) {
           <div className="mb-8">
             <Button asChild variant="ghost" size="sm" className="group">
               <I18nLink
-                href="/blogs"
+                href="/blog"
                 title={t("BlogDetail.backToBlogs")}
                 prefetch={false}
               >
@@ -250,7 +250,7 @@ export default async function BlogPage({ params }: { params: Params }) {
               actionText={actionText}
               actionLink={actionLink}
               backText={t("BlogDetail.backToBlogs")}
-              backLink={`/blogs`}
+              backLink={`/blog`}
             />
           ) : (
             <article>
@@ -273,7 +273,7 @@ export default async function BlogPage({ params }: { params: Params }) {
           <div className="mt-16 pt-8 border-t">
             <Button asChild variant="outline" size="sm">
               <I18nLink
-                href="/blogs"
+                href="/blog"
                 title={t("BlogDetail.backToBlogs")}
                 prefetch={false}
                 className="inline-flex items-center"
@@ -299,7 +299,7 @@ export default async function BlogPage({ params }: { params: Params }) {
 }
 
 const BlogPostCard = ({ post }: { post: PostBase }) => (
-  <PostCard post={post} baseUrl="/blogs" />
+  <PostCard post={post} baseUrl="/blog" />
 );
 
 export async function generateStaticParams() {

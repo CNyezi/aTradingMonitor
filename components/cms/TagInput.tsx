@@ -1,6 +1,6 @@
 "use client";
 
-import { listTagsAction } from "@/actions/blogs/tags";
+import { listTagsAction } from "@/actions/posts/tags";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PostType } from "@/lib/db/schema";

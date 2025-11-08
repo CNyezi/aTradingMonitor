@@ -1,4 +1,4 @@
-import { getRelatedPostsAction } from "@/actions/blogs/posts";
+import { getRelatedPostsAction } from "@/actions/posts/posts";
 import { PostType } from "@/lib/db/schema";
 import { PostBase, PublicPost } from "@/types/cms";
 import dayjs from "dayjs";

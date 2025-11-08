@@ -1,4 +1,4 @@
-import { listPublishedPostsAction } from '@/actions/blogs/posts'
+import { listPublishedPostsAction } from '@/actions/posts/posts'
 import { siteConfig } from '@/config/site'
 import { DEFAULT_LOCALE, LOCALES } from '@/i18n/routing'
 import { getPosts } from '@/lib/getBlogs'
@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const slugPart = post.slug.replace(/^\//, "").replace(/^blogs\//, "");
         if (slugPart) {
           allBlogSitemapEntries.push({
-            url: `${siteUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}/blogs/${slugPart}`,
+            url: `${siteUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}/blog/${slugPart}`,
             lastModified: post.metadata?.updatedAt || post.publishedAt || new Date(),
             changeFrequency: 'daily' as ChangeFrequency,
             priority: 0.7,
@@ -54,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const slugPart = post.slug?.replace(/^\//, "").replace(/^blogs\//, "");
         if (slugPart) {
           allBlogSitemapEntries.push({
-            url: `${siteUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}/blogs/${slugPart}`,
+            url: `${siteUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}/blog/${slugPart}`,
             lastModified: post.publishedAt || new Date(),
             changeFrequency: 'daily' as ChangeFrequency,
             priority: 0.7,

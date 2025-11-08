@@ -22,7 +22,7 @@
       },
       {
         "name": "ブログ",
-        "href": "/blogs"
+        "href": "/blog"
       },
       {
         "id": "demo",
@@ -107,7 +107,7 @@
               "name": "料金プラン"
             },
             {
-              "href": "/blogs",
+              "href": "/blog",
               "name": "ブログ"
             }
           ]

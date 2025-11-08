@@ -1,5 +1,5 @@
-import { listPublishedPostsAction } from "@/actions/blogs/posts";
-import { listTagsAction } from "@/actions/blogs/tags";
+import { listPublishedPostsAction } from "@/actions/posts/posts";
+import { listTagsAction } from "@/actions/posts/tags";
 import { PostList } from "@/components/cms/PostList";
 import { Locale } from "@/i18n/routing";
 import { getPosts } from "@/lib/getBlogs";
@@ -22,11 +22,10 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "Blogs" });
 
   return constructMetadata({
-    page: "Blogs",
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    path: `/blogs`,
+    path: `/blog`,
   });
 }
 
@@ -89,7 +88,7 @@ export default async function Page({ params }: { params: Params }) {
       ) : (
         <PostList
           postType="blog"
-          baseUrl="/blogs"
+          baseUrl="/blog"
           localPosts={localPosts}
           initialPosts={initialServerPosts}
           initialTotal={totalServerPosts}

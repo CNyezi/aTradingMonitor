@@ -41,13 +41,6 @@ interface PostFormConfig {
   schema: z.ZodType<any, any, any>;
   imagePath: string;
   enableTags?: boolean;
-  labels?: {
-    title?: string;
-    slug?: string;
-    description?: string;
-    content?: string;
-    pin?: string;
-  };
 }
 
 interface PostFormProps {
@@ -68,13 +61,7 @@ export function PostForm({
   isSubmitting,
 }: PostFormProps) {
   const router = useRouter();
-  const {
-    postType,
-    schema,
-    imagePath,
-    enableTags = false,
-    labels = {},
-  } = config;
+  const { postType, schema, imagePath, enableTags = false } = config;
 
   const defaultValues: any = {
     language: initialData?.language || DEFAULT_LOCALE,
@@ -180,7 +167,7 @@ export function PostForm({
             name="slug"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{labels.slug || "Slug"}</FormLabel>
+                <FormLabel>Slug</FormLabel>
                 <div className="flex gap-2">
                   <FormControl>
                     <Input
@@ -213,7 +200,7 @@ export function PostForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{labels.description || "Description"}</FormLabel>
+                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Enter description"
@@ -282,7 +269,7 @@ export function PostForm({
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{labels.content || "Content"}</FormLabel>
+                <FormLabel>Content</FormLabel>
                 <FormControl>
                   <TiptapEditor
                     content={field.value || ""}

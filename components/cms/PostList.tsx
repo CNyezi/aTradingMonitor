@@ -1,6 +1,6 @@
 "use client";
 
-import { listPublishedPostsAction } from "@/actions/blogs/posts";
+import { listPublishedPostsAction } from "@/actions/posts/posts";
 import { PostType } from "@/lib/db/schema";
 import { PostBase, PublicPost, Tag } from "@/types/cms";
 import dayjs from "dayjs";

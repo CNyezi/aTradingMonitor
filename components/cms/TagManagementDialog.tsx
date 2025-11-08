@@ -4,7 +4,7 @@ import {
   deleteTagAction,
   listTagsAction,
   updateTagAction,
-} from "@/actions/blogs/tags";
+} from "@/actions/posts/tags";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
