@@ -212,6 +212,11 @@
         "name": "マイ株式",
         "href": "/dashboard/my-stocks",
         "icon": "TrendingUp"
+      },
+      {
+        "name": "株式モニター",
+        "href": "/dashboard/stock-monitors",
+        "icon": "Bell"
       }
     ],
     "AdminMenus": [

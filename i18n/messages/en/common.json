@@ -211,6 +211,11 @@
         "name": "My Stocks",
         "href": "/dashboard/my-stocks",
         "icon": "TrendingUp"
+      },
+      {
+        "name": "Stock Monitors",
+        "href": "/dashboard/stock-monitors",
+        "icon": "Bell"
       }
     ],
     "AdminMenus": [

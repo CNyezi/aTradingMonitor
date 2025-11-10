@@ -28,7 +28,13 @@
     "removeSuccess": "Unwatched",
     "removeError": "Failed to unwatch",
     "moveSuccess": "Moved",
-    "moveError": "Failed to move"
+    "moveError": "Failed to move",
+    "monitoring": "Real-time Monitoring",
+    "monitoringEnabledHint": "Monitoring enabled, will detect based on your rules",
+    "monitoringDisabledHint": "Monitoring disabled, no alerts will be triggered",
+    "monitoringEnabled": "Monitoring enabled",
+    "monitoringDisabled": "Monitoring disabled",
+    "monitoringToggleError": "Failed to toggle monitoring"
   },
   "groups": {
     "title": "Group Manager",

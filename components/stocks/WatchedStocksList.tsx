@@ -1,6 +1,7 @@
 'use client'
 
 import { moveStockToGroup, unwatchStock } from '@/actions/stocks'
+import { toggleStockMonitoring } from '@/actions/monitors'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,9 +13,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import type { StockWithGroup } from '@/lib/tushare'
-import { FolderInput, Loader2, MoreVertical, Trash2 } from 'lucide-react'
+import { Bell, BellOff, FolderInput, Loader2, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -37,6 +40,7 @@ export function WatchedStocksList({
   const t = useTranslations('MyStocks')
   const [removing, setRemoving] = useState<string | null>(null)
   const [moving, setMoving] = useState<string | null>(null)
+  const [toggling, setToggling] = useState<string | null>(null)
 
   const handleRemove = async (stockId: string) => {
     setRemoving(stockId)
@@ -77,6 +81,32 @@ export function WatchedStocksList({
       })
     } finally {
       setMoving(null)
+    }
+  }
+
+  const handleToggleMonitoring = async (watchedStockId: string, currentStatus: boolean) => {
+    setToggling(watchedStockId)
+    try {
+      const result = await toggleStockMonitoring({
+        watchedStockId,
+        monitored: !currentStatus,
+      })
+      if (result.success) {
+        toast.success(
+          !currentStatus ? t('list.monitoringEnabled') : t('list.monitoringDisabled')
+        )
+        onStockMoved() // 刷新列表
+      } else {
+        toast.error(t('list.monitoringToggleError'), {
+          description: result.error || 'Unknown error',
+        })
+      }
+    } catch (error) {
+      toast.error(t('list.monitoringToggleError'), {
+        description: String(error),
+      })
+    } finally {
+      setToggling(null)
     }
   }
 
@@ -165,10 +195,36 @@ export function WatchedStocksList({
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-muted-foreground">
-              {t('list.addedAt')}: {new Date(stock.addedAt).toLocaleDateString()}
-              {stock.groupName && ` • ${t('list.group')}: ${stock.groupName}`}
-              {stock.listDate && ` • ${t('list.listDate')}: ${stock.listDate}`}
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground">
+                {t('list.addedAt')}: {new Date(stock.addedAt).toLocaleDateString()}
+                {stock.groupName && ` • ${t('list.group')}: ${stock.groupName}`}
+                {stock.listDate && ` • ${t('list.listDate')}: ${stock.listDate}`}
+              </div>
+
+              {/* 监控开关 */}
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  {stock.monitored ? (
+                    <Bell className="h-4 w-4 text-primary" />
+                  ) : (
+                    <BellOff className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <div>
+                    <Label className="font-medium cursor-pointer">
+                      {t('list.monitoring')}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      {stock.monitored ? t('list.monitoringEnabledHint') : t('list.monitoringDisabledHint')}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={stock.monitored}
+                  onCheckedChange={() => handleToggleMonitoring(stock.id, stock.monitored)}
+                  disabled={toggling === stock.id}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

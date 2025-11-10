@@ -1,0 +1,35 @@
+{
+  "title": "通知設定",
+  "description": "株式モニタリングアラートの通知方法を設定",
+  "save": "設定を保存",
+  "saving": "保存中...",
+  "saveSuccess": "設定を保存しました",
+  "saveError": "保存失敗",
+  "loadError": "設定読み込み失敗",
+  "webhook": {
+    "title": "Webhook通知",
+    "description": "Webhookでアラート通知を受信、WeChat Work、DingTalkなどに対応",
+    "enabled": "Webhook有効化",
+    "urlLabel": "Webhook URL",
+    "urlPlaceholder": "https://your-webhook-url.com/notify",
+    "urlHint": "アラート発生時にこのURLにPOSTリクエストを送信",
+    "urlRequired": "Webhook URLを入力してください",
+    "test": "Webhookテスト",
+    "testSuccess": "テストメッセージ送信完了",
+    "testError": "テスト失敗"
+  },
+  "browserPush": {
+    "title": "ブラウザプッシュ",
+    "description": "ブラウザでリアルタイムプッシュ通知を受信",
+    "enabled": "ブラウザプッシュ有効化",
+    "hint": "ブラウザサポートと通知権限が必要です",
+    "subscribed": "ブラウザプッシュ購読済み",
+    "enabled": "ブラウザプッシュ有効",
+    "disabled": "ブラウザプッシュ無効",
+    "notSupported": "お使いのブラウザはプッシュ通知に対応していません",
+    "permissionDenied": "通知権限が拒否されました",
+    "configError": "プッシュ設定エラー",
+    "enableError": "プッシュ有効化失敗",
+    "disableError": "プッシュ無効化失敗"
+  }
+}

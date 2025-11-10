@@ -28,7 +28,13 @@
     "removeSuccess": "已取消关注",
     "removeError": "取消关注失败",
     "moveSuccess": "已移动",
-    "moveError": "移动失败"
+    "moveError": "移动失败",
+    "monitoring": "实时监控",
+    "monitoringEnabledHint": "已开启监控，将根据您的规则实时检测",
+    "monitoringDisabledHint": "未开启监控，不会触发告警",
+    "monitoringEnabled": "监控已开启",
+    "monitoringDisabled": "监控已关闭",
+    "monitoringToggleError": "切换监控状态失败"
   },
   "groups": {
     "title": "分组管理",

@@ -69,6 +69,7 @@ export async function getWatchedStocks(
         listDate: stocksSchema.listDate,
         groupId: watchedStocksSchema.groupId,
         groupName: groupsSchema.name,
+        monitored: watchedStocksSchema.monitored,
         addedAt: watchedStocksSchema.addedAt,
       })
       .from(watchedStocksSchema)

@@ -442,6 +442,7 @@ export const userWatchedStocks = pgTable(
     groupId: uuid('group_id').references(() => userStockGroups.id, {
       onDelete: 'set null',
     }), // 可选,不分组的股票为 null
+    monitored: boolean('monitored').default(false).notNull(), // 是否启用监控
     addedAt: timestamp('added_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -458,3 +459,130 @@ export const userWatchedStocks = pgTable(
     }
   }
 )
+
+// Stock monitoring tables
+export const monitorRuleTypeEnum = pgEnum('monitor_rule_type', [
+  'price_change',      // 价格涨跌幅
+  'volume_spike',      // 成交量异动
+  'limit_up',          // 涨停
+  'limit_down',        // 跌停
+  'price_breakout',    // 价格突破
+])
+
+export const stockMonitorRules = pgTable(
+  'stock_monitor_rules',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .references(() => user.id, { onDelete: 'cascade' })
+      .notNull(),
+    ruleType: monitorRuleTypeEnum('rule_type').notNull(),
+    ruleName: varchar('rule_name', { length: 100 }), // 规则名称（可选）
+    enabled: boolean('enabled').default(true).notNull(),
+    config: jsonb('config').notNull(), // 规则配置参数
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      userIdIdx: index('idx_stock_monitor_rules_user_id').on(table.userId),
+      enabledIdx: index('idx_stock_monitor_rules_enabled').on(table.enabled),
+      ruleTypeIdx: index('idx_stock_monitor_rules_rule_type').on(table.ruleType),
+    }
+  }
+)
+
+export const alertTypeEnum = pgEnum('alert_type', [
+  'price_change',
+  'volume_spike',
+  'limit_up',
+  'limit_down',
+  'price_breakout',
+])
+
+export const stockAlerts = pgTable(
+  'stock_alerts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .references(() => user.id, { onDelete: 'cascade' })
+      .notNull(),
+    stockId: uuid('stock_id')
+      .references(() => stocks.id, { onDelete: 'cascade' })
+      .notNull(),
+    alertType: alertTypeEnum('alert_type').notNull(),
+    triggerTime: timestamp('trigger_time', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    triggerData: jsonb('trigger_data').notNull(), // 触发时的数据快照
+    read: boolean('read').default(false).notNull(),
+    notified: boolean('notified').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      userIdIdx: index('idx_stock_alerts_user_id').on(table.userId),
+      stockIdIdx: index('idx_stock_alerts_stock_id').on(table.stockId),
+      readIdx: index('idx_stock_alerts_read').on(table.read),
+      triggerTimeIdx: index('idx_stock_alerts_trigger_time').on(table.triggerTime),
+    }
+  }
+)
+
+export const stockPriceSnapshots = pgTable(
+  'stock_price_snapshots',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    stockId: uuid('stock_id')
+      .references(() => stocks.id, { onDelete: 'cascade' })
+      .notNull(),
+    snapshotTime: timestamp('snapshot_time', { withTimezone: true }).notNull(),
+    open: numeric('open', { precision: 10, scale: 2 }),
+    high: numeric('high', { precision: 10, scale: 2 }),
+    low: numeric('low', { precision: 10, scale: 2 }),
+    close: numeric('close', { precision: 10, scale: 2 }).notNull(),
+    volume: numeric('volume', { precision: 20, scale: 2 }), // 成交量
+    amount: numeric('amount', { precision: 20, scale: 2 }), // 成交额
+    changePct: numeric('change_pct', { precision: 10, scale: 2 }), // 涨跌幅%
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      stockTimeIdx: index('idx_stock_price_snapshots_stock_time').on(
+        table.stockId,
+        table.snapshotTime
+      ),
+      snapshotTimeIdx: index('idx_stock_price_snapshots_time').on(table.snapshotTime),
+    }
+  }
+)
+
+export const userNotificationSettings = pgTable('user_notification_settings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .references(() => user.id, { onDelete: 'cascade' })
+    .notNull()
+    .unique(),
+  webhookUrl: text('webhook_url'),
+  webhookEnabled: boolean('webhook_enabled').default(false).notNull(),
+  browserPushEnabled: boolean('browser_push_enabled').default(false).notNull(),
+  pushSubscription: jsonb('push_subscription'), // Web Push 订阅信息
+  quietHoursStart: varchar('quiet_hours_start', { length: 5 }), // HH:MM
+  quietHoursEnd: varchar('quiet_hours_end', { length: 5 }), // HH:MM
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull()
+    .$onUpdate(() => new Date()),
+})

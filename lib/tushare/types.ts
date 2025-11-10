@@ -23,5 +23,6 @@ export interface StockWithGroup {
   listDate: string | null
   groupId: string | null
   groupName: string | null
+  monitored: boolean
   addedAt: Date
 }

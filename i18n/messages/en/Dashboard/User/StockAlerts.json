@@ -1,0 +1,27 @@
+{
+  "title": "Alert Center",
+  "description": "View and manage your stock monitoring alerts",
+  "tabs": {
+    "all": "All Alerts",
+    "unread": "Unread Alerts"
+  },
+  "empty": "No alerts yet",
+  "emptyHint": "Alerts will appear here when your stocks trigger monitoring rules",
+  "unread": "Unread",
+  "markAsRead": "Mark as Read",
+  "markAllAsRead": "Mark All as Read",
+  "markReadSuccess": "Marked as read",
+  "markReadError": "Failed to mark as read",
+  "markAllReadSuccess": "All marked as read",
+  "markAllReadError": "Failed to mark all as read",
+  "loadError": "Failed to load alerts",
+  "triggerTime": "Triggered",
+  "triggerData": "Trigger Data",
+  "alertTypes": {
+    "priceChange": "Daily Price Change Monitor",
+    "volumeSpike": "Volume Spike Monitor",
+    "limitUp": "Limit Up Alert",
+    "limitDown": "Limit Down Alert",
+    "priceBreakout": "Price Breakout Monitor"
+  }
+}

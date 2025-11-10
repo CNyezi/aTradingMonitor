@@ -1,0 +1,27 @@
+{
+  "title": "アラートセンター",
+  "description": "株式モニタリングアラートを表示・管理",
+  "tabs": {
+    "all": "すべてのアラート",
+    "unread": "未読アラート"
+  },
+  "empty": "アラートはまだありません",
+  "emptyHint": "株式がモニタリングルールをトリガーするとアラートがここに表示されます",
+  "unread": "未読",
+  "markAsRead": "既読にする",
+  "markAllAsRead": "すべて既読にする",
+  "markReadSuccess": "既読にしました",
+  "markReadError": "既読設定失敗",
+  "markAllReadSuccess": "すべて既読にしました",
+  "markAllReadError": "すべて既読設定失敗",
+  "loadError": "アラート読み込み失敗",
+  "triggerTime": "トリガー時間",
+  "triggerData": "トリガーデータ",
+  "alertTypes": {
+    "priceChange": "当日騰落率モニター",
+    "volumeSpike": "出来高異動モニター",
+    "limitUp": "ストップ高アラート",
+    "limitDown": "ストップ安アラート",
+    "priceBreakout": "価格ブレイクアウトモニター"
+  }
+}

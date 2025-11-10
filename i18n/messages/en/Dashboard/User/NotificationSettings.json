@@ -1,0 +1,35 @@
+{
+  "title": "Notification Settings",
+  "description": "Configure how you receive stock monitoring alerts",
+  "save": "Save Settings",
+  "saving": "Saving...",
+  "saveSuccess": "Settings saved",
+  "saveError": "Failed to save",
+  "loadError": "Failed to load settings",
+  "webhook": {
+    "title": "Webhook Notifications",
+    "description": "Receive alerts via Webhook, supports WeChat Work, DingTalk, etc.",
+    "enabled": "Enable Webhook",
+    "urlLabel": "Webhook URL",
+    "urlPlaceholder": "https://your-webhook-url.com/notify",
+    "urlHint": "POST requests will be sent to this URL when alerts trigger",
+    "urlRequired": "Please enter Webhook URL",
+    "test": "Test Webhook",
+    "testSuccess": "Test message sent",
+    "testError": "Test failed"
+  },
+  "browserPush": {
+    "title": "Browser Push",
+    "description": "Receive real-time push notifications in your browser",
+    "enabled": "Enable Browser Push",
+    "hint": "Requires browser support and notification permission",
+    "subscribed": "Subscribed to browser push",
+    "enabled": "Browser push enabled",
+    "disabled": "Browser push disabled",
+    "notSupported": "Your browser doesn't support push notifications",
+    "permissionDenied": "Notification permission denied",
+    "configError": "Push configuration error",
+    "enableError": "Failed to enable push",
+    "disableError": "Failed to disable push"
+  }
+}

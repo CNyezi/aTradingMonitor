@@ -211,6 +211,11 @@
         "name": "我的股票",
         "href": "/dashboard/my-stocks",
         "icon": "TrendingUp"
+      },
+      {
+        "name": "股票监控",
+        "href": "/dashboard/stock-monitors",
+        "icon": "Bell"
       }
     ],
     "AdminMenus": [

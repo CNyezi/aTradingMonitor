@@ -12,7 +12,7 @@ interface TushareResponse<T> {
   } | null
 }
 
-interface StockBasicItem {
+export interface StockBasicItem {
   ts_code: string // 股票代码 (如 "000001.SZ")
   symbol: string // 股票简称 (如 "000001")
   name: string // 股票名称
@@ -20,6 +20,24 @@ interface StockBasicItem {
   industry: string | null // 所属行业
   market: string | null // 市场类型 (主板/创业板等)
   list_date: string | null // 上市日期 (YYYYMMDD)
+}
+
+/**
+ * 股票分钟行情数据
+ * 接口: stk_mins (需要120积分)
+ * 文档: https://tushare.pro/document/2?doc_id=109
+ */
+export interface StockMinuteItem {
+  ts_code: string // 股票代码
+  trade_time: string // 交易时间 (YYYY-MM-DD HH:MM:SS)
+  open: number // 开盘价
+  high: number // 最高价
+  low: number // 最低价
+  close: number // 收盘价
+  vol: number // 成交量 (手)
+  amount: number // 成交额 (千元)
+  change: number // 涨跌额
+  pct_chg: number // 涨跌幅 (%)
 }
 
 export class TushareClient {
@@ -137,6 +155,108 @@ export class TushareClient {
     }
 
     throw lastError || new Error('Failed to fetch stock data after retries')
+  }
+
+  /**
+   * 获取股票分钟级行情数据
+   * 接口: stk_mins (需要120积分)
+   * 文档: https://tushare.pro/document/2?doc_id=109
+   *
+   * @param tsCode - 股票代码 (必填, 如 "000001.SZ")
+   * @param freq - 分钟频度 (1min, 5min, 15min, 30min, 60min), 默认 1min
+   * @param startDate - 开始日期 (YYYYMMDD)
+   * @param endDate - 结束日期 (YYYYMMDD)
+   * @param startTime - 开始时间 (HHMM)
+   * @param endTime - 结束时间 (HHMM)
+   *
+   * 注意:
+   * 1. 单次最多提取8000行记录
+   * 2. 总量不限制
+   * 3. 权限要求: 120积分以上
+   */
+  async getStockMinutes(params: {
+    tsCode: string
+    freq?: '1min' | '5min' | '15min' | '30min' | '60min'
+    startDate?: string
+    endDate?: string
+    startTime?: string
+    endTime?: string
+  }): Promise<StockMinuteItem[]> {
+    const response = await this.request<StockMinuteItem>(
+      'stk_mins',
+      {
+        ts_code: params.tsCode,
+        freq: params.freq || '1min',
+        start_date: params.startDate || '',
+        end_date: params.endDate || '',
+        start_time: params.startTime || '',
+        end_time: params.endTime || '',
+      },
+      'ts_code,trade_time,open,high,low,close,vol,amount,change,pct_chg'
+    )
+
+    if (response.code !== 0) {
+      throw new Error(`Tushare API error: ${response.msg || 'Unknown error'}`)
+    }
+
+    if (!response.data || !response.data.items) {
+      return []
+    }
+
+    // 将数组数据转换为对象
+    const fields = response.data.fields
+    return response.data.items.map((item) => {
+      const minute: any = {}
+      fields.forEach((field, index) => {
+        minute[field] = item[index]
+      })
+      return minute as StockMinuteItem
+    })
+  }
+
+  /**
+   * 批量获取多个股票的最新分钟行情
+   * 用于实时监控场景
+   *
+   * @param tsCodes - 股票代码数组
+   * @param freq - 分钟频度, 默认 1min
+   * @returns 股票代码到分钟行情的映射
+   */
+  async getBatchLatestMinutes(
+    tsCodes: string[],
+    freq: '1min' | '5min' | '15min' | '30min' | '60min' = '1min'
+  ): Promise<Map<string, StockMinuteItem | null>> {
+    const result = new Map<string, StockMinuteItem | null>()
+
+    // 获取今天的日期 (YYYYMMDD)
+    const today = new Date()
+    const dateStr =
+      today.getFullYear() +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      String(today.getDate()).padStart(2, '0')
+
+    // 串行请求避免API限流 (每分钟200次)
+    for (const tsCode of tsCodes) {
+      try {
+        const data = await this.getStockMinutes({
+          tsCode,
+          freq,
+          startDate: dateStr,
+          endDate: dateStr,
+        })
+
+        // 取最新的一条记录
+        result.set(tsCode, data.length > 0 ? data[data.length - 1] : null)
+
+        // 每次请求后延迟 300ms (避免触发限流: 200次/分钟 = 每300ms一次)
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      } catch (error) {
+        console.error(`[Tushare] Failed to fetch minutes for ${tsCode}:`, error)
+        result.set(tsCode, null)
+      }
+    }
+
+    return result
   }
 }
 

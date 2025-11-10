@@ -57,6 +57,20 @@
       "when": 1762772043004,
       "tag": "0007_stiff_skaar",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1762774097692,
+      "tag": "0008_fresh_venom",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1762775000000,
+      "tag": "0009_refactor_monitor_rules",
+      "breakpoints": true
     }
   ]
 }

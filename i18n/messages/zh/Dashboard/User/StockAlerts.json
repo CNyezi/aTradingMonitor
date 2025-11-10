@@ -1,0 +1,27 @@
+{
+  "title": "告警中心",
+  "description": "查看和管理您的股票监控告警",
+  "tabs": {
+    "all": "全部告警",
+    "unread": "未读告警"
+  },
+  "empty": "暂无告警记录",
+  "emptyHint": "当您的股票触发监控规则时，告警将显示在这里",
+  "unread": "未读",
+  "markAsRead": "标记为已读",
+  "markAllAsRead": "全部标记为已读",
+  "markReadSuccess": "已标记为已读",
+  "markReadError": "标记失败",
+  "markAllReadSuccess": "全部已标记为已读",
+  "markAllReadError": "全部标记失败",
+  "loadError": "加载告警失败",
+  "triggerTime": "触发时间",
+  "triggerData": "触发数据",
+  "alertTypes": {
+    "priceChange": "当日涨跌幅监控",
+    "volumeSpike": "成交量异动监控",
+    "limitUp": "涨停预警",
+    "limitDown": "跌停预警",
+    "priceBreakout": "价格突破监控"
+  }
+}

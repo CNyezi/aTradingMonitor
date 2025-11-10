@@ -1,0 +1,35 @@
+{
+  "title": "通知设置",
+  "description": "配置股票监控的通知方式",
+  "save": "保存设置",
+  "saving": "保存中...",
+  "saveSuccess": "设置已保存",
+  "saveError": "保存失败",
+  "loadError": "加载设置失败",
+  "webhook": {
+    "title": "Webhook 通知",
+    "description": "通过 Webhook 接收告警通知，支持企业微信、钉钉等",
+    "enabled": "启用 Webhook",
+    "urlLabel": "Webhook URL",
+    "urlPlaceholder": "https://your-webhook-url.com/notify",
+    "urlHint": "告警触发时将发送 POST 请求到此 URL",
+    "urlRequired": "请输入 Webhook URL",
+    "test": "测试 Webhook",
+    "testSuccess": "测试消息已发送",
+    "testError": "测试失败"
+  },
+  "browserPush": {
+    "title": "浏览器推送",
+    "description": "通过浏览器接收实时推送通知",
+    "enabled": "启用浏览器推送",
+    "hint": "需要浏览器支持并授予通知权限",
+    "subscribed": "已订阅浏览器推送",
+    "enabled": "浏览器推送已启用",
+    "disabled": "浏览器推送已禁用",
+    "notSupported": "您的浏览器不支持推送通知",
+    "permissionDenied": "通知权限被拒绝",
+    "configError": "推送配置错误",
+    "enableError": "启用推送失败",
+    "disableError": "禁用推送失败"
+  }
+}

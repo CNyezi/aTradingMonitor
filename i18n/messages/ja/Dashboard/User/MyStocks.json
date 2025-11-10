@@ -28,7 +28,13 @@
     "removeSuccess": "ウォッチ解除しました",
     "removeError": "ウォッチ解除失敗",
     "moveSuccess": "移動しました",
-    "moveError": "移動失敗"
+    "moveError": "移動失敗",
+    "monitoring": "リアルタイムモニタリング",
+    "monitoringEnabledHint": "モニタリング有効、ルールに基づいて検出します",
+    "monitoringDisabledHint": "モニタリング無効、アラートは発生しません",
+    "monitoringEnabled": "モニタリング有効",
+    "monitoringDisabled": "モニタリング無効",
+    "monitoringToggleError": "モニタリング切り替え失敗"
   },
   "groups": {
     "title": "グループ管理",
