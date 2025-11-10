@@ -19,6 +19,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       // Dashboard - User
       Settings: (await import(`./messages/${locale}/Dashboard/User/Settings.json`)).default,
       CreditHistory: (await import(`./messages/${locale}/Dashboard/User/CreditHistory.json`)).default,
+      MyStocks: (await import(`./messages/${locale}/Dashboard/User/MyStocks.json`)).default,
 
       // Dashboard - Admin
       Overview: (await import(`./messages/${locale}/Dashboard/Admin/Overview.json`)).default,

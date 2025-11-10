@@ -1,0 +1,60 @@
+{
+  "title": "My Stocks",
+  "description": "Manage your watched stocks and groups",
+  "adminNote": "Admin can update stock database",
+  "searchPlaceholder": "Enter stock code or name to search...",
+  "addStock": "Add Stock",
+  "search": {
+    "title": "Search Stocks",
+    "description": "Enter stock code or name to search",
+    "selectGroup": "Select Group",
+    "noGroup": "No Group",
+    "add": "Add",
+    "noResults": "No matching stocks found",
+    "error": "Search failed",
+    "addSuccess": "Added to watch list",
+    "addError": "Failed to add"
+  },
+  "list": {
+    "empty": "You haven't watched any stocks yet",
+    "emptyHint": "Click「Add Stock」button to get started",
+    "actions": "Actions",
+    "moveToGroup": "Move to Group",
+    "noGroup": "Ungrouped",
+    "remove": "Unwatch",
+    "addedAt": "Added",
+    "group": "Group",
+    "listDate": "Listed",
+    "removeSuccess": "Unwatched",
+    "removeError": "Failed to unwatch",
+    "moveSuccess": "Moved",
+    "moveError": "Failed to move"
+  },
+  "groups": {
+    "title": "Group Manager",
+    "all": "All Stocks",
+    "ungrouped": "Ungrouped",
+    "create": "Create Group",
+    "createDescription": "Create a new group for your stocks",
+    "rename": "Rename",
+    "renameDescription": "Modify group name",
+    "delete": "Delete Group",
+    "deleteConfirm": "Delete this group?",
+    "deleteDescription": "After deleting「{name}」, stocks in this group will become ungrouped",
+    "namePlaceholder": "Enter group name",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "createSuccess": "Group created",
+    "createError": "Failed to create group",
+    "updateSuccess": "Group updated",
+    "updateError": "Failed to update group",
+    "deleteSuccess": "Group deleted",
+    "deleteError": "Failed to delete group"
+  },
+  "update": {
+    "button": "Update Stock Data",
+    "success": "Data updated successfully",
+    "successDescription": "Total {total} stocks, {new} new, {updated} updated",
+    "error": "Failed to update data"
+  }
+}

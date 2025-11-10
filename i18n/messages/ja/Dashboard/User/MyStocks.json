@@ -1,0 +1,60 @@
+{
+  "title": "マイ株式",
+  "description": "ウォッチリストとグループを管理",
+  "adminNote": "管理者は株式データを更新できます",
+  "searchPlaceholder": "銘柄コードまたは名前で検索...",
+  "addStock": "株式を追加",
+  "search": {
+    "title": "株式検索",
+    "description": "銘柄コードまたは名前で検索",
+    "selectGroup": "グループを選択",
+    "noGroup": "グループなし",
+    "add": "追加",
+    "noResults": "一致する株式が見つかりません",
+    "error": "検索失敗",
+    "addSuccess": "ウォッチリストに追加されました",
+    "addError": "追加失敗"
+  },
+  "list": {
+    "empty": "まだ株式をウォッチしていません",
+    "emptyHint": "「株式を追加」ボタンをクリックして開始",
+    "actions": "操作",
+    "moveToGroup": "グループに移動",
+    "noGroup": "グループなし",
+    "remove": "ウォッチ解除",
+    "addedAt": "追加日時",
+    "group": "グループ",
+    "listDate": "上場日",
+    "removeSuccess": "ウォッチ解除しました",
+    "removeError": "ウォッチ解除失敗",
+    "moveSuccess": "移動しました",
+    "moveError": "移動失敗"
+  },
+  "groups": {
+    "title": "グループ管理",
+    "all": "すべての株式",
+    "ungrouped": "グループなし",
+    "create": "グループを作成",
+    "createDescription": "株式用の新しいグループを作成",
+    "rename": "名前変更",
+    "renameDescription": "グループ名を変更",
+    "delete": "グループを削除",
+    "deleteConfirm": "このグループを削除しますか?",
+    "deleteDescription": "「{name}」を削除すると、このグループ内の株式はグループなしになります",
+    "namePlaceholder": "グループ名を入力",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "createSuccess": "グループを作成しました",
+    "createError": "グループの作成失敗",
+    "updateSuccess": "グループを更新しました",
+    "updateError": "グループの更新失敗",
+    "deleteSuccess": "グループを削除しました",
+    "deleteError": "グループの削除失敗"
+  },
+  "update": {
+    "button": "株式データ更新",
+    "success": "データ更新成功",
+    "successDescription": "合計{total}件、新規{new}件、更新{updated}件",
+    "error": "データ更新失敗"
+  }
+}

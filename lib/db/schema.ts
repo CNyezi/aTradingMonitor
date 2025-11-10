@@ -371,3 +371,90 @@ export const postTags = pgTable(
     }
   }
 )
+
+// Stock management tables
+export const stocks = pgTable(
+  'stocks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    tsCode: varchar('ts_code', { length: 20 }).notNull().unique(), // 如 "000001.SZ"
+    symbol: varchar('symbol', { length: 10 }).notNull(), // 如 "000001"
+    name: varchar('name', { length: 100 }).notNull(), // 股票名称
+    area: varchar('area', { length: 50 }), // 地域
+    industry: varchar('industry', { length: 50 }), // 行业
+    market: varchar('market', { length: 20 }), // 市场类型 (主板/中小板/创业板等)
+    listDate: varchar('list_date', { length: 10 }), // 上市日期 (YYYYMMDD)
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      tsCodeIdx: index('idx_stocks_ts_code').on(table.tsCode),
+      nameIdx: index('idx_stocks_name').on(table.name),
+      symbolIdx: index('idx_stocks_symbol').on(table.symbol),
+    }
+  }
+)
+
+export const userStockGroups = pgTable(
+  'user_stock_groups',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .references(() => user.id, { onDelete: 'cascade' })
+      .notNull(),
+    name: varchar('name', { length: 50 }).notNull(), // 分组名称
+    sortOrder: integer('sort_order').default(0).notNull(), // 排序
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => {
+    return {
+      userIdIdx: index('idx_user_stock_groups_user_id').on(table.userId),
+      userNameUnique: unique('user_stock_groups_user_id_name_unique').on(
+        table.userId,
+        table.name
+      ),
+    }
+  }
+)
+
+export const userWatchedStocks = pgTable(
+  'user_watched_stocks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .references(() => user.id, { onDelete: 'cascade' })
+      .notNull(),
+    stockId: uuid('stock_id')
+      .references(() => stocks.id, { onDelete: 'cascade' })
+      .notNull(),
+    groupId: uuid('group_id').references(() => userStockGroups.id, {
+      onDelete: 'set null',
+    }), // 可选,不分组的股票为 null
+    addedAt: timestamp('added_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => {
+    return {
+      userIdIdx: index('idx_user_watched_stocks_user_id').on(table.userId),
+      stockIdIdx: index('idx_user_watched_stocks_stock_id').on(table.stockId),
+      groupIdIdx: index('idx_user_watched_stocks_group_id').on(table.groupId),
+      userStockUnique: unique('user_watched_stocks_user_id_stock_id_unique').on(
+        table.userId,
+        table.stockId
+      ),
+    }
+  }
+)

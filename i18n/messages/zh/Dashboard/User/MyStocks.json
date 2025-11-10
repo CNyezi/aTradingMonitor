@@ -1,0 +1,60 @@
+{
+  "title": "我的股票",
+  "description": "管理您关注的股票和分组",
+  "adminNote": "管理员可更新股票数据库",
+  "searchPlaceholder": "输入股票代码或名称搜索...",
+  "addStock": "添加股票",
+  "search": {
+    "title": "搜索股票",
+    "description": "输入股票代码或名称进行搜索",
+    "selectGroup": "选择分组",
+    "noGroup": "不分组",
+    "add": "添加",
+    "noResults": "未找到匹配的股票",
+    "error": "搜索失败",
+    "addSuccess": "已添加到关注列表",
+    "addError": "添加失败"
+  },
+  "list": {
+    "empty": "您还没有关注任何股票",
+    "emptyHint": "点击「添加股票」按钮开始添加",
+    "actions": "操作",
+    "moveToGroup": "移动到分组",
+    "noGroup": "未分组",
+    "remove": "取消关注",
+    "addedAt": "添加时间",
+    "group": "分组",
+    "listDate": "上市日期",
+    "removeSuccess": "已取消关注",
+    "removeError": "取消关注失败",
+    "moveSuccess": "已移动",
+    "moveError": "移动失败"
+  },
+  "groups": {
+    "title": "分组管理",
+    "all": "全部股票",
+    "ungrouped": "未分组",
+    "create": "创建分组",
+    "createDescription": "为您的股票创建一个新的分组",
+    "rename": "重命名",
+    "renameDescription": "修改分组名称",
+    "delete": "删除分组",
+    "deleteConfirm": "确认删除分组?",
+    "deleteDescription": "删除「{name}」分组后,该分组下的股票将变为未分组状态",
+    "namePlaceholder": "输入分组名称",
+    "cancel": "取消",
+    "confirm": "确定",
+    "createSuccess": "分组创建成功",
+    "createError": "分组创建失败",
+    "updateSuccess": "分组更新成功",
+    "updateError": "分组更新失败",
+    "deleteSuccess": "分组删除成功",
+    "deleteError": "分组删除失败"
+  },
+  "update": {
+    "button": "更新股票数据",
+    "success": "数据更新成功",
+    "successDescription": "共 {total} 条股票,新增 {new} 条,更新 {updated} 条",
+    "error": "数据更新失败"
+  }
+}

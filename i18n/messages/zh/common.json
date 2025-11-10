@@ -206,6 +206,11 @@
         "name": "积分明细",
         "href": "/dashboard/credit-history",
         "icon": "Coins"
+      },
+      {
+        "name": "我的股票",
+        "href": "/dashboard/my-stocks",
+        "icon": "TrendingUp"
       }
     ],
     "AdminMenus": [

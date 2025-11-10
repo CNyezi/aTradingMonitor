@@ -206,6 +206,11 @@
         "name": "Credit History",
         "href": "/dashboard/credit-history",
         "icon": "Coins"
+      },
+      {
+        "name": "My Stocks",
+        "href": "/dashboard/my-stocks",
+        "icon": "TrendingUp"
       }
     ],
     "AdminMenus": [

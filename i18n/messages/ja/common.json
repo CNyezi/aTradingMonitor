@@ -207,6 +207,11 @@
         "name": "クレジット履歴",
         "href": "/dashboard/credit-history",
         "icon": "Coins"
+      },
+      {
+        "name": "マイ株式",
+        "href": "/dashboard/my-stocks",
+        "icon": "TrendingUp"
       }
     ],
     "AdminMenus": [
