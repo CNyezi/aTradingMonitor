@@ -1,8 +1,7 @@
 'use client'
 
-import { moveStockToGroup, unwatchStock } from '@/actions/stocks'
 import { toggleStockMonitoring } from '@/actions/monitors'
-import { Badge } from '@/components/ui/badge'
+import { moveStockToGroup, unwatchStock } from '@/actions/stocks'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -14,8 +13,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
+import { useStockSubscription } from '@/hooks/use-stock-subscription'
 import type { StockWithGroup } from '@/lib/tushare'
 import { Bell, BellOff, FolderInput, Loader2, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -38,9 +37,43 @@ export function WatchedStocksList({
   onStockMoved,
 }: WatchedStocksListProps) {
   const t = useTranslations('MyStocks')
+  const tRealtime = useTranslations('StockRealtime')
   const [removing, setRemoving] = useState<string | null>(null)
   const [moving, setMoving] = useState<string | null>(null)
   const [toggling, setToggling] = useState<string | null>(null)
+  const [expandedChart, setExpandedChart] = useState<string | null>(null)
+
+  // 使用WebSocket订阅股票数据
+  const tsCodes = stocks.map((s) => s.tsCode)
+  const { quotes: realtimeData, isConnected } = useStockSubscription(tsCodes)
+
+  // 生成东方财富K线图URL
+  const getEastMoneyChartUrl = (tsCode: string) => {
+    const [code, exchange] = tsCode.split('.')
+    const market = exchange === 'SH' ? '1' : '0'
+    return `https://quote.eastmoney.com/basic/h5chart-iframe.html?code=${code}&market=${market}`
+  }
+
+  // 格式化数字
+  const formatNumber = (num: number, decimals = 2) => {
+    return num.toFixed(decimals)
+  }
+
+  // 格式化成交量
+  const formatVolume = (volume: number) => {
+    if (volume >= 10000) {
+      return `${(volume / 10000 / 100).toFixed(2)}万`
+    }
+    return (volume / 100).toFixed(2)
+  }
+
+  // 格式化成交额
+  const formatAmount = (amount: number) => {
+    if (amount >= 100000000) {
+      return `${(amount / 100000000).toFixed(2)}亿`
+    }
+    return amount.toFixed(2) + '万'
+  }
 
   const handleRemove = async (stockId: string) => {
     setRemoving(stockId)
@@ -92,10 +125,8 @@ export function WatchedStocksList({
         monitored: !currentStatus,
       })
       if (result.success) {
-        toast.success(
-          !currentStatus ? t('list.monitoringEnabled') : t('list.monitoringDisabled')
-        )
-        onStockMoved() // 刷新列表
+        toast.success(!currentStatus ? t('list.monitoringEnabled') : t('list.monitoringDisabled'))
+        onStockMoved()
       } else {
         toast.error(t('list.monitoringToggleError'), {
           description: result.error || 'Unknown error',
@@ -133,102 +164,184 @@ export function WatchedStocksList({
 
   return (
     <div className="space-y-4">
-      {stocks.map((stock) => (
-        <Card key={stock.id}>
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <CardTitle className="text-lg">
-                  {stock.name} ({stock.symbol})
-                </CardTitle>
-                <div className="flex gap-2 flex-wrap">
-                  <Badge variant="outline">{stock.tsCode}</Badge>
-                  {stock.industry && <Badge variant="secondary">{stock.industry}</Badge>}
-                  {stock.area && <Badge variant="secondary">{stock.area}</Badge>}
-                  {stock.market && <Badge variant="secondary">{stock.market}</Badge>}
-                </div>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" disabled={removing === stock.id || moving === stock.id}>
-                    {(removing === stock.id || moving === stock.id) ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <MoreVertical className="h-4 w-4" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>{t('list.actions')}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {groups.length > 0 && (
-                    <>
-                      <DropdownMenuLabel className="text-xs text-muted-foreground">
-                        {t('list.moveToGroup')}
-                      </DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleMove(stock.id, null)}>
-                        <FolderInput className="mr-2 h-4 w-4" />
-                        {t('list.noGroup')}
-                      </DropdownMenuItem>
-                      {groups.map((group) => (
-                        <DropdownMenuItem
-                          key={group.id}
-                          onClick={() => handleMove(stock.id, group.id)}
-                          disabled={stock.groupId === group.id}
-                        >
-                          <FolderInput className="mr-2 h-4 w-4" />
-                          {group.name}
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-                  <DropdownMenuItem
-                    className="text-destructive"
-                    onClick={() => handleRemove(stock.id)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    {t('list.remove')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                {t('list.addedAt')}: {new Date(stock.addedAt).toLocaleDateString()}
-                {stock.groupName && ` • ${t('list.group')}: ${stock.groupName}`}
-                {stock.listDate && ` • ${t('list.listDate')}: ${stock.listDate}`}
-              </div>
-
-              {/* 监控开关 */}
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  {stock.monitored ? (
-                    <Bell className="h-4 w-4 text-primary" />
-                  ) : (
-                    <BellOff className="h-4 w-4 text-muted-foreground" />
-                  )}
-                  <div>
-                    <Label className="font-medium cursor-pointer">
-                      {t('list.monitoring')}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {stock.monitored ? t('list.monitoringEnabledHint') : t('list.monitoringDisabledHint')}
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  checked={stock.monitored}
-                  onCheckedChange={() => handleToggleMonitoring(stock.id, stock.monitored)}
-                  disabled={toggling === stock.id}
-                />
-              </div>
-            </div>
+      {/* WebSocket连接状态提示 */}
+      {!isConnected && stocks.length > 0 && (
+        <Card className="bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900">
+          <CardContent className="flex items-center gap-2 py-3">
+            <Loader2 className="h-4 w-4 animate-spin text-yellow-600 dark:text-yellow-400" />
+            <span className="text-sm text-yellow-600 dark:text-yellow-400">
+              正在连接实时行情服务...
+            </span>
           </CardContent>
         </Card>
-      ))}
+      )}
+
+      {stocks.map((stock) => {
+        const quote = realtimeData.get(stock.tsCode)
+        const isPositive = quote ? quote.change >= 0 : false
+        const changeColor = isPositive
+          ? 'text-red-600 dark:text-red-400'
+          : 'text-green-600 dark:text-green-400'
+
+        return (
+          <Card key={stock.id} className="overflow-hidden gap-0">
+            <CardHeader className="pb-0">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1 flex-1">
+                  <div className="flex items-baseline gap-3">
+                    <CardTitle className="text-base">
+                      {stock.name}{' '}
+                      <span className="text-muted-foreground font-normal text-sm">
+                        ({stock.symbol})
+                      </span>
+                    </CardTitle>
+                    {/* 实时价格显示 */}
+                    {quote && (
+                      <div className="flex items-baseline gap-2">
+                        <span className={`text-xl font-bold ${changeColor}`}>
+                          {formatNumber(quote.currentPrice)}
+                        </span>
+                        <span className={`text-sm font-semibold ${changeColor}`}>
+                          {isPositive ? '+' : ''}
+                          {formatNumber(quote.changePercent)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* 监控开关 */}
+                  <div className="flex items-center gap-2">
+                    {stock.monitored ? (
+                      <Bell className="h-4 w-4 text-primary" />
+                    ) : (
+                      <BellOff className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <Switch
+                      checked={stock.monitored}
+                      onCheckedChange={() => handleToggleMonitoring(stock.id, stock.monitored)}
+                      disabled={toggling === stock.id}
+                    />
+                  </div>
+
+                  {/* 操作菜单 */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={removing === stock.id || moving === stock.id}
+                      >
+                        {removing === stock.id || moving === stock.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <MoreVertical className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>{t('list.actions')}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {groups.length > 0 && (
+                        <>
+                          <DropdownMenuLabel className="text-xs text-muted-foreground">
+                            {t('list.moveToGroup')}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handleMove(stock.id, null)}>
+                            <FolderInput className="mr-2 h-4 w-4" />
+                            {t('list.noGroup')}
+                          </DropdownMenuItem>
+                          {groups.map((group) => (
+                            <DropdownMenuItem
+                              key={group.id}
+                              onClick={() => handleMove(stock.id, group.id)}
+                              disabled={stock.groupId === group.id}
+                            >
+                              <FolderInput className="mr-2 h-4 w-4" />
+                              {group.name}
+                            </DropdownMenuItem>
+                          ))}
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => handleRemove(stock.id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        {t('list.remove')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="">
+              <div className="space-y-1">
+                {/* 实时行情详情 */}
+                {quote && (
+                  <div className="border rounded-lg overflow-hidden bg-background">
+                    <div className="px-2 pb-2 pt-2">
+                      {/* PC端4列，移动端2列 */}
+                      <div className="grid grid-cols-2 lg:grid-cols-6 gap-x-3 gap-y-0.5 text-xs">
+                        <div className="flex justify-between py-0.5">
+                          <span className="text-muted-foreground">{tRealtime('open')}</span>
+                          <span className="font-medium">{formatNumber(quote.open)}</span>
+                        </div>
+                        <div className="flex justify-between py-0.5">
+                          <span className="text-muted-foreground">{tRealtime('high')}</span>
+                          <span className="font-medium text-red-600">
+                            {formatNumber(quote.high)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-0.5">
+                          <span className="text-muted-foreground">{tRealtime('low')}</span>
+                          <span className="font-medium text-green-600">
+                            {formatNumber(quote.low)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-0.5">
+                          <span className="text-muted-foreground">{tRealtime('preClose')}</span>
+                          <span className="font-medium">{formatNumber(quote.preClose)}</span>
+                        </div>
+                        <div className="flex justify-between py-0.5">
+                          <span className="text-muted-foreground">{tRealtime('volume')}</span>
+                          <span className="font-medium">{formatVolume(quote.volume)}手</span>
+                        </div>
+                        <div className="flex justify-between py-0.5">
+                          <span className="text-muted-foreground">{tRealtime('amount')}</span>
+                          <span className="font-medium">{formatAmount(quote.amount)}亿元</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* K线图 */}
+                <div className="border rounded-lg overflow-hidden bg-background">
+                  <button
+                    className="w-full px-2 py-1.5 text-left text-sm font-medium hover:bg-muted/50 transition-colors flex items-center justify-between"
+                    onClick={() => setExpandedChart(expandedChart === stock.id ? null : stock.id)}
+                  >
+                    <span>K线图</span>
+                    <span className="text-xs">{expandedChart === stock.id ? '▼' : '▶'}</span>
+                  </button>
+                  {expandedChart === stock.id && (
+                    <div className="border-t">
+                      <iframe
+                        src={getEastMoneyChartUrl(stock.tsCode)}
+                        className="w-full border-0"
+                        style={{ height: '800px' }}
+                        title={`${stock.name} K线图`}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })}
     </div>
   )
 }

@@ -25,7 +25,7 @@ const DeleteGroupSchema = z.object({
 })
 
 const MoveStockToGroupSchema = z.object({
-  stockId: z.string().uuid(),
+  stockId: z.string().uuid(), // watchedStock ID (userWatchedStocks.id)
   groupId: z.string().uuid().nullable(),
 })
 
@@ -234,12 +234,12 @@ export async function moveStockToGroup(
       }
     }
 
-    // 更新股票的分组
+    // 更新股票的分组 (stockId 是 userWatchedStocks.id)
     await db
       .update(watchedStocksSchema)
       .set({ groupId })
       .where(
-        and(eq(watchedStocksSchema.userId, user.id), eq(watchedStocksSchema.stockId, stockId))
+        and(eq(watchedStocksSchema.userId, user.id), eq(watchedStocksSchema.id, stockId))
       )
       .execute()
 

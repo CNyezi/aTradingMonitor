@@ -1,9 +1,9 @@
 {
   "crons": [
-    {
-      "path": "/api/cron/fetch-stock-prices",
-      "schedule": "*/1 * * * *"
-    },
+    // {
+    //   "path": "/api/cron/fetch-stock-prices",
+    //   "schedule": "*/1 * * * *"
+    // },
     {
       "path": "/api/cron/check-monitors",
       "schedule": "*/1 * * * *"

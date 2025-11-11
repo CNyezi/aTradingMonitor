@@ -17,7 +17,7 @@ const WatchStockSchema = z.object({
 })
 
 const UnwatchStockSchema = z.object({
-  stockId: z.string().uuid(),
+  stockId: z.string().uuid(), // watchedStock ID (userWatchedStocks.id)
 })
 
 export type WatchStockResult = ActionResult<{
@@ -105,12 +105,13 @@ export async function unwatchStock(
   try {
     const { stockId } = UnwatchStockSchema.parse(params)
 
+    // stockId 是 userWatchedStocks.id
     await db
       .delete(watchedStocksSchema)
       .where(
         and(
           eq(watchedStocksSchema.userId, user.id),
-          eq(watchedStocksSchema.stockId, stockId)
+          eq(watchedStocksSchema.id, stockId)
         )
       )
       .execute()

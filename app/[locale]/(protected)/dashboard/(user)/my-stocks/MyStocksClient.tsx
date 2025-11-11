@@ -68,29 +68,22 @@ export default function MyStocksClient() {
         </div>
       </div>
 
-      {/* 主内容 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* 左侧:分组管理 */}
-        <div className="md:col-span-1">
-          <StockGroupManager
-            groups={groups}
-            selectedGroupId={selectedGroupId}
-            onSelectGroup={setSelectedGroupId}
-            onGroupsChange={loadData}
-          />
-        </div>
+      {/* 分组管理 - 顶部 */}
+      <StockGroupManager
+        groups={groups}
+        selectedGroupId={selectedGroupId}
+        onSelectGroup={setSelectedGroupId}
+        onGroupsChange={loadData}
+      />
 
-        {/* 右侧:股票列表 */}
-        <div className="md:col-span-3">
-          <WatchedStocksList
-            stocks={watchedStocks}
-            groups={groups}
-            loading={loading}
-            onStockRemoved={loadData}
-            onStockMoved={loadData}
-          />
-        </div>
-      </div>
+      {/* 股票列表 */}
+      <WatchedStocksList
+        stocks={watchedStocks}
+        groups={groups}
+        loading={loading}
+        onStockRemoved={loadData}
+        onStockMoved={loadData}
+      />
 
       {/* 搜索对话框 */}
       <StockSearchDialog

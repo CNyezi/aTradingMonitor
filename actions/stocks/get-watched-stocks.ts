@@ -59,7 +59,7 @@ export async function getWatchedStocks(
     // 联表查询:watched_stocks + stocks + groups
     const results = await db
       .select({
-        id: stocksSchema.id,
+        id: watchedStocksSchema.id, // 使用 userWatchedStocks 的 ID，用于后续操作（移除、移动、监控开关）
         tsCode: stocksSchema.tsCode,
         symbol: stocksSchema.symbol,
         name: stocksSchema.name,

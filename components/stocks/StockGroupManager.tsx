@@ -143,74 +143,76 @@ export function StockGroupManager({
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            {t('groups.title')}
-            <Button size="icon" variant="ghost" onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4" />
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {/* 全部股票 */}
-          <Button
-            variant={selectedGroupId === undefined ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => onSelectGroup(undefined)}
-          >
-            <FolderOpen className="mr-2 h-4 w-4" />
-            {t('groups.all')}
-          </Button>
-
-          {/* 未分组 */}
-          <Button
-            variant={selectedGroupId === null ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => onSelectGroup(null)}
-          >
-            <Folder className="mr-2 h-4 w-4" />
-            {t('groups.ungrouped')}
-          </Button>
-
-          {/* 用户分组 */}
-          {groups.map((group) => (
-            <div
-              key={group.id}
-              className={cn(
-                'flex items-center gap-2 rounded-md',
-                selectedGroupId === group.id && 'bg-secondary'
-              )}
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+            {/* 全部股票 */}
+            <Button
+              variant={selectedGroupId === undefined ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onSelectGroup(undefined)}
+              className="whitespace-nowrap"
             >
-              <Button
-                variant="ghost"
-                className="flex-1 justify-start"
-                onClick={() => onSelectGroup(group.id)}
-              >
-                <Folder className="mr-2 h-4 w-4" />
-                {group.name}
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => openEditDialog(group)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    {t('groups.rename')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="text-destructive"
-                    onClick={() => openDeleteDialog(group)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    {t('groups.delete')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ))}
+              <FolderOpen className="mr-2 h-4 w-4" />
+              {t('groups.all')}
+            </Button>
+
+            {/* 未分组 */}
+            <Button
+              variant={selectedGroupId === null ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onSelectGroup(null)}
+              className="whitespace-nowrap"
+            >
+              <Folder className="mr-2 h-4 w-4" />
+              {t('groups.ungrouped')}
+            </Button>
+
+            {/* 用户分组 */}
+            {groups.map((group) => (
+              <div key={group.id} className="flex items-center gap-1">
+                <Button
+                  variant={selectedGroupId === group.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => onSelectGroup(group.id)}
+                  className="whitespace-nowrap"
+                >
+                  <Folder className="mr-2 h-4 w-4" />
+                  {group.name}
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => openEditDialog(group)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      {t('groups.rename')}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => openDeleteDialog(group)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      {t('groups.delete')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ))}
+
+            {/* 添加分组按钮 */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setCreateDialogOpen(true)}
+              className="whitespace-nowrap ml-2"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t('groups.create')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
