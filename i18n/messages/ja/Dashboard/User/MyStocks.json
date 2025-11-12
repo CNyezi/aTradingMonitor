@@ -81,7 +81,18 @@
     "cancel": "キャンセル",
     "saving": "保存中...",
     "saveSuccess": "ルールを更新しました",
-    "saveError": "保存に失敗しました"
+    "saveError": "保存に失敗しました",
+    "selectAll": "すべて選択",
+    "deselectAll": "選択解除",
+    "selected": "選択済み",
+    "items": "件",
+    "batchEnable": "一括有効化",
+    "batchDisable": "一括無効化",
+    "batchSuccess": "一括操作が成功しました",
+    "batchError": "一括操作に失敗しました",
+    "enableSuccess": "有効化しました",
+    "disableSuccess": "無効化しました",
+    "toggleError": "操作に失敗しました"
   },
   "stockSelector": {
     "title": "銘柄を選択",
@@ -92,5 +103,43 @@
     "saving": "保存中...",
     "saveSuccess": "保存しました",
     "saveError": "保存に失敗しました"
+  },
+  "summary": {
+    "totalStocks": "保有銘柄数",
+    "totalCost": "総取得額",
+    "totalValue": "総評価額",
+    "totalProfit": "総損益",
+    "stocks": "銘柄",
+    "toggleVisibility": "金額の表示/非表示"
+  },
+  "table": {
+    "monitoring": "監視",
+    "stockName": "銘柄名",
+    "currentPrice": "現在値",
+    "changePercent": "騰落率",
+    "change": "騰落額",
+    "costPrice": "取得単価",
+    "quantity": "保有株数",
+    "currentValue": "評価額",
+    "profitLoss": "損益金額",
+    "profitLossRatio": "損益率",
+    "rules": "ルール",
+    "open": "始値",
+    "high": "高値",
+    "low": "安値",
+    "preClose": "前日終値",
+    "actions": "操作",
+    "searchPlaceholder": "銘柄名またはコードで検索...",
+    "totalStocks": "合計 {count} 銘柄",
+    "total": "合計",
+    "emptyState": {
+      "title": "銘柄なし",
+      "description": "まだウォッチリストに銘柄を追加していません",
+      "addButton": "株式を追加"
+    },
+    "connecting": "リアルタイム相場サービスに接続中...",
+    "editPosition": "ポジション編集",
+    "openChart": "Kライン",
+    "selectRules": "ルール設定"
   }
 }

@@ -2,21 +2,60 @@ import type { ConnectionManager } from '../managers/connection-manager'
 import type { SubscriptionManager } from '../managers/subscription-manager'
 import type { RealtimeQuote } from '../types'
 
-const FETCH_INTERVAL = 1000 // 1秒推送间隔
+const TRADING_INTERVAL = 1000 // 交易时段：1秒推送间隔
+const NON_TRADING_INTERVAL = 60000 // 非交易时段：1分钟推送间隔
 const BATCH_SIZE = 800 // 新浪API单次最多支持约800个股票代码
 
 /**
  * 股票数据服务
  * 负责定时批量获取所有订阅股票的实时数据，并推送给订阅者
+ * 根据A股交易时段自动调整推送频率
  */
 export class StockDataService {
   private intervalId: NodeJS.Timeout | null = null
   private isRunning = false
+  private currentInterval: number = TRADING_INTERVAL
 
   constructor(
     private subscriptionManager: SubscriptionManager,
     private connectionManager: ConnectionManager
   ) { }
+
+  /**
+   * 判断当前是否为A股交易时段
+   * 交易时段：周一至周五，9:30-11:30, 13:00-15:00
+   */
+  private isTradingTime(): boolean {
+    const now = new Date()
+    const day = now.getDay() // 0=周日, 1-5=周一至周五, 6=周六
+
+    // 周末不交易
+    if (day === 0 || day === 6) {
+      return false
+    }
+
+    const hour = now.getHours()
+    const minute = now.getMinutes()
+    const timeInMinutes = hour * 60 + minute
+
+    // 上午：9:30-11:30 (570-690分钟)
+    const morningStart = 9 * 60 + 30  // 570
+    const morningEnd = 11 * 60 + 30    // 690
+
+    // 下午：13:00-15:00 (780-900分钟)
+    const afternoonStart = 13 * 60     // 780
+    const afternoonEnd = 15 * 60       // 900
+
+    return (timeInMinutes >= morningStart && timeInMinutes <= morningEnd) ||
+           (timeInMinutes >= afternoonStart && timeInMinutes <= afternoonEnd)
+  }
+
+  /**
+   * 获取当前应使用的推送间隔
+   */
+  private getCurrentInterval(): number {
+    return this.isTradingTime() ? TRADING_INTERVAL : NON_TRADING_INTERVAL
+  }
 
   /**
    * 启动定时数据推送
@@ -28,11 +67,33 @@ export class StockDataService {
     }
 
     this.isRunning = true
-    this.intervalId = setInterval(() => {
-      this.fetchAndPushData()
-    }, FETCH_INTERVAL)
+    this.scheduleNextFetch()
 
-    console.log(`[StockDataService] 已启动，推送间隔 ${FETCH_INTERVAL}ms`)
+    const status = this.isTradingTime() ? '交易时段' : '非交易时段'
+    console.log(`[StockDataService] 已启动 - ${status}，推送间隔 ${this.currentInterval}ms`)
+  }
+
+  /**
+   * 调度下一次数据获取
+   */
+  private scheduleNextFetch(): void {
+    if (!this.isRunning) return
+
+    // 检查是否需要调整间隔
+    const newInterval = this.getCurrentInterval()
+    if (newInterval !== this.currentInterval) {
+      this.currentInterval = newInterval
+      const status = this.isTradingTime() ? '交易时段' : '非交易时段'
+      console.log(`[StockDataService] 切换到${status}，推送间隔 ${this.currentInterval}ms`)
+    }
+
+    // 执行数据获取
+    this.fetchAndPushData()
+
+    // 使用 setTimeout 而不是 setInterval，以便动态调整间隔
+    this.intervalId = setTimeout(() => {
+      this.scheduleNextFetch()
+    }, this.currentInterval)
   }
 
   /**
@@ -40,7 +101,7 @@ export class StockDataService {
    */
   stop(): void {
     if (this.intervalId) {
-      clearInterval(this.intervalId)
+      clearTimeout(this.intervalId)
       this.intervalId = null
     }
     this.isRunning = false

@@ -11,15 +11,13 @@ import { ConnectionManager } from './managers/connection-manager'
 import { SubscriptionManager } from './managers/subscription-manager'
 import { StockDataService } from './services/stock-data-service'
 import { MessageRouter } from './services/message-router'
-import { TestDataGenerator } from './services/test-data-generator'
 import type { AuthenticatedWebSocket } from './types'
 import { db } from '@/lib/db'
 import { session } from '@/lib/db/schema'
-import { eq, gt } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 
 const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT) : 3333
 const HEARTBEAT_INTERVAL = 30000 // 30秒心跳检测
-const TEST_MODE = process.env.WS_TEST_MODE === 'true' // 测试模式开关
 
 /**
  * WebSocket服务器
@@ -32,8 +30,6 @@ export class WSServer {
   private stockDataService: StockDataService
   private messageRouter: MessageRouter
   private heartbeatInterval: NodeJS.Timeout | null = null
-  private testDataGenerator: TestDataGenerator | null = null
-  private testDataInterval: NodeJS.Timeout | null = null
 
   constructor() {
     this.wss = new WebSocketServer({ port: PORT })
@@ -44,17 +40,9 @@ export class WSServer {
 
     this.setupServer()
     this.startHeartbeat()
+    this.startStockDataService()
 
-    // 根据测试模式选择数据源
-    if (TEST_MODE) {
-      this.startTestMode()
-    } else {
-      this.startStockDataService()
-    }
-
-    console.log(
-      `[WSServer] WebSocket服务器启动在端口 ${PORT} ${TEST_MODE ? '(测试模式)' : '(生产模式)'}`
-    )
+    console.log(`[WSServer] WebSocket服务器启动在端口 ${PORT}`)
   }
 
   /**
@@ -186,42 +174,11 @@ export class WSServer {
   }
 
   /**
-   * 启动股票数据服务 (生产模式)
+   * 启动股票数据服务
    */
   private startStockDataService(): void {
     this.stockDataService.start()
-    console.log('[WSServer] 股票数据服务已启动 (真实数据)')
-  }
-
-  /**
-   * 启动测试模式 (模拟数据)
-   */
-  private startTestMode(): void {
-    this.testDataGenerator = new TestDataGenerator()
-
-    // 自动订阅所有测试股票
-    const testStockCodes = this.testDataGenerator.getAllStockCodes()
-    console.log(`[WSServer] 测试模式: 自动订阅 ${testStockCodes.length} 只测试股票`)
-
-    // 每1秒推送一次模拟数据
-    this.testDataInterval = setInterval(() => {
-      if (!this.testDataGenerator) return
-
-      // 生成所有股票的最新行情
-      const quotes = this.testDataGenerator.generateAllQuotes()
-
-      // 推送给所有连接的客户端
-      quotes.forEach((quote) => {
-        this.connectionManager.broadcast({
-          type: 'stock_update',
-          payload: quote,
-        })
-      })
-    }, 1000)
-
-    console.log('[WSServer] 测试模式已启动: 每秒推送模拟数据')
-    console.log('[WSServer] 测试股票列表:', testStockCodes.join(', '))
-    console.log('[WSServer] 提示: 系统会随机触发告警 (价格波动、成交量激增、涨停/跌停)')
+    console.log('[WSServer] 股票数据服务已启动')
   }
 
   /**
@@ -236,17 +193,8 @@ export class WSServer {
       this.heartbeatInterval = null
     }
 
-    // 停止测试模式定时器
-    if (this.testDataInterval) {
-      clearInterval(this.testDataInterval)
-      this.testDataInterval = null
-      console.log('[WSServer] 测试模式已停止')
-    }
-
     // 停止股票数据服务
-    if (!TEST_MODE) {
-      this.stockDataService.stop()
-    }
+    this.stockDataService.stop()
 
     // 关闭所有连接
     this.connectionManager.closeAll()

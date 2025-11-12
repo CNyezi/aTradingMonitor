@@ -3,27 +3,18 @@
 import { toggleStockMonitoring, getUserMonitorRules, getStockRules } from '@/actions/monitors'
 import { moveStockToGroup, unwatchStock } from '@/actions/stocks'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Switch } from '@/components/ui/switch'
 import { useStockSubscription } from '@/hooks/use-stock-subscription'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import { calculateGridConfig, calculateWindowPositions } from '@/lib/kline-grid-layout'
 import type { StockWithGroup } from '@/lib/tushare'
-import { Bell, BellOff, FolderInput, LayoutGrid, LineChart, Loader2, MoreVertical, Settings, Trash2, Wallet } from 'lucide-react'
+import { LayoutGrid } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCallback, useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { DraggableKLineDialog } from './DraggableKLineDialog'
 import { StockRuleSelectorDialog } from '@/components/monitors/StockRuleSelectorDialog'
 import { EditPositionDialog } from './EditPositionDialog'
+import { WatchedStocksTable } from './table'
 
 interface WatchedStocksListProps {
   stocks: StockWithGroup[]
@@ -43,8 +34,6 @@ export function WatchedStocksList({
   onMonitoringChange,
 }: WatchedStocksListProps) {
   const t = useTranslations('MyStocks')
-  const tRealtime = useTranslations('StockRealtime')
-  const tPosition = useTranslations('StockPosition')
   const [removing, setRemoving] = useState<string | null>(null)
   const [moving, setMoving] = useState<string | null>(null)
   const [toggling, setToggling] = useState<string | null>(null)
@@ -60,8 +49,8 @@ export function WatchedStocksList({
   // K线图弹窗状态
   interface KLineDialogState {
     stockId: string
-    isUserPositioned: boolean // 是否用户手动调整过
-    position?: { x: number; y: number; width: number; height: number } // 当前位置
+    isUserPositioned: boolean
+    position?: { x: number; y: number; width: number; height: number }
   }
   const [openKLineDialogs, setOpenKLineDialogs] = useState<KLineDialogState[]>([])
 
@@ -76,7 +65,7 @@ export function WatchedStocksList({
 
   const loadRules = async () => {
     const result = await getUserMonitorRules()
-    if (result.success && result.data && 'rules' in result.data) {
+    if (result.success && result.data && typeof result.data === 'object' && 'rules' in result.data) {
       setAllRules((result.data.rules as any[]) || [])
     }
   }
@@ -99,27 +88,6 @@ export function WatchedStocksList({
       })
     )
     setStockRuleCounts(counts)
-  }
-
-  // 格式化数字
-  const formatNumber = (num: number, decimals = 2) => {
-    return num.toFixed(decimals)
-  }
-
-  // 格式化成交量
-  const formatVolume = (volume: number) => {
-    if (volume >= 10000) {
-      return `${(volume / 10000 / 100).toFixed(2)}万`
-    }
-    return (volume / 100).toFixed(2)
-  }
-
-  // 格式化成交额
-  const formatAmount = (amount: number) => {
-    if (amount >= 100000000) {
-      return `${(amount / 100000000).toFixed(2)}亿`
-    }
-    return amount.toFixed(2) + '万'
   }
 
   const handleRemove = async (stockId: string) => {
@@ -230,11 +198,10 @@ export function WatchedStocksList({
   const handleOpenKLine = useCallback((stockId: string) => {
     setOpenKLineDialogs((prev) => {
       if (prev.find((d) => d.stockId === stockId)) {
-        return prev // 已经打开，不重复添加
+        return prev
       }
       const newDialogs = [...prev, { stockId, isUserPositioned: false }]
 
-      // 立即计算新的布局
       setTimeout(() => {
         const screenWidth = window.innerWidth
         const screenHeight = window.innerHeight
@@ -274,7 +241,6 @@ export function WatchedStocksList({
     setOpenKLineDialogs((prev) => {
       const newDialogs = prev.filter((d) => d.stockId !== stockId)
 
-      // 立即计算新的布局
       if (newDialogs.length > 0) {
         setTimeout(() => {
           const screenWidth = window.innerWidth
@@ -325,42 +291,14 @@ export function WatchedStocksList({
     []
   )
 
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (stocks.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center h-64 text-center">
-          <p className="text-muted-foreground">{t('list.empty')}</p>
-          <p className="text-sm text-muted-foreground mt-2">{t('list.emptyHint')}</p>
-        </CardContent>
-      </Card>
-    )
-  }
+  // 转换groups格式以匹配Table组件的要求
+  const formattedGroups = groups.map((g) => ({ id: g.id, name: g.name }))
 
   return (
     <div className="space-y-4">
-      {/* WebSocket连接状态提示 + 整理窗口按钮 */}
-      <div className="flex items-center justify-between gap-4">
-        {!isConnected && stocks.length > 0 && (
-          <Card className="bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900 flex-1">
-            <CardContent className="flex items-center gap-2 py-3">
-              <Loader2 className="h-4 w-4 animate-spin text-yellow-600 dark:text-yellow-400" />
-              <span className="text-sm text-yellow-600 dark:text-yellow-400">
-                正在连接实时行情服务...
-              </span>
-            </CardContent>
-          </Card>
-        )}
-        {openKLineDialogs.length > 0 && (
+      {/* 整理窗口按钮 */}
+      {openKLineDialogs.length > 0 && (
+        <div className="flex justify-end">
           <Button
             variant="outline"
             size="sm"
@@ -370,253 +308,27 @@ export function WatchedStocksList({
             <LayoutGrid className="h-4 w-4 mr-2" />
             {t('kline.arrangeWindows')}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
-      {stocks.map((stock) => {
-        const quote = realtimeData.get(stock.tsCode)
-        const isPositive = quote ? quote.change >= 0 : false
-        const changeColor = isPositive
-          ? 'text-red-600 dark:text-red-400'
-          : 'text-green-600 dark:text-green-400'
-
-        return (
-          <Card key={stock.id} className="overflow-hidden gap-0">
-            <CardHeader className="pb-0">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1 flex-1">
-                  <div className="flex items-baseline gap-3">
-                    <CardTitle className="text-base">
-                      {stock.name}{' '}
-                      <span className="text-muted-foreground font-normal text-sm">
-                        ({stock.symbol})
-                      </span>
-                    </CardTitle>
-                    {/* 实时价格显示 */}
-                    {quote && (
-                      <div className="flex items-baseline gap-2">
-                        <span className={`text-xl font-bold ${changeColor}`}>
-                          {formatNumber(quote.currentPrice)}
-                        </span>
-                        <span className={`text-sm font-semibold ${changeColor}`}>
-                          {isPositive ? '+' : ''}
-                          {formatNumber(quote.changePercent)}%
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {/* 规则选择按钮 */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedStockForRules(stock.id)}
-                    title={t('selectRules')}
-                  >
-                    <Settings className="h-4 w-4 mr-1" />
-                    {t('rules')} ({stockRuleCounts.get(stock.id) || 0})
-                  </Button>
-
-                  {/* K线图按钮 */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleOpenKLine(stock.id)}
-                    title={t('kline.openChart')}
-                  >
-                    <LineChart className="h-4 w-4" />
-                  </Button>
-
-                  {/* 监控开关 */}
-                  <div className="flex items-center gap-2">
-                    {stock.monitored ? (
-                      <Bell className="h-4 w-4 text-primary" />
-                    ) : (
-                      <BellOff className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <Switch
-                      checked={stock.monitored}
-                      onCheckedChange={() => handleToggleMonitoring(stock.id, stock.monitored)}
-                      disabled={toggling === stock.id}
-                    />
-                  </div>
-
-                  {/* 操作菜单 */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        disabled={removing === stock.id || moving === stock.id}
-                      >
-                        {removing === stock.id || moving === stock.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <MoreVertical className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>{t('list.actions')}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {groups.length > 0 && (
-                        <>
-                          <DropdownMenuLabel className="text-xs text-muted-foreground">
-                            {t('list.moveToGroup')}
-                          </DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleMove(stock.id, null)}>
-                            <FolderInput className="mr-2 h-4 w-4" />
-                            {t('list.noGroup')}
-                          </DropdownMenuItem>
-                          {groups.map((group) => (
-                            <DropdownMenuItem
-                              key={group.id}
-                              onClick={() => handleMove(stock.id, group.id)}
-                              disabled={stock.groupId === group.id}
-                            >
-                              <FolderInput className="mr-2 h-4 w-4" />
-                              {group.name}
-                            </DropdownMenuItem>
-                          ))}
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => handleRemove(stock.id)}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        {t('list.remove')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="">
-              <div className="space-y-2">
-                {/* 持仓信息 */}
-                {stock.costPrice && stock.quantity && quote && (
-                  <div className="border rounded-lg overflow-hidden bg-background">
-                    <div className="px-3 py-2 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2">
-                        <Wallet className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">{tPosition('positionInfo')}</span>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7"
-                        onClick={() => setEditingPositionStock(stock.id)}
-                      >
-                        {tPosition('editPosition')}
-                      </Button>
-                    </div>
-                    <div className="px-3 pb-2">
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-1 text-xs">
-                        {(() => {
-                          const costPrice = parseFloat(stock.costPrice)
-                          const quantity = stock.quantity
-                          const currentPrice = quote.currentPrice
-                          const totalCost = costPrice * quantity
-                          const currentValue = currentPrice * quantity
-                          const profitLoss = currentValue - totalCost
-                          const profitLossRatio = (profitLoss / totalCost) * 100
-                          const profitColor = profitLoss >= 0
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-green-600 dark:text-green-400'
-
-                          return (
-                            <>
-                              <div className="flex justify-between py-0.5">
-                                <span className="text-muted-foreground">{tPosition('costPrice')}</span>
-                                <span className="font-medium">¥{formatNumber(costPrice)} ({quantity}{tPosition('shares')})</span>
-                              </div>
-                              <div className="flex justify-between py-0.5">
-                                <span className="text-muted-foreground">{tPosition('currentValue')}</span>
-                                <span className="font-medium">¥{formatNumber(currentValue)}</span>
-                              </div>
-                              <div className="flex justify-between py-0.5">
-                                <span className="text-muted-foreground">{tPosition('profitLoss')}</span>
-                                <span className={`font-semibold ${profitColor}`}>
-                                  {profitLoss >= 0 ? '+' : ''}¥{formatNumber(profitLoss)}
-                                </span>
-                              </div>
-                              <div className="flex justify-between py-0.5">
-                                <span className="text-muted-foreground">{tPosition('profitLossRatio')}</span>
-                                <span className={`font-semibold ${profitColor}`}>
-                                  {profitLoss >= 0 ? '+' : ''}{formatNumber(profitLossRatio)}%
-                                </span>
-                              </div>
-                            </>
-                          )
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 添加持仓按钮 - 如果还没有持仓信息 */}
-                {(!stock.costPrice || !stock.quantity) && (
-                  <div className="border rounded-lg overflow-hidden bg-background">
-                    <div className="px-3 py-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => setEditingPositionStock(stock.id)}
-                      >
-                        <Wallet className="h-4 w-4 mr-2" />
-                        {tPosition('addPosition')}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* 实时行情详情 */}
-                {quote && (
-                  <div className="border rounded-lg overflow-hidden bg-background">
-                    <div className="px-2 pb-2 pt-2">
-                      {/* PC端4列，移动端2列 */}
-                      <div className="grid grid-cols-2 lg:grid-cols-6 gap-x-3 gap-y-0.5 text-xs">
-                        <div className="flex justify-between py-0.5">
-                          <span className="text-muted-foreground">{tRealtime('open')}</span>
-                          <span className="font-medium">{formatNumber(quote.open)}</span>
-                        </div>
-                        <div className="flex justify-between py-0.5">
-                          <span className="text-muted-foreground">{tRealtime('high')}</span>
-                          <span className="font-medium text-red-600">
-                            {formatNumber(quote.high)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between py-0.5">
-                          <span className="text-muted-foreground">{tRealtime('low')}</span>
-                          <span className="font-medium text-green-600">
-                            {formatNumber(quote.low)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between py-0.5">
-                          <span className="text-muted-foreground">{tRealtime('preClose')}</span>
-                          <span className="font-medium">{formatNumber(quote.preClose)}</span>
-                        </div>
-                        <div className="flex justify-between py-0.5">
-                          <span className="text-muted-foreground">{tRealtime('volume')}</span>
-                          <span className="font-medium">{formatVolume(quote.volume)}手</span>
-                        </div>
-                        <div className="flex justify-between py-0.5">
-                          <span className="text-muted-foreground">{tRealtime('amount')}</span>
-                          <span className="font-medium">{formatAmount(quote.amount)}元</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })}
+      {/* 主表格组件 */}
+      <WatchedStocksTable
+        stocks={stocks}
+        realtimeData={realtimeData}
+        loading={loading}
+        isConnected={isConnected}
+        stockRuleCounts={stockRuleCounts}
+        toggling={toggling}
+        removing={removing}
+        moving={moving}
+        onToggleMonitoring={handleToggleMonitoring}
+        onOpenRules={(id) => setSelectedStockForRules(id)}
+        onOpenKLine={handleOpenKLine}
+        onEditPosition={(id) => setEditingPositionStock(id)}
+        onMove={handleMove}
+        onRemove={handleRemove}
+        groups={formattedGroups}
+      />
 
       {/* 渲染所有打开的K线图弹窗 */}
       {openKLineDialogs.map((dialog) => {
@@ -669,7 +381,7 @@ export function WatchedStocksList({
             initialCostPrice={stock.costPrice}
             initialQuantity={stock.quantity}
             onPositionUpdated={() => {
-              onStockMoved() // 刷新列表
+              onStockMoved()
             }}
           />
         )

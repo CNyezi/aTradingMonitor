@@ -81,7 +81,18 @@
     "cancel": "取消",
     "saving": "保存中...",
     "saveSuccess": "规则已更新",
-    "saveError": "保存失败"
+    "saveError": "保存失败",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "selected": "已选择",
+    "items": "项",
+    "batchEnable": "批量启用",
+    "batchDisable": "批量禁用",
+    "batchSuccess": "批量操作成功",
+    "batchError": "批量操作失败",
+    "enableSuccess": "已启用",
+    "disableSuccess": "已禁用",
+    "toggleError": "操作失败"
   },
   "stockSelector": {
     "title": "选择监控股票",
@@ -92,5 +103,43 @@
     "saving": "保存中...",
     "saveSuccess": "保存成功",
     "saveError": "保存失败"
+  },
+  "summary": {
+    "totalStocks": "持股总数",
+    "totalCost": "持仓总成本",
+    "totalValue": "持仓总市值",
+    "totalProfit": "总盈亏",
+    "stocks": "只",
+    "toggleVisibility": "显示/隐藏金额"
+  },
+  "table": {
+    "monitoring": "监控",
+    "stockName": "股票名称",
+    "currentPrice": "现价",
+    "changePercent": "涨跌幅",
+    "change": "涨跌额",
+    "costPrice": "成本价",
+    "quantity": "持股",
+    "currentValue": "当前市值",
+    "profitLoss": "盈亏金额",
+    "profitLossRatio": "盈亏比例",
+    "rules": "规则",
+    "open": "今开",
+    "high": "最高",
+    "low": "最低",
+    "preClose": "昨收",
+    "actions": "操作",
+    "searchPlaceholder": "搜索股票名称或代码...",
+    "totalStocks": "共 {count} 只股票",
+    "total": "合计",
+    "emptyState": {
+      "title": "暂无股票",
+      "description": "您还没有添加任何股票到关注列表",
+      "addButton": "添加股票"
+    },
+    "connecting": "正在连接实时行情服务...",
+    "editPosition": "编辑持仓",
+    "openChart": "K线图",
+    "selectRules": "配置规则"
   }
 }

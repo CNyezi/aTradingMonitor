@@ -5,11 +5,18 @@ import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { Loader2 } from 'lucide-react'
-import { getStockRules, addStockRule, removeStockRule } from '@/actions/monitors'
+import { getStockRules, addStockRule, removeStockRule, toggleStockRuleEnabled } from '@/actions/monitors'
 import { toast } from 'sonner'
+
+interface StockRuleAssociation {
+  ruleId: string
+  enabled: boolean
+}
 
 interface StockRuleSelectorDialogProps {
   open: boolean
@@ -34,8 +41,10 @@ export function StockRuleSelectorDialog({
   const tMonitors = useTranslations('StockMonitors')
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set())
   const [originalRules, setOriginalRules] = useState<Set<string>>(new Set())
+  const [ruleAssociations, setRuleAssociations] = useState<Map<string, StockRuleAssociation>>(new Map())
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   // 获取规则类型标签
   const getRuleTypeLabel = useCallback((type: string) => {
@@ -73,9 +82,17 @@ export function StockRuleSelectorDialog({
     try {
       const result = await getStockRules(watchedStockId)
       if (result.success && result.data && 'associations' in result.data) {
-        const ruleIds = new Set((result.data.associations as any[]).map((assoc: any) => assoc.ruleId))
+        const associations = result.data.associations as any[]
+        const ruleIds = new Set(associations.map((assoc: any) => assoc.ruleId))
+        const assocMap = new Map(
+          associations.map((assoc: any) => [
+            assoc.ruleId,
+            { ruleId: assoc.ruleId, enabled: assoc.enabled }
+          ])
+        )
         setSelectedRules(ruleIds)
         setOriginalRules(ruleIds)
+        setRuleAssociations(assocMap)
       }
     } catch (error) {
       console.error('Failed to load stock rules:', error)
@@ -103,6 +120,52 @@ export function StockRuleSelectorDialog({
       return newSet
     })
   }, [])
+
+  // 全选
+  const handleSelectAll = useCallback(() => {
+    const enabledRuleIds = availableRules
+      .filter((rule) => rule.enabled)
+      .map((rule) => rule.id)
+    setSelectedRules(new Set(enabledRuleIds))
+  }, [availableRules])
+
+  // 取消全选
+  const handleDeselectAll = useCallback(() => {
+    setSelectedRules(new Set())
+  }, [])
+
+  // 切换单个规则的启用状态（仅对已关联的规则）
+  const handleToggleRuleEnabled = async (ruleId: string, enabled: boolean) => {
+    setIsUpdating(true)
+    try {
+      const result = await toggleStockRuleEnabled({
+        watchedStockId,
+        ruleId,
+        enabled,
+      })
+
+      if (result.success) {
+        // 更新本地状态
+        setRuleAssociations((prev) => {
+          const newMap = new Map(prev)
+          const assoc = newMap.get(ruleId)
+          if (assoc) {
+            newMap.set(ruleId, { ...assoc, enabled })
+          }
+          return newMap
+        })
+        toast.success(enabled ? t('enableSuccess') : t('disableSuccess'))
+        onRulesChanged()
+      } else {
+        toast.error(t('toggleError'))
+      }
+    } catch (error) {
+      console.error('Failed to toggle rule enabled:', error)
+      toast.error(t('toggleError'))
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   // 保存更改
   const handleSave = async () => {
@@ -141,7 +204,7 @@ export function StockRuleSelectorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>
@@ -158,49 +221,88 @@ export function StockRuleSelectorDialog({
             <p className="text-muted-foreground">{t('noRules')}</p>
           </div>
         ) : (
-          <ScrollArea className="flex-1 pr-4">
-            <div className="space-y-2">
-              {availableRules.map((rule) => (
-                <div
-                  key={rule.id}
-                  className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
-                    rule.enabled
-                      ? 'hover:bg-accent cursor-pointer'
-                      : 'opacity-50 bg-muted'
-                  }`}
-                  onClick={() => rule.enabled && toggleRule(rule.id)}
-                >
-                  <Checkbox
-                    checked={selectedRules.has(rule.id)}
-                    onCheckedChange={() => toggleRule(rule.id)}
-                    disabled={!rule.enabled}
-                    className="mt-1"
-                  />
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {rule.ruleName || getRuleTypeLabel(rule.ruleType)}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {getRuleTypeLabel(rule.ruleType)}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        {getConfigSummary(rule)}
-                      </Badge>
-                      {!rule.enabled && (
-                        <Badge variant="destructive" className="text-xs">
-                          已禁用
-                        </Badge>
+          <>
+            {/* 工具栏 */}
+            <div className="flex items-center gap-2 py-2 border-b">
+              <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                {t('selectAll')}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleDeselectAll}>
+                {t('deselectAll')}
+              </Button>
+              <Separator orientation="vertical" className="h-6" />
+              <span className="text-sm text-muted-foreground">
+                {t('selected')}: {selectedRules.size} {t('items')}
+              </span>
+            </div>
+
+            {/* 规则列表 - 使用固定高度 */}
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-2 py-4">
+                {availableRules.map((rule) => {
+                  const isSelected = selectedRules.has(rule.id)
+                  const association = ruleAssociations.get(rule.id)
+                  const isAssociated = originalRules.has(rule.id)
+
+                  return (
+                    <div
+                      key={rule.id}
+                      className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                        rule.enabled
+                          ? 'hover:bg-accent cursor-pointer'
+                          : 'opacity-50 bg-muted'
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => rule.enabled && toggleRule(rule.id)}
+                        disabled={!rule.enabled}
+                        className="mt-1"
+                      />
+
+                      {/* 规则信息 */}
+                      <div className="flex-1 space-y-1" onClick={() => rule.enabled && toggleRule(rule.id)}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {rule.ruleName || getRuleTypeLabel(rule.ruleType)}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {getRuleTypeLabel(rule.ruleType)}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {getConfigSummary(rule)}
+                          </Badge>
+                          {!rule.enabled && (
+                            <Badge variant="destructive" className="text-xs">
+                              已禁用
+                            </Badge>
+                          )}
+                          {isAssociated && association && (
+                            <Badge variant={association.enabled ? "default" : "secondary"} className="text-xs">
+                              {association.enabled ? '已启用' : '已禁用'}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          创建于 {new Date(rule.createdAt).toLocaleString('zh-CN')}
+                        </p>
+                      </div>
+
+                      {/* Switch 开关 - 只对已关联的规则显示 */}
+                      {isAssociated && association && (
+                        <Switch
+                          checked={association.enabled}
+                          onCheckedChange={(enabled) => handleToggleRuleEnabled(rule.id, enabled)}
+                          disabled={isUpdating}
+                        />
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      创建于 {new Date(rule.createdAt).toLocaleString('zh-CN')}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+                  )
+                })}
+              </div>
+            </ScrollArea>
+          </>
         )}
 
         <DialogFooter>

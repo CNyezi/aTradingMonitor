@@ -81,7 +81,18 @@
     "cancel": "Cancel",
     "saving": "Saving...",
     "saveSuccess": "Rules updated",
-    "saveError": "Failed to save"
+    "saveError": "Failed to save",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "selected": "Selected",
+    "items": "items",
+    "batchEnable": "Batch Enable",
+    "batchDisable": "Batch Disable",
+    "batchSuccess": "Batch operation successful",
+    "batchError": "Batch operation failed",
+    "enableSuccess": "Enabled",
+    "disableSuccess": "Disabled",
+    "toggleError": "Operation failed"
   },
   "stockSelector": {
     "title": "Select Stocks",
@@ -92,5 +103,43 @@
     "saving": "Saving...",
     "saveSuccess": "Saved successfully",
     "saveError": "Failed to save"
+  },
+  "summary": {
+    "totalStocks": "Total Stocks",
+    "totalCost": "Total Cost",
+    "totalValue": "Total Value",
+    "totalProfit": "Total P/L",
+    "stocks": "stocks",
+    "toggleVisibility": "Show/Hide Amounts"
+  },
+  "table": {
+    "monitoring": "Monitor",
+    "stockName": "Stock Name",
+    "currentPrice": "Price",
+    "changePercent": "Change %",
+    "change": "Change",
+    "costPrice": "Cost",
+    "quantity": "Shares",
+    "currentValue": "Value",
+    "profitLoss": "P/L",
+    "profitLossRatio": "P/L %",
+    "rules": "Rules",
+    "open": "Open",
+    "high": "High",
+    "low": "Low",
+    "preClose": "Prev",
+    "actions": "Actions",
+    "searchPlaceholder": "Search stock name or code...",
+    "totalStocks": "Total {count} stocks",
+    "total": "Total",
+    "emptyState": {
+      "title": "No Stocks",
+      "description": "You haven't added any stocks to your watch list",
+      "addButton": "Add Stock"
+    },
+    "connecting": "Connecting to real-time quote service...",
+    "editPosition": "Edit Position",
+    "openChart": "K-Line",
+    "selectRules": "Configure Rules"
   }
 }
