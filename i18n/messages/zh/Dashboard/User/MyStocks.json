@@ -66,6 +66,8 @@
   "kline": {
     "title": "K线图",
     "openChart": "打开K线图",
-    "close": "关闭"
+    "close": "关闭",
+    "arrangeWindows": "整理窗口",
+    "resetLayout": "重置布局"
   }
 }

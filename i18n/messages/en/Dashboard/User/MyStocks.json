@@ -66,6 +66,8 @@
   "kline": {
     "title": "K-Line Chart",
     "openChart": "Open K-Line Chart",
-    "close": "Close"
+    "close": "Close",
+    "arrangeWindows": "Arrange Windows",
+    "resetLayout": "Reset Layout"
   }
 }

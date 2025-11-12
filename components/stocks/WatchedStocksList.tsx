@@ -15,10 +15,11 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { useStockSubscription } from '@/hooks/use-stock-subscription'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
+import { calculateGridConfig, calculateWindowPositions } from '@/lib/kline-grid-layout'
 import type { StockWithGroup } from '@/lib/tushare'
-import { Bell, BellOff, FolderInput, LineChart, Loader2, MoreVertical, Trash2 } from 'lucide-react'
+import { Bell, BellOff, FolderInput, LayoutGrid, LineChart, Loader2, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import { DraggableKLineDialog } from './DraggableKLineDialog'
 
@@ -42,7 +43,14 @@ export function WatchedStocksList({
   const [removing, setRemoving] = useState<string | null>(null)
   const [moving, setMoving] = useState<string | null>(null)
   const [toggling, setToggling] = useState<string | null>(null)
-  const [openKLineDialogs, setOpenKLineDialogs] = useState<string[]>([])
+
+  // K线图弹窗状态
+  interface KLineDialogState {
+    stockId: string
+    isUserPositioned: boolean // 是否用户手动调整过
+    position?: { x: number; y: number; width: number; height: number } // 当前位置
+  }
+  const [openKLineDialogs, setOpenKLineDialogs] = useState<KLineDialogState[]>([])
 
   // 使用WebSocket订阅股票数据
   const tsCodes = stocks.map((s) => s.tsCode)
@@ -135,11 +143,142 @@ export function WatchedStocksList({
     }
   }
 
-  const handleOpenKLine = (stockId: string) => {
-    if (!openKLineDialogs.includes(stockId)) {
-      setOpenKLineDialogs((prev) => [...prev, stockId])
-    }
-  }
+  // 自动排列窗口函数
+  const arrangeWindows = useCallback(
+    (resetUserPositions = false) => {
+      if (openKLineDialogs.length === 0) return
+
+      const screenWidth = window.innerWidth
+      const screenHeight = window.innerHeight
+      const savedSize = localStorage.getItem('kline-dialog-size')
+      const windowSize = savedSize ? JSON.parse(savedSize) : { width: 800, height: 600 }
+
+      const gridConfig = calculateGridConfig(
+        openKLineDialogs.length,
+        screenWidth,
+        screenHeight,
+        windowSize
+      )
+
+      const positions = calculateWindowPositions(gridConfig, openKLineDialogs.length)
+
+      setOpenKLineDialogs((prev) =>
+        prev.map((dialog, index) => ({
+          ...dialog,
+          position:
+            !dialog.isUserPositioned || resetUserPositions
+              ? {
+                  x: positions[index].x,
+                  y: positions[index].y,
+                  width: positions[index].width,
+                  height: positions[index].height,
+                }
+              : dialog.position,
+          isUserPositioned: resetUserPositions ? false : dialog.isUserPositioned,
+        }))
+      )
+    },
+    [openKLineDialogs]
+  )
+
+  // 打开K线图
+  const handleOpenKLine = useCallback((stockId: string) => {
+    setOpenKLineDialogs((prev) => {
+      if (prev.find((d) => d.stockId === stockId)) {
+        return prev // 已经打开，不重复添加
+      }
+      const newDialogs = [...prev, { stockId, isUserPositioned: false }]
+
+      // 立即计算新的布局
+      setTimeout(() => {
+        const screenWidth = window.innerWidth
+        const screenHeight = window.innerHeight
+        const savedSize = localStorage.getItem('kline-dialog-size')
+        const windowSize = savedSize ? JSON.parse(savedSize) : { width: 800, height: 600 }
+
+        const gridConfig = calculateGridConfig(
+          newDialogs.length,
+          screenWidth,
+          screenHeight,
+          windowSize
+        )
+
+        const positions = calculateWindowPositions(gridConfig, newDialogs.length)
+
+        setOpenKLineDialogs((current) =>
+          current.map((dialog, index) => ({
+            ...dialog,
+            position: !dialog.isUserPositioned
+              ? {
+                  x: positions[index].x,
+                  y: positions[index].y,
+                  width: positions[index].width,
+                  height: positions[index].height,
+                }
+              : dialog.position,
+          }))
+        )
+      }, 0)
+
+      return newDialogs
+    })
+  }, [])
+
+  // 关闭K线图
+  const handleCloseKLine = useCallback((stockId: string) => {
+    setOpenKLineDialogs((prev) => {
+      const newDialogs = prev.filter((d) => d.stockId !== stockId)
+
+      // 立即计算新的布局
+      if (newDialogs.length > 0) {
+        setTimeout(() => {
+          const screenWidth = window.innerWidth
+          const screenHeight = window.innerHeight
+          const savedSize = localStorage.getItem('kline-dialog-size')
+          const windowSize = savedSize ? JSON.parse(savedSize) : { width: 800, height: 600 }
+
+          const gridConfig = calculateGridConfig(
+            newDialogs.length,
+            screenWidth,
+            screenHeight,
+            windowSize
+          )
+
+          const positions = calculateWindowPositions(gridConfig, newDialogs.length)
+
+          setOpenKLineDialogs((current) =>
+            current.map((dialog, index) => ({
+              ...dialog,
+              position: !dialog.isUserPositioned
+                ? {
+                    x: positions[index].x,
+                    y: positions[index].y,
+                    width: positions[index].width,
+                    height: positions[index].height,
+                  }
+                : dialog.position,
+            }))
+          )
+        }, 0)
+      }
+
+      return newDialogs
+    })
+  }, [])
+
+  // 手动拖拽回调
+  const handleDialogDragEnd = useCallback(
+    (stockId: string, position: { x: number; y: number }) => {
+      setOpenKLineDialogs((prev) =>
+        prev.map((d) =>
+          d.stockId === stockId
+            ? { ...d, position: { ...d.position!, x: position.x, y: position.y }, isUserPositioned: true }
+            : d
+        )
+      )
+    },
+    []
+  )
 
   if (loading) {
     return (
@@ -164,17 +303,30 @@ export function WatchedStocksList({
 
   return (
     <div className="space-y-4">
-      {/* WebSocket连接状态提示 */}
-      {!isConnected && stocks.length > 0 && (
-        <Card className="bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900">
-          <CardContent className="flex items-center gap-2 py-3">
-            <Loader2 className="h-4 w-4 animate-spin text-yellow-600 dark:text-yellow-400" />
-            <span className="text-sm text-yellow-600 dark:text-yellow-400">
-              正在连接实时行情服务...
-            </span>
-          </CardContent>
-        </Card>
-      )}
+      {/* WebSocket连接状态提示 + 整理窗口按钮 */}
+      <div className="flex items-center justify-between gap-4">
+        {!isConnected && stocks.length > 0 && (
+          <Card className="bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900 flex-1">
+            <CardContent className="flex items-center gap-2 py-3">
+              <Loader2 className="h-4 w-4 animate-spin text-yellow-600 dark:text-yellow-400" />
+              <span className="text-sm text-yellow-600 dark:text-yellow-400">
+                正在连接实时行情服务...
+              </span>
+            </CardContent>
+          </Card>
+        )}
+        {openKLineDialogs.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => arrangeWindows(true)}
+            title={t('kline.arrangeWindows')}
+          >
+            <LayoutGrid className="h-4 w-4 mr-2" />
+            {t('kline.arrangeWindows')}
+          </Button>
+        )}
+      </div>
 
       {stocks.map((stock) => {
         const quote = realtimeData.get(stock.tsCode)
@@ -333,19 +485,19 @@ export function WatchedStocksList({
       })}
 
       {/* 渲染所有打开的K线图弹窗 */}
-      {openKLineDialogs.map((stockId) => {
-        const stock = stocks.find((s) => s.id === stockId)
+      {openKLineDialogs.map((dialog) => {
+        const stock = stocks.find((s) => s.id === dialog.stockId)
         if (!stock) return null
         return (
           <DraggableKLineDialog
-            key={stockId}
+            key={dialog.stockId}
             open={true}
             onOpenChange={(open) => {
-              if (!open) {
-                setOpenKLineDialogs((prev) => prev.filter((id) => id !== stockId))
-              }
+              if (!open) handleCloseKLine(dialog.stockId)
             }}
-            stockId={stock.id}
+            onDragEnd={(pos) => handleDialogDragEnd(dialog.stockId, pos)}
+            autoPosition={dialog.position}
+            enableTransition={!dialog.isUserPositioned}
             stockName={stock.name}
             stockCode={stock.symbol}
             tsCode={stock.tsCode}

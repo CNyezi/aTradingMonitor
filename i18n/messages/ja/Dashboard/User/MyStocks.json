@@ -66,6 +66,8 @@
   "kline": {
     "title": "Kラインチャート",
     "openChart": "Kラインチャートを開く",
-    "close": "閉じる"
+    "close": "閉じる",
+    "arrangeWindows": "ウィンドウを整理",
+    "resetLayout": "レイアウトをリセット"
   }
 }

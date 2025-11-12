@@ -7,10 +7,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 interface DraggableKLineDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  stockId: string
   stockName: string
   stockCode: string
   tsCode: string
+  autoPosition?: { x: number; y: number; width: number; height: number } // 自动计算的位置
+  onDragEnd?: (position: { x: number; y: number }) => void // 拖拽结束回调
+  enableTransition?: boolean // 是否启用位置过渡动画
 }
 
 interface DialogSize {
@@ -42,10 +44,12 @@ const DEFAULT_HEIGHT = 600
 export function DraggableKLineDialog({
   open,
   onOpenChange,
-  stockId,
   stockName,
   stockCode,
   tsCode,
+  autoPosition,
+  onDragEnd,
+  enableTransition = false,
 }: DraggableKLineDialogProps) {
   const t = useTranslations('MyStocks.kline')
 
@@ -77,6 +81,7 @@ export function DraggableKLineDialog({
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [resizeHandle, setResizeHandle] = useState<ResizeHandle>(null)
+  const [isUserPositioned, setIsUserPositioned] = useState(false)
 
   // refs用于跟踪鼠标位置
   const dragStartPos = useRef({ x: 0, y: 0 })
@@ -109,16 +114,31 @@ export function DraggableKLineDialog({
     }
   }, [])
 
-  // 初始化位置（居中显示）
+  // 初始化位置
   useEffect(() => {
     if (open && typeof window !== 'undefined') {
-      const savedSize = getSavedSize()
-      const centerX = (window.innerWidth - savedSize.width) / 2
-      const centerY = (window.innerHeight - savedSize.height) / 2
-      setPosition({ x: Math.max(0, centerX), y: Math.max(0, centerY) })
-      setSize(savedSize)
+      if (autoPosition && !isUserPositioned) {
+        // 使用自动计算的位置和大小
+        setPosition({ x: autoPosition.x, y: autoPosition.y })
+        setSize({ width: autoPosition.width, height: autoPosition.height })
+      } else if (!isUserPositioned) {
+        // 如果没有自动位置，则居中显示
+        const savedSize = getSavedSize()
+        const centerX = (window.innerWidth - savedSize.width) / 2
+        const centerY = (window.innerHeight - savedSize.height) / 2
+        setPosition({ x: Math.max(0, centerX), y: Math.max(0, centerY) })
+        setSize(savedSize)
+      }
     }
-  }, [open, getSavedSize])
+  }, [open, autoPosition, isUserPositioned, getSavedSize])
+
+  // 当autoPosition变化时，如果不是用户手动定位的，更新位置
+  useEffect(() => {
+    if (autoPosition && !isUserPositioned) {
+      setPosition({ x: autoPosition.x, y: autoPosition.y })
+      setSize({ width: autoPosition.width, height: autoPosition.height })
+    }
+  }, [autoPosition, isUserPositioned])
 
   // 拖拽开始
   const handleDragStart = useCallback(
@@ -197,10 +217,16 @@ export function DraggableKLineDialog({
     const handleMouseUp = () => {
       if (isDragging) {
         setIsDragging(false)
+        setIsUserPositioned(true)
+        // 调用拖拽结束回调
+        if (onDragEnd) {
+          onDragEnd({ x: position.x, y: position.y })
+        }
       }
       if (isResizing) {
         setIsResizing(false)
         setResizeHandle(null)
+        setIsUserPositioned(true)
         saveSize(size)
       }
     }
@@ -214,7 +240,7 @@ export function DraggableKLineDialog({
         document.removeEventListener('mouseup', handleMouseUp)
       }
     }
-  }, [isDragging, isResizing, resizeHandle, size, position, constrainPosition, saveSize])
+  }, [isDragging, isResizing, resizeHandle, size, position, constrainPosition, saveSize, onDragEnd])
 
   // 添加resize样式类
   const getResizeCursor = (handle: ResizeHandle): string => {
@@ -249,6 +275,7 @@ export function DraggableKLineDialog({
         height: `${size.height}px`,
         userSelect: isDragging || isResizing ? 'none' : 'auto',
         zIndex: 100,
+        transition: enableTransition && !isDragging && !isResizing ? 'all 0.3s ease-in-out' : 'none',
       }}
     >
         {/* 标题栏（可拖拽区域） */}
