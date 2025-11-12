@@ -62,5 +62,10 @@
     "success": "データ更新成功",
     "successDescription": "合計{total}件、新規{new}件、更新{updated}件",
     "error": "データ更新失敗"
+  },
+  "kline": {
+    "title": "Kラインチャート",
+    "openChart": "Kラインチャートを開く",
+    "close": "閉じる"
   }
 }

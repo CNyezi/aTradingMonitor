@@ -7,12 +7,13 @@
     "description": "管理您的股票监控规则",
     "empty": "还没有任何监控规则",
     "emptyHint": "点击「创建监控规则」按钮开始设置",
-    "stock": "股票",
+    "ruleName": "规则名称",
     "ruleType": "规则类型",
     "config": "配置",
     "status": "状态",
     "createdAt": "创建时间",
     "actions": "操作",
+    "edit": "编辑",
     "toggleSuccess": "规则状态已更新",
     "toggleError": "规则状态更新失败",
     "deleteSuccess": "规则已删除",
@@ -64,5 +65,14 @@
     "creating": "创建中...",
     "success": "监控规则创建成功",
     "error": "监控规则创建失败"
+  },
+  "edit": {
+    "title": "编辑监控规则",
+    "description": "修改监控规则的配置参数",
+    "update": "更新",
+    "updating": "更新中...",
+    "success": "规则更新成功",
+    "error": "规则更新失败",
+    "breakoutPriceRequired": "请输入突破价格"
   }
 }

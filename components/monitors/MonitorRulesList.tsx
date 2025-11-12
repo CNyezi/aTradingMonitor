@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { EditMonitorRuleDialog } from './EditMonitorRuleDialog'
 
 interface MonitorRulesListProps {
   rules: any[]
@@ -31,6 +32,8 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [ruleToDelete, setRuleToDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [ruleToEdit, setRuleToEdit] = useState<any | null>(null)
 
   const getRuleTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -51,6 +54,11 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
     } else {
       toast.error(t('list.toggleError'))
     }
+  }
+
+  const handleEditClick = (rule: any) => {
+    setRuleToEdit(rule)
+    setEditDialogOpen(true)
   }
 
   const handleDeleteClick = (ruleId: string) => {
@@ -101,7 +109,7 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>{t('list.stock')}</TableHead>
+            <TableHead>{t('list.ruleName')}</TableHead>
             <TableHead>{t('list.ruleType')}</TableHead>
             <TableHead>{t('list.config')}</TableHead>
             <TableHead>{t('list.status')}</TableHead>
@@ -113,9 +121,8 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
           {rules.map((rule) => (
             <TableRow key={rule.id}>
               <TableCell>
-                <div>
-                  <div className="font-medium">{rule.stockName}</div>
-                  <div className="text-sm text-muted-foreground">{rule.stockCode}</div>
+                <div className="font-medium">
+                  {rule.ruleName || getRuleTypeLabel(rule.ruleType)}
                 </div>
               </TableCell>
               <TableCell>
@@ -143,6 +150,9 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => handleEditClick(rule)} title={t('list.edit')}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(rule.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -167,6 +177,15 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {ruleToEdit && (
+        <EditMonitorRuleDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          rule={ruleToEdit}
+          onRuleUpdated={onRulesChange}
+        />
+      )}
     </>
   )
 }

@@ -13,13 +13,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Switch } from '@/components/ui/switch'
-import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import { useStockSubscription } from '@/hooks/use-stock-subscription'
+import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import type { StockWithGroup } from '@/lib/tushare'
-import { Bell, BellOff, FolderInput, Loader2, MoreVertical, Trash2 } from 'lucide-react'
+import { Bell, BellOff, FolderInput, LineChart, Loader2, MoreVertical, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { DraggableKLineDialog } from './DraggableKLineDialog'
 
 interface WatchedStocksListProps {
   stocks: StockWithGroup[]
@@ -41,18 +42,11 @@ export function WatchedStocksList({
   const [removing, setRemoving] = useState<string | null>(null)
   const [moving, setMoving] = useState<string | null>(null)
   const [toggling, setToggling] = useState<string | null>(null)
-  const [expandedChart, setExpandedChart] = useState<string | null>(null)
+  const [openKLineDialogs, setOpenKLineDialogs] = useState<string[]>([])
 
   // 使用WebSocket订阅股票数据
   const tsCodes = stocks.map((s) => s.tsCode)
   const { quotes: realtimeData, isConnected } = useStockSubscription(tsCodes)
-
-  // 生成东方财富K线图URL
-  const getEastMoneyChartUrl = (tsCode: string) => {
-    const [code, exchange] = tsCode.split('.')
-    const market = exchange === 'SH' ? '1' : '0'
-    return `https://quote.eastmoney.com/basic/h5chart-iframe.html?code=${code}&market=${market}`
-  }
 
   // 格式化数字
   const formatNumber = (num: number, decimals = 2) => {
@@ -141,6 +135,12 @@ export function WatchedStocksList({
     }
   }
 
+  const handleOpenKLine = (stockId: string) => {
+    if (!openKLineDialogs.includes(stockId)) {
+      setOpenKLineDialogs((prev) => [...prev, stockId])
+    }
+  }
+
   if (loading) {
     return (
       <Card>
@@ -210,6 +210,16 @@ export function WatchedStocksList({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* K线图按钮 */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleOpenKLine(stock.id)}
+                    title={t('kline.openChart')}
+                  >
+                    <LineChart className="h-4 w-4" />
+                  </Button>
+
                   {/* 监控开关 */}
                   <div className="flex items-center gap-2">
                     {stock.monitored ? (
@@ -310,36 +320,36 @@ export function WatchedStocksList({
                         </div>
                         <div className="flex justify-between py-0.5">
                           <span className="text-muted-foreground">{tRealtime('amount')}</span>
-                          <span className="font-medium">{formatAmount(quote.amount)}亿元</span>
+                          <span className="font-medium">{formatAmount(quote.amount)}元</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
-
-                {/* K线图 */}
-                <div className="border rounded-lg overflow-hidden bg-background">
-                  <button
-                    className="w-full px-2 py-1.5 text-left text-sm font-medium hover:bg-muted/50 transition-colors flex items-center justify-between"
-                    onClick={() => setExpandedChart(expandedChart === stock.id ? null : stock.id)}
-                  >
-                    <span>K线图</span>
-                    <span className="text-xs">{expandedChart === stock.id ? '▼' : '▶'}</span>
-                  </button>
-                  {expandedChart === stock.id && (
-                    <div className="border-t">
-                      <iframe
-                        src={getEastMoneyChartUrl(stock.tsCode)}
-                        className="w-full border-0"
-                        style={{ height: '800px' }}
-                        title={`${stock.name} K线图`}
-                      />
-                    </div>
-                  )}
-                </div>
               </div>
             </CardContent>
           </Card>
+        )
+      })}
+
+      {/* 渲染所有打开的K线图弹窗 */}
+      {openKLineDialogs.map((stockId) => {
+        const stock = stocks.find((s) => s.id === stockId)
+        if (!stock) return null
+        return (
+          <DraggableKLineDialog
+            key={stockId}
+            open={true}
+            onOpenChange={(open) => {
+              if (!open) {
+                setOpenKLineDialogs((prev) => prev.filter((id) => id !== stockId))
+              }
+            }}
+            stockId={stock.id}
+            stockName={stock.name}
+            stockCode={stock.symbol}
+            tsCode={stock.tsCode}
+          />
         )
       })}
     </div>

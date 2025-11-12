@@ -7,12 +7,13 @@
     "description": "Manage your stock monitoring rules",
     "empty": "No monitor rules yet",
     "emptyHint": "Click「Create Monitor Rule」to get started",
-    "stock": "Stock",
+    "ruleName": "Rule Name",
     "ruleType": "Rule Type",
     "config": "Config",
     "status": "Status",
     "createdAt": "Created",
     "actions": "Actions",
+    "edit": "Edit",
     "toggleSuccess": "Rule status updated",
     "toggleError": "Failed to update rule status",
     "deleteSuccess": "Rule deleted",
@@ -64,5 +65,14 @@
     "creating": "Creating...",
     "success": "Monitor rule created successfully",
     "error": "Failed to create monitor rule"
+  },
+  "edit": {
+    "title": "Edit Monitor Rule",
+    "description": "Modify monitoring rule configuration parameters",
+    "update": "Update",
+    "updating": "Updating...",
+    "success": "Rule updated successfully",
+    "error": "Failed to update rule",
+    "breakoutPriceRequired": "Please enter breakout price"
   }
 }

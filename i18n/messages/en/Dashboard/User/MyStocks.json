@@ -62,5 +62,10 @@
     "success": "Data updated successfully",
     "successDescription": "Total {total} stocks, {new} new, {updated} updated",
     "error": "Failed to update data"
+  },
+  "kline": {
+    "title": "K-Line Chart",
+    "openChart": "Open K-Line Chart",
+    "close": "Close"
   }
 }

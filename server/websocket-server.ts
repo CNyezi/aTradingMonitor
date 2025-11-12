@@ -11,6 +11,7 @@ import { ConnectionManager } from './managers/connection-manager'
 import { SubscriptionManager } from './managers/subscription-manager'
 import { StockDataService } from './services/stock-data-service'
 import { MessageRouter } from './services/message-router'
+import { TestDataGenerator } from './services/test-data-generator'
 import type { AuthenticatedWebSocket } from './types'
 import { db } from '@/lib/db'
 import { session } from '@/lib/db/schema'
@@ -18,6 +19,7 @@ import { eq, gt } from 'drizzle-orm'
 
 const PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT) : 3333
 const HEARTBEAT_INTERVAL = 30000 // 30秒心跳检测
+const TEST_MODE = process.env.WS_TEST_MODE === 'true' // 测试模式开关
 
 /**
  * WebSocket服务器
@@ -30,22 +32,29 @@ export class WSServer {
   private stockDataService: StockDataService
   private messageRouter: MessageRouter
   private heartbeatInterval: NodeJS.Timeout | null = null
+  private testDataGenerator: TestDataGenerator | null = null
+  private testDataInterval: NodeJS.Timeout | null = null
 
   constructor() {
     this.wss = new WebSocketServer({ port: PORT })
     this.connectionManager = new ConnectionManager()
     this.subscriptionManager = new SubscriptionManager()
-    this.stockDataService = new StockDataService(
-      this.subscriptionManager,
-      this.connectionManager
-    )
+    this.stockDataService = new StockDataService(this.subscriptionManager, this.connectionManager)
     this.messageRouter = new MessageRouter(this.subscriptionManager, this.connectionManager)
 
     this.setupServer()
     this.startHeartbeat()
-    this.startStockDataService()
 
-    console.log(`[WSServer] WebSocket服务器启动在端口 ${PORT}`)
+    // 根据测试模式选择数据源
+    if (TEST_MODE) {
+      this.startTestMode()
+    } else {
+      this.startStockDataService()
+    }
+
+    console.log(
+      `[WSServer] WebSocket服务器启动在端口 ${PORT} ${TEST_MODE ? '(测试模式)' : '(生产模式)'}`
+    )
   }
 
   /**
@@ -177,33 +186,83 @@ export class WSServer {
   }
 
   /**
-   * 启动股票数据服务
+   * 启动股票数据服务 (生产模式)
    */
   private startStockDataService(): void {
     this.stockDataService.start()
-    console.log('[WSServer] 股票数据服务已启动')
+    console.log('[WSServer] 股票数据服务已启动 (真实数据)')
+  }
+
+  /**
+   * 启动测试模式 (模拟数据)
+   */
+  private startTestMode(): void {
+    this.testDataGenerator = new TestDataGenerator()
+
+    // 自动订阅所有测试股票
+    const testStockCodes = this.testDataGenerator.getAllStockCodes()
+    console.log(`[WSServer] 测试模式: 自动订阅 ${testStockCodes.length} 只测试股票`)
+
+    // 每1秒推送一次模拟数据
+    this.testDataInterval = setInterval(() => {
+      if (!this.testDataGenerator) return
+
+      // 生成所有股票的最新行情
+      const quotes = this.testDataGenerator.generateAllQuotes()
+
+      // 推送给所有连接的客户端
+      quotes.forEach((quote) => {
+        this.connectionManager.broadcast({
+          type: 'stock_update',
+          payload: quote,
+        })
+      })
+    }, 1000)
+
+    console.log('[WSServer] 测试模式已启动: 每秒推送模拟数据')
+    console.log('[WSServer] 测试股票列表:', testStockCodes.join(', '))
+    console.log('[WSServer] 提示: 系统会随机触发告警 (价格波动、成交量激增、涨停/跌停)')
   }
 
   /**
    * 关闭服务器
    */
-  close(): void {
+  close(callback?: () => void): void {
     console.log('[WSServer] 正在关闭服务器...')
 
     // 停止心跳检测
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval)
+      this.heartbeatInterval = null
+    }
+
+    // 停止测试模式定时器
+    if (this.testDataInterval) {
+      clearInterval(this.testDataInterval)
+      this.testDataInterval = null
+      console.log('[WSServer] 测试模式已停止')
     }
 
     // 停止股票数据服务
-    this.stockDataService.stop()
+    if (!TEST_MODE) {
+      this.stockDataService.stop()
+    }
 
     // 关闭所有连接
     this.connectionManager.closeAll()
 
     // 关闭WebSocket服务器
-    this.wss.close(() => {
-      console.log('[WSServer] 服务器已关闭')
+    this.wss.close((error) => {
+      if (error) {
+        console.error('[WSServer] 关闭服务器时出错:', error)
+      } else {
+        console.log('[WSServer] WebSocket服务器已关闭')
+      }
+
+      // 执行回调
+      if (callback) {
+        callback()
+      }
     })
   }
 }
@@ -211,15 +270,45 @@ export class WSServer {
 // 启动服务器
 const server = new WSServer()
 
-// 优雅关闭
-process.on('SIGINT', () => {
-  console.log('\n[WSServer] 收到SIGINT信号，准备关闭服务器')
-  server.close()
-  process.exit(0)
+// 优雅关闭处理函数
+let isShuttingDown = false
+
+function gracefulShutdown(signal: string) {
+  if (isShuttingDown) {
+    console.log(`[WSServer] 已在关闭中，忽略 ${signal} 信号`)
+    return
+  }
+
+  isShuttingDown = true
+  console.log(`\n[WSServer] 收到 ${signal} 信号，准备关闭服务器...`)
+
+  // 设置超时强制退出（5秒后）
+  const forceExitTimeout = setTimeout(() => {
+    console.error('[WSServer] 优雅关闭超时，强制退出')
+    process.exit(1)
+  }, 5000)
+
+  // 执行优雅关闭，等待回调
+  server.close(() => {
+    // 清理超时定时器
+    clearTimeout(forceExitTimeout)
+
+    console.log('[WSServer] 服务器已成功关闭')
+    process.exit(0)
+  })
+}
+
+// 监听信号
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+
+// 处理未捕获的异常
+process.on('uncaughtException', (error) => {
+  console.error('[WSServer] 未捕获的异常:', error)
+  gracefulShutdown('uncaughtException')
 })
 
-process.on('SIGTERM', () => {
-  console.log('\n[WSServer] 收到SIGTERM信号，准备关闭服务器')
-  server.close()
-  process.exit(0)
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[WSServer] 未处理的Promise拒绝:', reason)
+  gracefulShutdown('unhandledRejection')
 })

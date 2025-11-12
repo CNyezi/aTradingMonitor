@@ -62,5 +62,10 @@
     "success": "数据更新成功",
     "successDescription": "共 {total} 条股票,新增 {new} 条,更新 {updated} 条",
     "error": "数据更新失败"
+  },
+  "kline": {
+    "title": "K线图",
+    "openChart": "打开K线图",
+    "close": "关闭"
   }
 }
