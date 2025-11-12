@@ -2,7 +2,7 @@
 
 import { createStockGroup, deleteStockGroup, updateStockGroup } from '@/actions/stocks'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
-import { cn } from '@/lib/utils'
 import { Edit, Folder, FolderOpen, Loader2, MoreVertical, Plus, Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
@@ -142,9 +141,9 @@ export function StockGroupManager({
 
   return (
     <>
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <Card className='py-2 mb-1'>
+        <CardContent>
+          <div className="flex items-center gap-2 overflow-x-auto">
             {/* 全部股票 */}
             <Button
               variant={selectedGroupId === undefined ? 'default' : 'outline'}

@@ -1,19 +1,19 @@
 'use client'
 
-import { getUserStockGroups, getWatchedStocks } from '@/actions/stocks'
 import { getUserMonitorRules } from '@/actions/monitors'
+import { getUserStockGroups, getWatchedStocks } from '@/actions/stocks'
+import { RealtimeAlertsList } from '@/components/monitors/RealtimeAlertsList'
 import { StockGroupManager } from '@/components/stocks/StockGroupManager'
 import { StockSearchDialog } from '@/components/stocks/StockSearchDialog'
 import { UpdateStocksButton } from '@/components/stocks/UpdateStocksButton'
 import { WatchedStocksList } from '@/components/stocks/WatchedStocksList'
-import { RealtimeAlertsList } from '@/components/monitors/RealtimeAlertsList'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useRealtimeMonitor } from '@/hooks/use-realtime-monitor'
+import { authClient } from '@/lib/auth/auth-client'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import type { StockWithGroup } from '@/lib/tushare'
-import { authClient } from '@/lib/auth/auth-client'
-import { useRealtimeMonitor } from '@/hooks/use-realtime-monitor'
-import { Bell, BellOff, Plus } from 'lucide-react'
+import { Bell, BellOff, HelpCircle, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
@@ -117,64 +117,57 @@ export default function MyStocksClient() {
         </div>
       </div>
 
-      {/* 实时监控状态卡片 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            实时监控状态
-          </CardTitle>
-          <CardDescription>基于 WebSocket 实时推送的股票波动监控</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">监控规则</p>
-              <p className="text-2xl font-bold">{monitorRules.filter((r) => r.enabled).length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">监控股票</p>
-              <p className="text-2xl font-bold">
-                {monitoredCount} / {totalCount}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">活跃告警</p>
-              <p className="text-2xl font-bold text-red-600">{activeAlerts.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">桌面通知</p>
-              <div className="flex items-center gap-2 mt-1">
-                {notificationPermission === 'granted' ? (
-                  <>
-                    <Bell className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-green-600">已启用</span>
-                  </>
-                ) : notificationPermission === 'denied' ? (
-                  <>
-                    <BellOff className="h-4 w-4 text-red-600" />
-                    <span className="text-sm text-red-600">已禁用</span>
-                  </>
-                ) : (
-                  <Button size="sm" variant="outline" onClick={requestNotificationPermission}>
-                    <Bell className="mr-1 h-3 w-3" />
-                    启用通知
-                  </Button>
-                )}
+      {/* 精简的监控状态和活跃告警 */}
+      <div className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg border mb-1">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm">
+              <div className="space-y-1 text-xs">
+                <p>• 实时监控引擎会自动检查开启监控的股票的波动情况</p>
+                <p>• 触发告警时会通过 Toast 和桌面通知提醒您</p>
+                <p>• 告警具有 5 分钟冷却期，避免重复通知</p>
               </div>
-            </div>
-          </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p>• 实时监控引擎会自动检查开启监控的股票的波动情况</p>
-            <p>• 触发告警时会通过 Toast 和桌面通知提醒您</p>
-            <p>• 告警具有 5 分钟冷却期，避免重复通知</p>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="flex items-center gap-6 text-sm">
+          <span className="text-muted-foreground">
+            监控: <span className="font-medium text-foreground">{monitoredCount}/{totalCount}</span>
+          </span>
+          <span className="text-muted-foreground">
+            规则: <span className="font-medium text-foreground">{monitorRules.filter((r) => r.enabled).length}</span>
+          </span>
+          <span className="text-muted-foreground">
+            活跃告警: <span className="font-bold text-red-600">{activeAlerts.length}</span>
+          </span>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          {notificationPermission === 'granted' ? (
+            <>
+              <Bell className="h-4 w-4 text-green-600" />
+              <span className="text-xs text-green-600">通知已启用</span>
+            </>
+          ) : notificationPermission === 'denied' ? (
+            <>
+              <BellOff className="h-4 w-4 text-red-600" />
+              <span className="text-xs text-red-600">通知已禁用</span>
+            </>
+          ) : (
+            <Button size="sm" variant="outline" onClick={requestNotificationPermission}>
+              <Bell className="mr-1 h-3 w-3" />
+              启用通知
+            </Button>
+          )}
+        </div>
+      </div>
 
       {/* 实时活跃告警列表 */}
-      <RealtimeAlertsList alerts={activeAlerts} />
+      {activeAlerts.length > 0 && <RealtimeAlertsList alerts={activeAlerts} />}
 
       {/* 分组管理 - 顶部 */}
       <StockGroupManager
