@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PRESET_RULES, type PresetRule } from '@/lib/monitors/preset-rules'
-import { TrendingUp, TrendingDown, Activity, Target, Lightbulb } from 'lucide-react'
+import { Star, Shield, Sparkles, Lightbulb } from 'lucide-react'
 
 interface PresetRulesDialogProps {
   open: boolean
@@ -22,14 +22,25 @@ export function PresetRulesDialog({ open, onOpenChange, onSelectRule }: PresetRu
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'limit':
-        return <TrendingUp className="h-4 w-4" />
-      case 'price_change':
-        return <Activity className="h-4 w-4" />
-      case 'volume':
-        return <Target className="h-4 w-4" />
-      case 'breakout':
-        return <TrendingDown className="h-4 w-4" />
+      case 'core':
+        return <Star className="h-4 w-4 text-yellow-500" />
+      case 'risk':
+        return <Shield className="h-4 w-4 text-red-500" />
+      case 'advanced':
+        return <Sparkles className="h-4 w-4 text-blue-500" />
+      default:
+        return null
+    }
+  }
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return <Badge variant="destructive" className="text-xs">高优先级</Badge>
+      case 'medium':
+        return <Badge variant="secondary" className="text-xs">中优先级</Badge>
+      case 'low':
+        return <Badge variant="outline" className="text-xs">低优先级</Badge>
       default:
         return null
     }
@@ -72,24 +83,21 @@ export function PresetRulesDialog({ open, onOpenChange, onSelectRule }: PresetRu
     const names = {
       zh: {
         all: '全部',
-        limit: '涨跌停监控',
-        price_change: '价格波动',
-        volume: '成交量异动',
-        breakout: '关键突破',
+        core: '核心必备',
+        risk: '风险预警',
+        advanced: '进阶策略',
       },
       en: {
         all: 'All',
-        limit: 'Limit Up/Down',
-        price_change: 'Price Movement',
-        volume: 'Volume Spike',
-        breakout: 'Breakout',
+        core: 'Core Essential',
+        risk: 'Risk Alert',
+        advanced: 'Advanced',
       },
       ja: {
         all: 'すべて',
-        limit: 'ストップ高安',
-        price_change: '価格変動',
-        volume: '出来高異動',
-        breakout: 'ブレイクアウト',
+        core: 'コア必須',
+        risk: 'リスク警告',
+        advanced: '上級戦略',
       },
     }
 
@@ -104,24 +112,23 @@ export function PresetRulesDialog({ open, onOpenChange, onSelectRule }: PresetRu
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5 text-yellow-500" />
-            {locale === 'zh' ? 'A股典型监控规则' : locale === 'en' ? 'Typical A-Share Monitoring Rules' : 'A株典型監視ルール'}
+            {locale === 'zh' ? '盘中实时监控规则' : locale === 'en' ? 'Intraday Real-time Monitoring Rules' : 'リアルタイム監視ルール'}
           </DialogTitle>
           <DialogDescription>
             {locale === 'zh'
-              ? '根据A股市场特点精选的常用监控规则，点击选择后可自定义参数'
+              ? '聚焦捕捉盘中关键异动，防止错过重要机会。规则按实战价值分类，高信噪比、低误报率。'
               : locale === 'en'
-                ? 'Curated monitoring rules based on A-share market characteristics, customize after selection'
-                : 'A株市場の特性に基づいた厳選監視ルール、選択後にカスタマイズ可能'}
+                ? 'Focus on capturing key intraday movements to avoid missing opportunities. Rules categorized by practical value, high signal-to-noise ratio, low false positives.'
+                : '重要な日中の動きを捕捉し、機会を逃さない。実戦価値で分類、高信号対雑音比、低誤報率。'}
           </DialogDescription>
         </DialogHeader>
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid grid-cols-5 w-full">
+          <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="all">{getCategoryName('all')}</TabsTrigger>
-            <TabsTrigger value="limit">{getCategoryName('limit')}</TabsTrigger>
-            <TabsTrigger value="price_change">{getCategoryName('price_change')}</TabsTrigger>
-            <TabsTrigger value="volume">{getCategoryName('volume')}</TabsTrigger>
-            <TabsTrigger value="breakout">{getCategoryName('breakout')}</TabsTrigger>
+            <TabsTrigger value="core">{getCategoryName('core')}</TabsTrigger>
+            <TabsTrigger value="risk">{getCategoryName('risk')}</TabsTrigger>
+            <TabsTrigger value="advanced">{getCategoryName('advanced')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value={selectedCategory} className="space-y-4 mt-4">
@@ -132,9 +139,10 @@ export function PresetRulesDialog({ open, onOpenChange, onSelectRule }: PresetRu
                     <div className="flex items-start gap-3">
                       <div className="mt-1">{getCategoryIcon(rule.category)}</div>
                       <div className="flex-1">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <CardTitle className="text-lg flex items-center gap-2 flex-wrap">
                           {getRuleName(rule)}
                           <Badge variant="outline">{getCategoryName(rule.category)}</Badge>
+                          {getPriorityBadge(rule.priority)}
                         </CardTitle>
                         <CardDescription className="mt-1">{getRuleDescription(rule)}</CardDescription>
                       </div>

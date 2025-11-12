@@ -69,5 +69,28 @@
     "close": "閉じる",
     "arrangeWindows": "ウィンドウを整理",
     "resetLayout": "レイアウトをリセット"
+  },
+  "rules": "ルール",
+  "selectRules": "ルールを選択",
+  "selectStocks": "銘柄を選択",
+  "ruleSelector": {
+    "title": "監視ルールを選択",
+    "description": "{stock} に適用するルールを選択",
+    "noRules": "利用可能なルールがありません",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "saving": "保存中...",
+    "saveSuccess": "ルールを更新しました",
+    "saveError": "保存に失敗しました"
+  },
+  "stockSelector": {
+    "title": "銘柄を選択",
+    "description": "このルールを適用する銘柄を選択",
+    "noStocks": "監視中の銘柄がありません",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "saving": "保存中...",
+    "saveSuccess": "保存しました",
+    "saveError": "保存に失敗しました"
   }
 }

@@ -23,7 +23,8 @@
     "cancel": "キャンセル",
     "delete": "削除",
     "deleting": "削除中...",
-    "loadError": "ルールの読み込みに失敗"
+    "loadError": "ルールの読み込みに失敗",
+    "selectStocks": "銘柄を選択"
   },
   "ruleTypes": {
     "priceChange": "当日騰落率モニター",

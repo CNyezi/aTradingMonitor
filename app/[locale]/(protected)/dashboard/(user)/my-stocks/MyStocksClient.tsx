@@ -15,7 +15,7 @@ import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import type { StockWithGroup } from '@/lib/tushare'
 import { Bell, BellOff, HelpCircle, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export default function MyStocksClient() {
   const t = useTranslations('MyStocks')
@@ -29,25 +29,15 @@ export default function MyStocksClient() {
   const [loading, setLoading] = useState(true)
   const [monitorRules, setMonitorRules] = useState<any[]>([])
 
-  // 准备监控规则数据 - 将全局规则应用到每只开启监控的股票
-  const monitorRulesWithStocks = watchedStocks
-    .filter((stock) => stock.monitored) // 只监控已开启监控的股票
-    .flatMap((stock) =>
-      monitorRules
-        .filter((rule) => rule.enabled)
-        .map((rule) => ({
-          id: `${stock.id}-${rule.id}`, // 组合ID
-          stockCode: stock.tsCode,
-          ruleType: rule.ruleType,
-          ruleName: rule.ruleName,
-          enabled: true,
-          config: rule.config,
-        }))
-    )
+  // 启动实时监控引擎 - 传入开启监控的股票列表
+  // 使用 useMemo 避免每次渲染都创建新数组引用
+  const monitoredStocks = useMemo(
+    () => watchedStocks.filter((stock) => stock.monitored),
+    [watchedStocks]
+  )
 
-  // 启动实时监控引擎
   const { notificationPermission, requestNotificationPermission, getActiveAlerts } =
-    useRealtimeMonitor(monitorRulesWithStocks)
+    useRealtimeMonitor(monitoredStocks)
 
   // 活跃告警状态 (每3秒刷新一次以更新UI)
   const [activeAlerts, setActiveAlerts] = useState<ReturnType<typeof getActiveAlerts>>([])
@@ -82,8 +72,13 @@ export default function MyStocksClient() {
         setGroups(groupsResult.data.groups)
       }
 
-      if (rulesResult.success && rulesResult.data && 'rules' in rulesResult.data) {
-        setMonitorRules(rulesResult.data.rules)
+      if (
+        rulesResult.success &&
+        rulesResult.data &&
+        typeof rulesResult.data === 'object' &&
+        'rules' in rulesResult.data
+      ) {
+        setMonitorRules(rulesResult.data.rules as any[])
       }
     } catch (error) {
       console.error('Failed to load data:', error)

@@ -1,0 +1,20 @@
+{
+  "editPosition": "Edit Position",
+  "addPosition": "Add Position Info",
+  "costPrice": "Cost Price",
+  "quantity": "Quantity",
+  "totalCost": "Total Cost",
+  "currentValue": "Current Value",
+  "profitLoss": "P&L",
+  "profitLossRatio": "P&L Ratio",
+  "shares": "shares",
+  "yuan": "CNY",
+  "save": "Save",
+  "cancel": "Cancel",
+  "positionInfo": "Position Info",
+  "noCostPrice": "No cost price set",
+  "validationCostPrice": "Cost price must be greater than 0",
+  "validationQuantity": "Quantity must be a positive integer",
+  "updateSuccess": "Position updated successfully",
+  "updateError": "Failed to update position"
+}

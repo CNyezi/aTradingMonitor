@@ -71,6 +71,20 @@
       "when": 1762775000000,
       "tag": "0009_refactor_monitor_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1731398820000,
+      "tag": "0010_add_stock_rule_associations",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1731409620000,
+      "tag": "0011_add_position_info",
+      "breakpoints": true
     }
   ]
 }

@@ -17,6 +17,7 @@ export interface MonitorRuleConfig {
   // 成交量异动监控 (volume_spike)
   volumeMultiplier?: number // 成交量倍数 (相对于平均值)
   volumePeriod?: number // 参考周期 (分钟)
+  priceDirection?: 'up' | 'down' // 价格方向 (用于量价组合条件)
 
   // 涨停/跌停监控 (limit_up/limit_down)
   limitThreshold?: number // 涨跌停阈值 (%, 默认10%)

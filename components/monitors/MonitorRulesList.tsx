@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { Trash2, Edit2 } from 'lucide-react'
-import { updateMonitorRule, deleteMonitorRule } from '@/actions/monitors'
+import { Trash2, Edit2, Link } from 'lucide-react'
+import { updateMonitorRule, deleteMonitorRule, getRuleStocks, getMonitoredStocks } from '@/actions/monitors'
 import { toast } from 'sonner'
 import {
   AlertDialog,
@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { EditMonitorRuleDialog } from './EditMonitorRuleDialog'
+import { RuleStockSelectorDialog } from './RuleStockSelectorDialog'
 
 interface MonitorRulesListProps {
   rules: any[]
@@ -34,6 +35,43 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
   const [deleting, setDeleting] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [ruleToEdit, setRuleToEdit] = useState<any | null>(null)
+
+  // 股票选择相关状态
+  const [selectedRuleForStocks, setSelectedRuleForStocks] = useState<string | null>(null)
+  const [ruleStockCounts, setRuleStockCounts] = useState<Map<string, number>>(new Map())
+  const [monitoredStocks, setMonitoredStocks] = useState<any[]>([])
+
+  // 加载监控股票列表
+  useEffect(() => {
+    loadMonitoredStocks()
+  }, [])
+
+  const loadMonitoredStocks = async () => {
+    const result = await getMonitoredStocks()
+    if (result.success && result.data && 'stocks' in result.data) {
+      setMonitoredStocks((result.data.stocks as any[]) || [])
+    }
+  }
+
+  // 加载规则的股票数量
+  useEffect(() => {
+    if (rules.length > 0) {
+      loadRuleStockCounts()
+    }
+  }, [rules])
+
+  const loadRuleStockCounts = async () => {
+    const counts = new Map<string, number>()
+    await Promise.all(
+      rules.map(async (rule) => {
+        const result = await getRuleStocks(rule.id)
+        if (result.success && result.data && 'associations' in result.data) {
+          counts.set(rule.id, (result.data.associations as any[])?.length || 0)
+        }
+      })
+    )
+    setRuleStockCounts(counts)
+  }
 
   const getRuleTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -150,6 +188,15 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedRuleForStocks(rule.id)}
+                    title={t('list.selectStocks')}
+                  >
+                    <Link className="h-4 w-4" />
+                    <span className="text-xs ml-1">({ruleStockCounts.get(rule.id) || 0})</span>
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => handleEditClick(rule)} title={t('list.edit')}>
                     <Edit2 className="h-4 w-4" />
                   </Button>
@@ -184,6 +231,20 @@ export function MonitorRulesList({ rules, loading, onRulesChange }: MonitorRules
           onOpenChange={setEditDialogOpen}
           rule={ruleToEdit}
           onRuleUpdated={onRulesChange}
+        />
+      )}
+
+      {selectedRuleForStocks && (
+        <RuleStockSelectorDialog
+          open={true}
+          onOpenChange={(open) => !open && setSelectedRuleForStocks(null)}
+          ruleId={selectedRuleForStocks}
+          ruleName={rules.find((r) => r.id === selectedRuleForStocks)?.ruleName || ''}
+          ruleType={rules.find((r) => r.id === selectedRuleForStocks)?.ruleType || ''}
+          availableStocks={monitoredStocks}
+          onStocksChanged={() => {
+            loadRuleStockCounts()
+          }}
         />
       )}
     </>

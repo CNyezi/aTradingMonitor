@@ -25,4 +25,6 @@ export interface StockWithGroup {
   groupName: string | null
   monitored: boolean
   addedAt: Date
+  costPrice: string | null // 持仓成本价
+  quantity: number | null // 持股数量
 }

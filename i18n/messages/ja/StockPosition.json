@@ -1,0 +1,20 @@
+{
+  "editPosition": "ポジションを編集",
+  "addPosition": "ポジション情報を追加",
+  "costPrice": "コスト価格",
+  "quantity": "保有数量",
+  "totalCost": "総コスト",
+  "currentValue": "現在価値",
+  "profitLoss": "損益",
+  "profitLossRatio": "損益率",
+  "shares": "株",
+  "yuan": "元",
+  "save": "保存",
+  "cancel": "キャンセル",
+  "positionInfo": "ポジション情報",
+  "noCostPrice": "コスト価格が設定されていません",
+  "validationCostPrice": "コスト価格は0より大きい必要があります",
+  "validationQuantity": "数量は正の整数である必要があります",
+  "updateSuccess": "ポジション情報が正常に更新されました",
+  "updateError": "ポジション情報の更新に失敗しました"
+}

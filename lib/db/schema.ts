@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -443,6 +444,8 @@ export const userWatchedStocks = pgTable(
       onDelete: 'set null',
     }), // 可选,不分组的股票为 null
     monitored: boolean('monitored').default(false).notNull(), // 是否启用监控
+    costPrice: numeric('cost_price', { precision: 10, scale: 2 }), // 持仓成本价(元)
+    quantity: integer('quantity'), // 持股数量(股)
     addedAt: timestamp('added_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -536,6 +539,34 @@ export const stockAlerts = pgTable(
   }
 )
 
+// 股票监控规则关联表 - 实现股票与规则的多对多关系
+export const stockMonitorRuleAssociations = pgTable(
+  'stock_monitor_rule_associations',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    watchedStockId: uuid('watched_stock_id')
+      .notNull()
+      .references(() => userWatchedStocks.id, { onDelete: 'cascade' }),
+    ruleId: uuid('rule_id')
+      .notNull()
+      .references(() => stockMonitorRules.id, { onDelete: 'cascade' }),
+    enabled: boolean('enabled').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueAssociation: uniqueIndex('unique_stock_rule').on(
+      table.watchedStockId,
+      table.ruleId
+    ),
+    userIdIdx: index('associations_user_id_idx').on(table.userId),
+    watchedStockIdIdx: index('associations_watched_stock_id_idx').on(table.watchedStockId),
+    ruleIdIdx: index('associations_rule_id_idx').on(table.ruleId),
+  })
+)
+
 export const stockPriceSnapshots = pgTable(
   'stock_price_snapshots',
   {
@@ -586,3 +617,7 @@ export const userNotificationSettings = pgTable('user_notification_settings', {
     .notNull()
     .$onUpdate(() => new Date()),
 })
+
+// 导出关联表类型
+export type StockMonitorRuleAssociation = typeof stockMonitorRuleAssociations.$inferSelect
+export type NewStockMonitorRuleAssociation = typeof stockMonitorRuleAssociations.$inferInsert

@@ -11,11 +11,18 @@
  */
 
 import { db } from '@/lib/db'
-import { stockMonitorRules, stockAlerts, stocks, userNotificationSettings, userWatchedStocks } from '@/lib/db/schema'
+import {
+  stockMonitorRules,
+  stockAlerts,
+  stocks,
+  userNotificationSettings,
+  userWatchedStocks,
+  stockMonitorRuleAssociations
+} from '@/lib/db/schema'
 import { checkRule, type MonitorRuleConfig } from '@/lib/monitors/check-rules'
 import { sendWebhookNotification, type WebhookPayload } from '@/lib/notifications/webhook'
 import { sendWebPushNotification, type PushSubscription } from '@/lib/notifications/web-push'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
 
 // Vercel Cron Secret 验证
@@ -156,87 +163,85 @@ export async function GET(request: Request) {
 
     console.log('[Cron] Starting monitor checks...')
 
-    // 3. 获取所有启用的监控规则
-    const enabledRules = await db
+    // 3. 获取所有启用的关联（基于关联表）
+    const associations = await db
       .select({
-        id: stockMonitorRules.id,
-        userId: stockMonitorRules.userId,
-        ruleType: stockMonitorRules.ruleType,
-        config: stockMonitorRules.config,
+        associationId: stockMonitorRuleAssociations.id,
+        userId: stockMonitorRuleAssociations.userId,
+        watchedStock: userWatchedStocks,
+        stock: stocks,
+        rule: stockMonitorRules,
       })
-      .from(stockMonitorRules)
-      .where(eq(stockMonitorRules.enabled, true))
-
-    if (enabledRules.length === 0) {
-      console.log('[Cron] No enabled monitor rules found')
-      return NextResponse.json({
-        success: true,
-        message: 'No enabled monitor rules',
-        checked: 0,
-        triggered: 0,
-      })
-    }
-
-    // 4. 获取所有用户的开启监控的股票
-    const monitoredStocks = await db
-      .select({
-        userId: userWatchedStocks.userId,
-        stockId: userWatchedStocks.stockId,
-        tsCode: stocks.tsCode,
-        stockName: stocks.name,
-      })
-      .from(userWatchedStocks)
+      .from(stockMonitorRuleAssociations)
+      .innerJoin(
+        userWatchedStocks,
+        eq(stockMonitorRuleAssociations.watchedStockId, userWatchedStocks.id)
+      )
       .innerJoin(stocks, eq(userWatchedStocks.stockId, stocks.id))
-      .where(eq(userWatchedStocks.monitored, true))
+      .innerJoin(
+        stockMonitorRules,
+        eq(stockMonitorRuleAssociations.ruleId, stockMonitorRules.id)
+      )
+      .where(
+        and(
+          eq(stockMonitorRuleAssociations.enabled, true),
+          eq(userWatchedStocks.monitored, true),
+          eq(stockMonitorRules.enabled, true)
+        )
+      )
 
-    if (monitoredStocks.length === 0) {
-      console.log('[Cron] No monitored stocks found')
+    if (associations.length === 0) {
+      console.log('[Cron] No active stock-rule associations found')
       return NextResponse.json({
         success: true,
-        message: 'No monitored stocks',
+        message: 'No active stock-rule associations',
         checked: 0,
         triggered: 0,
       })
     }
 
-    console.log(`[Cron] Checking ${enabledRules.length} rules x ${monitoredStocks.length} stocks...`)
+    console.log(`[Cron] Checking ${associations.length} stock-rule associations...`)
 
-    // 5. 对每个用户的每只监控股票执行所有规则检查
+    // 4. 对每个关联执行规则检查
     let checkedCount = 0
     let triggeredCount = 0
 
-    for (const stock of monitoredStocks) {
-      // 找到该用户的所有启用规则
-      const userRules = enabledRules.filter((r) => r.userId === stock.userId)
+    for (const assoc of associations) {
+      try {
+        const config = assoc.rule.config as unknown as MonitorRuleConfig
+        const triggerData = await checkRule(
+          assoc.rule.ruleType,
+          assoc.stock.id,
+          config
+        )
 
-      for (const rule of userRules) {
-        try {
-          const config = rule.config as unknown as MonitorRuleConfig
-          const triggerData = await checkRule(rule.ruleType, stock.stockId, config)
+        checkedCount++
 
-          checkedCount++
+        if (triggerData) {
+          // 触发条件满足，创建告警并发送通知
+          const created = await createAlertAndNotify(
+            assoc.userId,
+            assoc.stock.id,
+            assoc.stock.tsCode,
+            assoc.stock.name,
+            assoc.rule.ruleType,
+            triggerData
+          )
 
-          if (triggerData) {
-            // 触发条件满足，创建告警并发送通知
-            const created = await createAlertAndNotify(
-              stock.userId,
-              stock.stockId,
-              stock.tsCode,
-              stock.stockName,
-              rule.ruleType,
-              triggerData
+          if (created) {
+            triggeredCount++
+            console.log(
+              `[Cron] Alert triggered: ${assoc.stock.name} (${assoc.stock.tsCode}) - ` +
+              `Rule: ${assoc.rule.ruleName} (${assoc.rule.ruleType}) - ` +
+              `Data: ${JSON.stringify(triggerData)}`
             )
-
-            if (created) {
-              triggeredCount++
-              console.log(
-                `[Cron] Alert triggered: ${stock.stockName} (${stock.tsCode}) - ${rule.ruleType} - ${JSON.stringify(triggerData)}`
-              )
-            }
           }
-        } catch (error) {
-          console.error(`[Cron] Failed to check rule ${rule.id} for stock ${stock.stockId}:`, error)
         }
+      } catch (error) {
+        console.error(
+          `[Cron] Failed to check rule ${assoc.rule.id} for stock ${assoc.stock.id}:`,
+          error
+        )
       }
     }
 

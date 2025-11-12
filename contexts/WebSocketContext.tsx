@@ -71,7 +71,7 @@ export function WebSocketProvider({ children, token }: WebSocketProviderProps) {
     // 获取WebSocket URL
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const wsHost = process.env.NEXT_PUBLIC_WS_HOST || window.location.hostname
-    const wsPort = process.env.NEXT_PUBLIC_WS_PORT || '3001'
+    const wsPort = process.env.NEXT_PUBLIC_WS_PORT || '3000'
     const wsUrl = `${wsProtocol}//${wsHost}:${wsPort}?token=${encodeURIComponent(token)}`
 
     console.log('[WebSocketProvider] 初始化WebSocket连接:', wsUrl)

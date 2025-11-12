@@ -69,5 +69,28 @@
     "close": "Close",
     "arrangeWindows": "Arrange Windows",
     "resetLayout": "Reset Layout"
+  },
+  "rules": "Rules",
+  "selectRules": "Select Rules",
+  "selectStocks": "Select Stocks",
+  "ruleSelector": {
+    "title": "Select Monitoring Rules",
+    "description": "Select rules to apply to {stock}",
+    "noRules": "No rules available",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveSuccess": "Rules updated",
+    "saveError": "Failed to save"
+  },
+  "stockSelector": {
+    "title": "Select Stocks",
+    "description": "Select stocks to apply this rule",
+    "noStocks": "No monitored stocks",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveSuccess": "Saved successfully",
+    "saveError": "Failed to save"
   }
 }

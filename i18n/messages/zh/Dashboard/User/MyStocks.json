@@ -69,5 +69,28 @@
     "close": "关闭",
     "arrangeWindows": "整理窗口",
     "resetLayout": "重置布局"
+  },
+  "rules": "规则",
+  "selectRules": "选择规则",
+  "selectStocks": "选择股票",
+  "ruleSelector": {
+    "title": "选择监控规则",
+    "description": "为 {stock} 选择要应用的监控规则",
+    "noRules": "暂无可用规则",
+    "save": "保存",
+    "cancel": "取消",
+    "saving": "保存中...",
+    "saveSuccess": "规则已更新",
+    "saveError": "保存失败"
+  },
+  "stockSelector": {
+    "title": "选择监控股票",
+    "description": "为规则选择要应用的股票",
+    "noStocks": "暂无开启监控的股票",
+    "save": "保存",
+    "cancel": "取消",
+    "saving": "保存中...",
+    "saveSuccess": "保存成功",
+    "saveError": "保存失败"
   }
 }

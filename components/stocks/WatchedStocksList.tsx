@@ -1,6 +1,6 @@
 'use client'
 
-import { toggleStockMonitoring } from '@/actions/monitors'
+import { toggleStockMonitoring, getUserMonitorRules, getStockRules } from '@/actions/monitors'
 import { moveStockToGroup, unwatchStock } from '@/actions/stocks'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,11 +17,13 @@ import { useStockSubscription } from '@/hooks/use-stock-subscription'
 import type { userStockGroups as groupsSchema } from '@/lib/db/schema'
 import { calculateGridConfig, calculateWindowPositions } from '@/lib/kline-grid-layout'
 import type { StockWithGroup } from '@/lib/tushare'
-import { Bell, BellOff, FolderInput, LayoutGrid, LineChart, Loader2, MoreVertical, Trash2 } from 'lucide-react'
+import { Bell, BellOff, FolderInput, LayoutGrid, LineChart, Loader2, MoreVertical, Settings, Trash2, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { DraggableKLineDialog } from './DraggableKLineDialog'
+import { StockRuleSelectorDialog } from '@/components/monitors/StockRuleSelectorDialog'
+import { EditPositionDialog } from './EditPositionDialog'
 
 interface WatchedStocksListProps {
   stocks: StockWithGroup[]
@@ -29,6 +31,7 @@ interface WatchedStocksListProps {
   loading: boolean
   onStockRemoved: () => void
   onStockMoved: () => void
+  onMonitoringChange?: () => void
 }
 
 export function WatchedStocksList({
@@ -37,12 +40,22 @@ export function WatchedStocksList({
   loading,
   onStockRemoved,
   onStockMoved,
+  onMonitoringChange,
 }: WatchedStocksListProps) {
   const t = useTranslations('MyStocks')
   const tRealtime = useTranslations('StockRealtime')
+  const tPosition = useTranslations('StockPosition')
   const [removing, setRemoving] = useState<string | null>(null)
   const [moving, setMoving] = useState<string | null>(null)
   const [toggling, setToggling] = useState<string | null>(null)
+
+  // 规则选择相关状态
+  const [allRules, setAllRules] = useState<any[]>([])
+  const [selectedStockForRules, setSelectedStockForRules] = useState<string | null>(null)
+  const [stockRuleCounts, setStockRuleCounts] = useState<Map<string, number>>(new Map())
+
+  // 持仓编辑相关状态
+  const [editingPositionStock, setEditingPositionStock] = useState<string | null>(null)
 
   // K线图弹窗状态
   interface KLineDialogState {
@@ -55,6 +68,38 @@ export function WatchedStocksList({
   // 使用WebSocket订阅股票数据
   const tsCodes = stocks.map((s) => s.tsCode)
   const { quotes: realtimeData, isConnected } = useStockSubscription(tsCodes)
+
+  // 加载规则列表
+  useEffect(() => {
+    loadRules()
+  }, [])
+
+  const loadRules = async () => {
+    const result = await getUserMonitorRules()
+    if (result.success && result.data && 'rules' in result.data) {
+      setAllRules((result.data.rules as any[]) || [])
+    }
+  }
+
+  // 加载每只股票的规则数量
+  useEffect(() => {
+    if (stocks.length > 0) {
+      loadStockRuleCounts()
+    }
+  }, [stocks])
+
+  const loadStockRuleCounts = async () => {
+    const counts = new Map<string, number>()
+    await Promise.all(
+      stocks.map(async (stock) => {
+        const result = await getStockRules(stock.id)
+        if (result.success && result.data && typeof result.data === 'object' && 'associations' in result.data) {
+          counts.set(stock.id, (result.data.associations as any[])?.length || 0)
+        }
+      })
+    )
+    setStockRuleCounts(counts)
+  }
 
   // 格式化数字
   const formatNumber = (num: number, decimals = 2) => {
@@ -362,6 +407,17 @@ export function WatchedStocksList({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* 规则选择按钮 */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedStockForRules(stock.id)}
+                    title={t('selectRules')}
+                  >
+                    <Settings className="h-4 w-4 mr-1" />
+                    {t('rules')} ({stockRuleCounts.get(stock.id) || 0})
+                  </Button>
+
                   {/* K线图按钮 */}
                   <Button
                     variant="ghost"
@@ -439,7 +495,85 @@ export function WatchedStocksList({
               </div>
             </CardHeader>
             <CardContent className="">
-              <div className="space-y-1">
+              <div className="space-y-2">
+                {/* 持仓信息 */}
+                {stock.costPrice && stock.quantity && quote && (
+                  <div className="border rounded-lg overflow-hidden bg-background">
+                    <div className="px-3 py-2 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">{tPosition('positionInfo')}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7"
+                        onClick={() => setEditingPositionStock(stock.id)}
+                      >
+                        {tPosition('editPosition')}
+                      </Button>
+                    </div>
+                    <div className="px-3 pb-2">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 gap-y-1 text-xs">
+                        {(() => {
+                          const costPrice = parseFloat(stock.costPrice)
+                          const quantity = stock.quantity
+                          const currentPrice = quote.currentPrice
+                          const totalCost = costPrice * quantity
+                          const currentValue = currentPrice * quantity
+                          const profitLoss = currentValue - totalCost
+                          const profitLossRatio = (profitLoss / totalCost) * 100
+                          const profitColor = profitLoss >= 0
+                            ? 'text-red-600 dark:text-red-400'
+                            : 'text-green-600 dark:text-green-400'
+
+                          return (
+                            <>
+                              <div className="flex justify-between py-0.5">
+                                <span className="text-muted-foreground">{tPosition('costPrice')}</span>
+                                <span className="font-medium">¥{formatNumber(costPrice)} ({quantity}{tPosition('shares')})</span>
+                              </div>
+                              <div className="flex justify-between py-0.5">
+                                <span className="text-muted-foreground">{tPosition('currentValue')}</span>
+                                <span className="font-medium">¥{formatNumber(currentValue)}</span>
+                              </div>
+                              <div className="flex justify-between py-0.5">
+                                <span className="text-muted-foreground">{tPosition('profitLoss')}</span>
+                                <span className={`font-semibold ${profitColor}`}>
+                                  {profitLoss >= 0 ? '+' : ''}¥{formatNumber(profitLoss)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between py-0.5">
+                                <span className="text-muted-foreground">{tPosition('profitLossRatio')}</span>
+                                <span className={`font-semibold ${profitColor}`}>
+                                  {profitLoss >= 0 ? '+' : ''}{formatNumber(profitLossRatio)}%
+                                </span>
+                              </div>
+                            </>
+                          )
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 添加持仓按钮 - 如果还没有持仓信息 */}
+                {(!stock.costPrice || !stock.quantity) && (
+                  <div className="border rounded-lg overflow-hidden bg-background">
+                    <div className="px-3 py-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => setEditingPositionStock(stock.id)}
+                      >
+                        <Wallet className="h-4 w-4 mr-2" />
+                        {tPosition('addPosition')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* 实时行情详情 */}
                 {quote && (
                   <div className="border rounded-lg overflow-hidden bg-background">
@@ -504,6 +638,42 @@ export function WatchedStocksList({
           />
         )
       })}
+
+      {/* 规则选择对话框 */}
+      {selectedStockForRules && (
+        <StockRuleSelectorDialog
+          open={true}
+          onOpenChange={(open) => !open && setSelectedStockForRules(null)}
+          watchedStockId={selectedStockForRules}
+          stockName={stocks.find((s) => s.id === selectedStockForRules)?.name || ''}
+          stockCode={stocks.find((s) => s.id === selectedStockForRules)?.tsCode || ''}
+          availableRules={allRules}
+          onRulesChanged={() => {
+            loadStockRuleCounts()
+            onMonitoringChange?.()
+          }}
+        />
+      )}
+
+      {/* 持仓编辑对话框 */}
+      {editingPositionStock && (() => {
+        const stock = stocks.find((s) => s.id === editingPositionStock)
+        if (!stock) return null
+        return (
+          <EditPositionDialog
+            open={true}
+            onOpenChange={(open) => !open && setEditingPositionStock(null)}
+            watchedStockId={stock.id}
+            stockName={stock.name}
+            stockCode={stock.symbol}
+            initialCostPrice={stock.costPrice}
+            initialQuantity={stock.quantity}
+            onPositionUpdated={() => {
+              onStockMoved() // 刷新列表
+            }}
+          />
+        )
+      })()}
     </div>
   )
 }

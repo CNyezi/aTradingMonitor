@@ -1,0 +1,20 @@
+{
+  "editPosition": "编辑持仓",
+  "addPosition": "添加持仓信息",
+  "costPrice": "成本价",
+  "quantity": "持股数量",
+  "totalCost": "总成本",
+  "currentValue": "当前市值",
+  "profitLoss": "盈亏",
+  "profitLossRatio": "盈亏比例",
+  "shares": "股",
+  "yuan": "元",
+  "save": "保存",
+  "cancel": "取消",
+  "positionInfo": "持仓信息",
+  "noCostPrice": "未设置成本价",
+  "validationCostPrice": "成本价必须大于0",
+  "validationQuantity": "持股数量必须大于0的整数",
+  "updateSuccess": "持仓信息更新成功",
+  "updateError": "更新持仓信息失败"
+}

@@ -5,7 +5,13 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { stockMonitorRules, stocks, stockAlerts, userWatchedStocks } from '@/lib/db/schema'
+import {
+  stockMonitorRules,
+  stocks,
+  stockAlerts,
+  userWatchedStocks,
+  stockMonitorRuleAssociations
+} from '@/lib/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { actionResponse } from '@/lib/action-response'
 import { headers } from 'next/headers'
@@ -348,5 +354,374 @@ export async function getMonitoredStocks() {
   } catch (error) {
     console.error('[Actions] Failed to get monitored stocks:', error)
     return actionResponse.error('Failed to get monitored stocks')
+  }
+}
+
+/**
+ * 获取股票关联的规则列表
+ */
+export async function getStockRules(watchedStockId: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    // 验证股票所有权
+    const [stock] = await db
+      .select()
+      .from(userWatchedStocks)
+      .where(
+        and(
+          eq(userWatchedStocks.id, watchedStockId),
+          eq(userWatchedStocks.userId, session.user.id)
+        )
+      )
+
+    if (!stock) {
+      return actionResponse.error('Stock not found')
+    }
+
+    // 获取关联的规则
+    const associations = await db
+      .select({
+        associationId: stockMonitorRuleAssociations.id,
+        ruleId: stockMonitorRuleAssociations.ruleId,
+        enabled: stockMonitorRuleAssociations.enabled,
+        rule: stockMonitorRules,
+      })
+      .from(stockMonitorRuleAssociations)
+      .innerJoin(
+        stockMonitorRules,
+        eq(stockMonitorRuleAssociations.ruleId, stockMonitorRules.id)
+      )
+      .where(eq(stockMonitorRuleAssociations.watchedStockId, watchedStockId))
+
+    return actionResponse.success({ associations })
+  } catch (error) {
+    console.error('Failed to get stock rules:', error)
+    return actionResponse.error('Failed to get stock rules')
+  }
+}
+
+/**
+ * 为股票添加规则关联
+ */
+export async function addStockRule(params: {
+  watchedStockId: string
+  ruleId: string
+  enabled?: boolean
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    // 验证股票和规则所有权
+    const [stock] = await db
+      .select()
+      .from(userWatchedStocks)
+      .where(
+        and(
+          eq(userWatchedStocks.id, params.watchedStockId),
+          eq(userWatchedStocks.userId, session.user.id)
+        )
+      )
+
+    const [rule] = await db
+      .select()
+      .from(stockMonitorRules)
+      .where(
+        and(
+          eq(stockMonitorRules.id, params.ruleId),
+          eq(stockMonitorRules.userId, session.user.id)
+        )
+      )
+
+    if (!stock || !rule) {
+      return actionResponse.error('Stock or rule not found')
+    }
+
+    // 创建关联（使用 upsert 避免重复）
+    await db
+      .insert(stockMonitorRuleAssociations)
+      .values({
+        userId: session.user.id,
+        watchedStockId: params.watchedStockId,
+        ruleId: params.ruleId,
+        enabled: params.enabled ?? true,
+      })
+      .onConflictDoUpdate({
+        target: [
+          stockMonitorRuleAssociations.watchedStockId,
+          stockMonitorRuleAssociations.ruleId,
+        ],
+        set: { enabled: params.enabled ?? true },
+      })
+
+    return actionResponse.success({ message: 'Rule association added successfully' })
+  } catch (error) {
+    console.error('Failed to add stock rule:', error)
+    return actionResponse.error('Failed to add stock rule')
+  }
+}
+
+/**
+ * 移除股票的规则关联
+ */
+export async function removeStockRule(params: {
+  watchedStockId: string
+  ruleId: string
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    await db
+      .delete(stockMonitorRuleAssociations)
+      .where(
+        and(
+          eq(stockMonitorRuleAssociations.watchedStockId, params.watchedStockId),
+          eq(stockMonitorRuleAssociations.ruleId, params.ruleId),
+          eq(stockMonitorRuleAssociations.userId, session.user.id)
+        )
+      )
+
+    return actionResponse.success({ message: 'Rule association removed successfully' })
+  } catch (error) {
+    console.error('Failed to remove stock rule:', error)
+    return actionResponse.error('Failed to remove stock rule')
+  }
+}
+
+/**
+ * 批量为股票添加规则
+ */
+export async function bulkAddStockRules(params: {
+  watchedStockIds: string[]
+  ruleIds: string[]
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    // 验证所有股票的所有权
+    const stocks = await db
+      .select()
+      .from(userWatchedStocks)
+      .where(
+        and(
+          eq(userWatchedStocks.userId, session.user.id)
+        )
+      )
+
+    const validStockIds = stocks.map(s => s.id)
+    const stockIdsToAdd = params.watchedStockIds.filter(id => validStockIds.includes(id))
+
+    if (stockIdsToAdd.length === 0) {
+      return actionResponse.error('No valid stocks found')
+    }
+
+    // 验证所有规则的所有权
+    const rules = await db
+      .select()
+      .from(stockMonitorRules)
+      .where(
+        and(
+          eq(stockMonitorRules.userId, session.user.id)
+        )
+      )
+
+    const validRuleIds = rules.map(r => r.id)
+    const ruleIdsToAdd = params.ruleIds.filter(id => validRuleIds.includes(id))
+
+    if (ruleIdsToAdd.length === 0) {
+      return actionResponse.error('No valid rules found')
+    }
+
+    const associations = []
+    for (const stockId of stockIdsToAdd) {
+      for (const ruleId of ruleIdsToAdd) {
+        associations.push({
+          userId: session.user.id,
+          watchedStockId: stockId,
+          ruleId: ruleId,
+          enabled: true,
+        })
+      }
+    }
+
+    await db
+      .insert(stockMonitorRuleAssociations)
+      .values(associations)
+      .onConflictDoUpdate({
+        target: [
+          stockMonitorRuleAssociations.watchedStockId,
+          stockMonitorRuleAssociations.ruleId,
+        ],
+        set: { enabled: true },
+      })
+
+    return actionResponse.success({
+      message: `Successfully added ${associations.length} rule associations`,
+      count: associations.length
+    })
+  } catch (error) {
+    console.error('Failed to bulk add stock rules:', error)
+    return actionResponse.error('Failed to bulk add stock rules')
+  }
+}
+
+/**
+ * 为规则添加股票关联（规则侧操作）
+ */
+export async function addRuleStocks(params: {
+  ruleId: string
+  watchedStockIds: string[]
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    // 验证规则所有权
+    const [rule] = await db
+      .select()
+      .from(stockMonitorRules)
+      .where(
+        and(
+          eq(stockMonitorRules.id, params.ruleId),
+          eq(stockMonitorRules.userId, session.user.id)
+        )
+      )
+
+    if (!rule) {
+      return actionResponse.error('Rule not found')
+    }
+
+    // 验证所有股票的所有权
+    const stocks = await db
+      .select()
+      .from(userWatchedStocks)
+      .where(
+        and(
+          eq(userWatchedStocks.userId, session.user.id)
+        )
+      )
+
+    const validStockIds = stocks.map(s => s.id)
+    const stockIdsToAdd = params.watchedStockIds.filter(id => validStockIds.includes(id))
+
+    if (stockIdsToAdd.length === 0) {
+      return actionResponse.error('No valid stocks found')
+    }
+
+    const associations = stockIdsToAdd.map(stockId => ({
+      userId: session.user.id!,
+      watchedStockId: stockId,
+      ruleId: params.ruleId,
+      enabled: true,
+    }))
+
+    await db
+      .insert(stockMonitorRuleAssociations)
+      .values(associations)
+      .onConflictDoUpdate({
+        target: [
+          stockMonitorRuleAssociations.watchedStockId,
+          stockMonitorRuleAssociations.ruleId,
+        ],
+        set: { enabled: true },
+      })
+
+    return actionResponse.success({
+      message: `Successfully added ${associations.length} stock associations to rule`,
+      count: associations.length
+    })
+  } catch (error) {
+    console.error('Failed to add rule stocks:', error)
+    return actionResponse.error('Failed to add rule stocks')
+  }
+}
+
+/**
+ * 获取规则关联的股票列表
+ */
+export async function getRuleStocks(ruleId: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    const associations = await db
+      .select({
+        associationId: stockMonitorRuleAssociations.id,
+        watchedStockId: stockMonitorRuleAssociations.watchedStockId,
+        enabled: stockMonitorRuleAssociations.enabled,
+        stock: {
+          id: userWatchedStocks.id,
+          monitored: userWatchedStocks.monitored,
+          stockId: userWatchedStocks.stockId,
+        },
+        stockInfo: stocks,
+      })
+      .from(stockMonitorRuleAssociations)
+      .innerJoin(
+        userWatchedStocks,
+        eq(stockMonitorRuleAssociations.watchedStockId, userWatchedStocks.id)
+      )
+      .innerJoin(stocks, eq(userWatchedStocks.stockId, stocks.id))
+      .where(
+        and(
+          eq(stockMonitorRuleAssociations.ruleId, ruleId),
+          eq(stockMonitorRuleAssociations.userId, session.user.id)
+        )
+      )
+
+    return actionResponse.success({ associations })
+  } catch (error) {
+    console.error('Failed to get rule stocks:', error)
+    return actionResponse.error('Failed to get rule stocks')
+  }
+}
+
+/**
+ * 切换股票规则关联的启用状态
+ */
+export async function toggleStockRuleEnabled(params: {
+  watchedStockId: string
+  ruleId: string
+  enabled: boolean
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user?.id) {
+    return actionResponse.unauthorized()
+  }
+
+  try {
+    await db
+      .update(stockMonitorRuleAssociations)
+      .set({ enabled: params.enabled })
+      .where(
+        and(
+          eq(stockMonitorRuleAssociations.watchedStockId, params.watchedStockId),
+          eq(stockMonitorRuleAssociations.ruleId, params.ruleId),
+          eq(stockMonitorRuleAssociations.userId, session.user.id)
+        )
+      )
+
+    return actionResponse.success({
+      message: `Rule association ${params.enabled ? 'enabled' : 'disabled'} successfully`
+    })
+  } catch (error) {
+    console.error('Failed to toggle stock rule enabled:', error)
+    return actionResponse.error('Failed to toggle stock rule enabled')
   }
 }

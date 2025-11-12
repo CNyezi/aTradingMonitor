@@ -77,6 +77,10 @@ export function checkRealtimePriceChange(
  * 检查成交量异动监控
  * 使用 TimeWindowManager 计算增量和平均值
  * 支持状态转换: 超过倍数打开告警,回落到阈值95%以下关闭告警
+ *
+ * ✨ 新增：支持量价组合条件
+ * - 如果配置了 priceChangeThreshold，会同时检查涨跌幅
+ * - 如果配置了 priceDirection，会检查价格方向（'up' 上涨 | 'down' 下跌）
  */
 export function checkRealtimeVolumeSpike(
   quote: RealtimeQuote,
@@ -110,13 +114,22 @@ export function checkRealtimeVolumeSpike(
   }
 
   const volumeRatio = currentIncrement / avgIncrement
+  const changePercent = parseFloat(String(quote.changePercent || 0))
+  const absChangePercent = Math.abs(changePercent)
 
   // 如果当前有活跃告警,检查是否应该关闭
   if (currentAlertState && currentAlertState.status !== 'CLOSED') {
     // 关闭条件: 成交量比率回落到倍数的95%以下
     const closeThreshold = multiplier * 0.95
 
-    if (volumeRatio < closeThreshold) {
+    // ✨ 量价组合：如果配置了价格阈值，同时检查价格条件
+    let shouldCloseByPrice = false
+    if (config.priceChangeThreshold) {
+      const priceCloseThreshold = config.priceChangeThreshold * 0.95
+      shouldCloseByPrice = absChangePercent < priceCloseThreshold
+    }
+
+    if (volumeRatio < closeThreshold || shouldCloseByPrice) {
       return {
         shouldOpen: false,
         shouldClose: true,
@@ -132,12 +145,49 @@ export function checkRealtimeVolumeSpike(
 
   // 如果没有活跃告警,检查是否应该打开
   if (volumeRatio >= multiplier) {
+    // ✨ 量价组合条件检查
+    // 1. 检查价格阈值
+    if (config.priceChangeThreshold && absChangePercent < config.priceChangeThreshold) {
+      // 成交量满足但价格不满足，不触发
+      return {
+        shouldOpen: false,
+        shouldClose: false,
+      }
+    }
+
+    // 2. 检查价格方向
+    if (config.priceDirection) {
+      if (config.priceDirection === 'up' && changePercent <= 0) {
+        // 要求上涨但实际下跌，不触发
+        return {
+          shouldOpen: false,
+          shouldClose: false,
+        }
+      }
+      if (config.priceDirection === 'down' && changePercent >= 0) {
+        // 要求下跌但实际上涨，不触发
+        return {
+          shouldOpen: false,
+          shouldClose: false,
+        }
+      }
+    }
+
+    // 构建告警消息
+    let message = `${quote.tsCode} 成交量激增 ${volumeRatio.toFixed(2)}倍 (${volumePeriod}分钟均值)`
+
+    // ✨ 如果是量价组合，在消息中体现
+    if (config.priceChangeThreshold) {
+      const direction = changePercent > 0 ? '上涨' : '下跌'
+      message = `${quote.tsCode} 量价齐${direction === '上涨' ? '升' : '跌'}：${direction} ${absChangePercent.toFixed(2)}% + 成交量 ${volumeRatio.toFixed(2)}倍`
+    }
+
     const alertData: RealtimeAlertData = {
       stockCode: quote.tsCode,
       alertType: 'volume_spike',
-      message: `${quote.tsCode} 成交量激增 ${volumeRatio.toFixed(2)}倍 (${volumePeriod}分钟均值)`,
+      message,
       currentPrice: quote.currentPrice,
-      changePercent: parseFloat(String(quote.changePercent || 0)),
+      changePercent,
       triggerTime: new Date(),
       triggerData: {
         currentIncrement,
@@ -145,6 +195,11 @@ export function checkRealtimeVolumeSpike(
         volumeRatio,
         multiplier,
         volumePeriod,
+        // ✨ 记录价格条件（如果有）
+        ...(config.priceChangeThreshold && {
+          priceChangeThreshold: config.priceChangeThreshold,
+          actualChangePercent: absChangePercent,
+        }),
       },
     }
 

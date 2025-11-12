@@ -23,7 +23,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "deleting": "Deleting...",
-    "loadError": "Failed to load rules"
+    "loadError": "Failed to load rules",
+    "selectStocks": "Select Stocks"
   },
   "ruleTypes": {
     "priceChange": "Daily Price Change Monitor",

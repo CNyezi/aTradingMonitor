@@ -71,6 +71,8 @@ export async function getWatchedStocks(
         groupName: groupsSchema.name,
         monitored: watchedStocksSchema.monitored,
         addedAt: watchedStocksSchema.addedAt,
+        costPrice: watchedStocksSchema.costPrice,
+        quantity: watchedStocksSchema.quantity,
       })
       .from(watchedStocksSchema)
       .innerJoin(stocksSchema, eq(watchedStocksSchema.stockId, stocksSchema.id))

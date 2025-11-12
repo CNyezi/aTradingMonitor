@@ -4,8 +4,8 @@ export type { FetchAllStocksResult } from './fetch-all-stocks'
 export { searchStocks } from './search-stocks'
 export type { SearchStocksResult } from './search-stocks'
 
-export { unwatchStock, watchStock } from './watch-stock'
-export type { UnwatchStockResult, WatchStockResult } from './watch-stock'
+export { unwatchStock, watchStock, updateStockPosition } from './watch-stock'
+export type { UnwatchStockResult, WatchStockResult, UpdatePositionResult } from './watch-stock'
 
 export {
   createStockGroup, deleteStockGroup, getUserStockGroups, moveStockToGroup, updateStockGroup
